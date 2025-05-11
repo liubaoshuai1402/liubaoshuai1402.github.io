@@ -1,0 +1,38 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main # 触发条件, 在 push 到 main 分支后
+  workflow_dispatch: # 触发条件, 在 Github 仓库 Action 工具手动调用
+
+jobs: # 任务
+  build-and-deploy:
+    runs-on: ubuntu-latest # 指定虚拟机环境为 Ubuntu 新版
+    steps:
+      - name: Checkout # 拉取代码
+        uses: actions/checkout@v2 # 使用其他用户配置
+        with:
+          submodules: true # 包含子模块,也就是链接的主题
+          fetch-depth: 0
+
+      - name: Setup Hugo # 安装 Hugo
+        uses: peaceiris/actions-hugo@v2 # 使用其他用户配置
+        with:
+          hugo-version: latest # Hugo 版本选择
+          extended: true
+
+      - name: Build Hugo # 生成博客静态文件
+        run: hugo --minify
+
+      - name: Deploy GhPages # 部署到 Github Pages
+        uses: peaceiris/actions-gh-pages@v3 # 使用其他用户配置
+        with:
+          personal_token: ${{ secrets.PERSONAL_TOKEN }} # Personal Token
+          external_repository: liubaoshuai1402/liubaoshuai1402.github.io # Github Pages 仓库名, username 换成你的
+          publish_branch: main
+          publish_dir: ./public
+          commit_message: ${{ github.event.head_commit.message }}
+          force_orphan: true          # 强制清空目标分支历史（可选）
+
+

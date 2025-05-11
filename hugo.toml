@@ -1,0 +1,4 @@
+baseURL = 'https://liubaoshuai1402.github.io/'
+languageCode = 'en-us'
+title = 'BOGHTW'
+theme = 'ananke'

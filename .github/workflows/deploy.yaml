@@ -30,7 +30,7 @@ jobs: # 任务
         with:
           personal_token: ${{ secrets.PERSONAL_TOKEN }} # Personal Token
           external_repository: liubaoshuai1402/liubaoshuai1402.github.io # Github Pages 仓库名, username 换成你的
-          publish_branch: main
+          publish_branch: public
           publish_dir: ./public
           commit_message: ${{ github.event.head_commit.message }}
           force_orphan: true          # 强制清空目标分支历史（可选）

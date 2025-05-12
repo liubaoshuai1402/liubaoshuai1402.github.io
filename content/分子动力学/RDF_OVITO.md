@@ -147,7 +147,7 @@ pipeline = import_file("ZrO.cif")
 
 再然后是调用 **Pipeline** 类的 **compute()** 方法，得到一个非常重要的 **DataCollection** 类的实例。
 
-再访问这个 **DataCollection** 实例的 **tables** 属性就得到一个**DataTable** 类的实例（在**DataCollection** 类的定义中，用 **@property** 的 装饰器语法将 **tables()** 方法转化为了 **tables** 属性，所以与 **compute()** 方法相比，不需要**()** ）
+再访问这个 **DataCollection** 实例的 **tables** 属性就得到一个**DataTable** 类的实例（在**DataCollection** 类的定义中，用 **@property** 的 装饰器语法将 **tables()** 方法转化为了 **tables** 属性，所以与 **compute()** 方法相比，不需要 **()** 了）
 
 **DataTable** 类用于储存绘制直方和2d图的数据，当我们添加 **CoordinationAnalysisModifier** 修饰器后，经过 **compute()** 方法后，相应的 partial RDFs 数据就会被储存在这里，可以通过名为 `'coordination-rdf'` 的 键(key) 来检索。
 
@@ -167,7 +167,7 @@ rdf_names = rdf_table.y.component_names
 
 原本 **compute()** 方法只能用于单个结构，对于 trajectories 需要指定是哪个结构。
 
-但添加 **TimeAveragingModifier** 修饰器后，允许我们计算时间相关量的平均值。（https://docs.ovito.org/python/modules/ovito_modifiers.html#ovito.modifiers.TimeAveragingModifier）
+但添加 **TimeAveragingModifier** 修饰器后，允许我们计算时间相关量的平均值。详见：https://docs.ovito.org/python/modules/ovito_modifiers.html#ovito.modifiers.TimeAveragingModifier
 
 
 

@@ -1,0 +1,93 @@
+{{ partial "header.html" . }}
+
+<div class="article-meta">
+    <h1><span class="article-meta-title">{{ .Title | markdownify }}</span></h1>
+
+    <div class="article-meta-info">
+        {{ $metaParts := slice }}
+
+        {{/* 作者 */}}
+        {{ if .Params.author }}
+        {{ $metaParts = $metaParts | append (printf `🕺🏻 %s` (.Params.author)) }}
+        {{ end }}
+
+        {{/* 日期 */}}
+        {{ if .Date }}
+        {{ $metaParts = $metaParts | append (printf `🗓️ %s` (.Date.Format "2006-01-02")) }}
+        {{ end }}
+
+        {{/* 系列 */}}
+        {{ with .Params.series }}
+        {{ $links := slice }}
+        {{ range . }}
+        {{ $url := printf "/series/%s/" (. | urlize) | relLangURL }}
+        {{ $links = $links | append (printf `<a href="%s">%s</a>` $url .) }}
+        {{ end }}
+        {{ $metaParts = $metaParts | append (printf `🎖️ %s` (delimit $links ", ")) }}
+        {{ end }}
+
+        {{/* 分类 */}}
+        {{ with .Params.categories }}
+        {{ $links := slice }}
+        {{ range . }}
+        {{ $url := printf "/categories/%s/" (. | urlize) | relLangURL }}
+        {{ $links = $links | append (printf `<a href="%s">%s</a>` $url .) }}
+        {{ end }}
+        {{ $metaParts = $metaParts | append (printf `🗂️ %s` (delimit $links ", ")) }}
+        {{ end }}
+
+        {{/* 标签 */}}
+        {{ with .Params.tags }}
+        {{ $links := slice }}
+        {{ range . }}
+        {{ $url := printf "/tags/%s/" (. | urlize) | relLangURL }}
+        {{ $links = $links | append (printf `<a href="%s">#%s</a>` $url .) }}
+        {{ end }}
+        {{ $metaParts = $metaParts | append (printf `🏷️ %s` (delimit $links " ")) }}
+        {{ end }}
+
+        {{ delimit $metaParts " " | safeHTML }}
+    </div>
+</div>
+
+<main>
+
+    {{ partial "toc.html" . }}
+
+    <!-- {{ .Content }} -->
+    <!-- 过滤掉一级标题（因为已经在页面meta-info中显示了） -->
+    {{ $content := .Content | replaceRE "(?s)<h1.*?< /h1>" "" }}
+        {{ $content | safeHTML }}
+</main>
+
+<style>
+/* 文章元信息块 */
+.article-meta {
+    text-align: center;
+    text-decoration: none;
+    background: #efefef;
+    padding: 1px;
+    border-radius: 5px;
+}
+
+.article-meta-title {
+    font-size: 1em;
+}
+
+.article-meta-info {
+    color: #666;
+    font-size: 0.9rem;
+    margin: -0.6rem 0 0.2rem 10px;
+    text-align: left;
+}
+
+.article-meta-info a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+</style>
+
+{{ partial "comment.html" . }}
+
+{{ partial "footer.html" . }}

@@ -1,0 +1,83 @@
+baseurl: "https://liubaoshuai1402.github.io/"
+languageCode: "zh-cn"
+title: "BOGHTW"
+theme: ["ksimple"]
+metaDataFormat: "yaml"
+googleAnalytics: ""
+disqusShortname: ""
+ignoreFiles: ["_cache$"]
+footnotereturnlinkcontents: "↩"
+enableEmoji: true
+
+params:
+  description: "Black Obsidian Grandma Heals the World!"
+  footer: "&copy; [xiaoxiaobuaigugujiao](https://liubaoshuai1402.github.io/) 2025 -- {Year} | 🎨[KSimple](https://github.com/captainwc/captainwc.github.io/tree/main/themes/ksimple)"
+  favicon: "/images/favicon.png"
+  githubUserName: "liubaoshuai1402"
+
+permalinks:
+  note: "/note/:year/:month/:day/:slug/"
+  post: "/post/:year/:month/:day/:slug/"
+
+taxonomies:
+  categories: categories
+  tags: tags
+  series: series
+  archives: archives
+
+menu:
+  main:
+    - name: 主页
+      url: ""
+      weight: 1
+    - name: 专栏
+      url: "series/"
+      weight: 2
+    - name: 分类
+      url: "categories/"
+      weight: 3
+    - name: 标签
+      url: "tags/"
+      weight: 4
+    - name: 归档
+      url: "archives/"
+      weight: 5
+    - name: 搜索
+      url: "search/"
+      weight: 6
+    - name: 关于
+      url: "about/"
+      weight: 10
+
+markup:
+  highlight:
+    codeFences: false
+  goldmark:
+    parser:
+      attribute:
+        block: true
+    renderer:
+      unsafe: true
+    extensions:
+      strikethrough: false
+      extras:
+        mark:
+          enable: true
+        insert:
+          enable: false
+        delete:
+          enable: true
+        subscript:
+          enable: true
+        superscript:
+          enable: true
+      typographer:
+        enable: false # 禁用自动符号转换，防止干扰公式
+      passthrough:
+        enable: true
+        delimiters:
+          block:
+            - ["\\[", "\\]"] # 块级公式 \[...\]
+            - ["$$", "$$"] # 块级公式 $$...$$
+          inline:
+            - ["\\(", "\\)"] # 行内公式 \(...\)

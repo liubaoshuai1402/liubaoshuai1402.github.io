@@ -1,0 +1,183 @@
+<script>
+    const langToNerdFontMap = {
+        asm: '\ue6ab',
+        bash: '\ue760',
+        bazel: '\ue63a',
+        c: '\ue61e',
+        cmake: '\ue794',
+        cmd: '\uebc4',
+        cpp: '\ue61d',
+        'c++': '\ue61d',
+        csharp: '\ue7b2',
+        css: '\ue749',
+        diff: '\ueae1',
+        dockerfile: '\uf21f',
+        go: '\udb81\udfd3',
+        gradle: '\ue7f2',
+        html: '\ue736',
+        java: '\uedaf',
+        javascript: '\ue781',
+        json: '\ueb0f',
+        latex: '\ue81f',
+        llvm: '\ue823',
+        lua: '\ue826',
+        makefile: '\ue673',
+        markdown: '\uf48a',
+        maven: '\ue82c',
+        plaintext: '\udb80\udd4d',
+        plantuml: '\ue8cb',
+        powershell: '\ue86c',
+        python: '\ued1b',
+        rust: '\udb85\ude17',
+        shell: '\ue760',
+        sql: '\udb82\udc66',
+        text: '\udb80\udd4d',
+        toml: '\ue6b2',
+        txt: '\udb80\udd4d',
+        typescript: '\ue8ca',
+        uml: '\ue8cb',
+        vim: '\ue7c5',
+        wasm: '\ue8e0',
+        xml: '\ue8ea',
+        yaml: '\ue8eb',
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('pre > code').forEach(codeBlock => {
+            const parentElement = codeBlock.parentElement;
+
+            // 创建工具条容器
+            const tools = document.createElement('div');
+            tools.className = 'code-tools';
+
+            // 折叠按钮
+            const foldBtn = document.createElement('button');
+            foldBtn.className = 'fold-btn';
+            foldBtn.innerHTML = '\uf48c';
+            foldBtn.style.display = 'none';
+
+            // 语言标签
+            const langLabel = document.createElement('div');
+            langLabel.className = 'lang-label';
+            const lang = [...codeBlock.classList].find(c => c.startsWith('language-'))?.split('-')[1] || 'text';
+            const icon = langToNerdFontMap[lang.toLowerCase()];
+            langLabel.textContent = icon || lang.toUpperCase();
+            if (!icon) langLabel.style.fontSize = '0.8rem';
+
+            // 复制按钮
+            const copyBtn = document.createElement('button');
+            copyBtn.className = 'copy-btn';
+            copyBtn.textContent = '\uf4bb COPY';
+
+            // 高度检测
+            const scale_height = 500;       // 临界的可折叠高度
+            const collapsed_height = 300;   // 折叠后的高度
+            const checkHeight = () => {
+                const originalDisplay = parentElement.style.display;
+                parentElement.style.display = 'block';
+                const fullHeight = parentElement.scrollHeight;
+                parentElement.style.display = originalDisplay;
+                return fullHeight > scale_height;
+            };
+
+            // 折叠功能
+            if (checkHeight()) {
+                foldBtn.style.display = 'flex';
+                parentElement.dataset.fullHeight = `${parentElement.scrollHeight}px`;
+
+                // 默认自动折叠
+                parentElement.classList.add('collapsed');
+                parentElement.style.maxHeight = `${collapsed_height}px`;
+                foldBtn.innerHTML = '\uf4d9';
+
+                parentElement.style.overflowY = 'auto'; // 支持纵向滚动
+
+                foldBtn.addEventListener('click', () => {
+                    const isCollapsed = parentElement.classList.toggle('collapsed');
+                    foldBtn.innerHTML = isCollapsed ? '\uf4d9' : '\uf48c';
+
+                    if (isCollapsed) {
+                        parentElement.style.maxHeight = `${collapsed_height}px`;
+                        parentElement.style.overflowX = 'auto';
+                    } else {
+                        parentElement.style.maxHeight = 'none';
+                        void parentElement.offsetHeight;
+                        parentElement.dataset.fullHeight = `${parentElement.scrollHeight}px`;
+                    }
+                });
+            }
+
+            // 复制功能
+            copyBtn.addEventListener('click', async () => {
+                try {
+                    await navigator.clipboard.writeText(codeBlock.textContent);
+                    copyBtn.textContent = '\uf00c COPIED!';
+                    setTimeout(() => copyBtn.textContent = '\uf4bb COPY', 2000);
+                } catch (err) {
+                    console.error('复制失败:', err);
+                }
+            });
+
+            // 组装元素
+            tools.append(langLabel, foldBtn, copyBtn);
+            parentElement.prepend(tools);
+        });
+    });
+</script>
+
+<style>
+/* 代码块复制按钮部分 */
+.code-tools {
+    position: absolute;
+    right: 10px;
+    top: 20px;
+    display: flex;
+    align-items: center;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.2s ease;
+    pointer-events: none;
+    font-family: "Maple Mono NF CN";
+}
+
+.fold-btn {
+    cursor: pointer;
+    border: none;
+    color: #666;
+    background: none;
+    font-family: "Maple Mono NF CN";
+    font-size: 0.9rem;
+    line-height: 1.2;
+    margin: 0 0 0 0.45rem;
+    transition: all 0.2s ease;
+}
+
+/* 代码框语言标签 */
+.lang-label {
+    /*    border-radius: 3px;*/
+    color: #666;
+    font-size: 1.2rem;
+    line-height: 1.2;
+}
+
+/* 代码复制按钮 */
+.copy-btn {
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 0 0.3rem;
+    margin: 0 0 0 0.6rem;
+    color: #333;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    font-size: 0.6rem;
+    line-height: 1.8;
+    cursor: pointer;
+    font-family: "Maple Mono NF CN";
+}
+
+/* 悬浮时显示 */
+pre:hover .code-tools {
+    opacity: 1;
+    pointer-events: auto;
+}
+</style>

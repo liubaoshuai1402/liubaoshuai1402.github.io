@@ -1,0 +1,213 @@
+
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title> | BOGHTW</title>
+    <link rel="icon" href= /images/favicon.png />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/">主页</a></li>
+      
+      <li><a href="/series/">专栏</a></li>
+      
+      <li><a href="/categories/">分类</a></li>
+      
+      <li><a href="/tags/">标签</a></li>
+      
+      <li><a href="/archives/">归档</a></li>
+      
+      <li><a href="/search/">搜索</a></li>
+      
+      <li><a href="/about/">关于</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<p style="margin: 1.8rem 0 -1rem 0; color: #191919;">可以根据标题、分类、标签、系列等条目检索本站文章</p>
+
+<div class="search-container">
+  <input type="text" id="search-input" placeholder="输入关键词搜索..." aria-label="搜索框" autocomplete="off">
+  <div id="search-debug" style="margin-bottom: 10px; color: #999;"></div>
+  <div id="search-results"></div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
+
+
+<script>
+  
+  function debug(text) {
+    document.getElementById('search-debug').textContent = text;
+  }
+
+  
+  let searchIndex = [];
+
+  
+  
+  
+    
+  
+
+  debug("索引初始化中...");
+
+  
+    searchIndex.push({
+      title: "\"径向分布函数（RDF）-OVITO\"",
+      permalink: "\"/%E5%88%86%E5%AD%90%E5%8A%A8%E5%8A%9B%E5%AD%A6/rdf_ovito/\"",
+      content: "\"径向分布函数（RDF）计算 by OVITO 前言 OVITO Python Reference — OVITO Python Reference 3.12.3 documentation 是一个开源且功能强大的分子动力学后处理软件包。\\n本文将介绍如何利用 OVITO python module 计算单个结构以及一段轨迹（多个结构）内的径向分布函数。\\n适用于无机非晶体，其他体系慎用。\\n软件：OVITO、matplotlib、numpy\\n注意：本文仅供学习交流，欢迎指出错误或分享新实现。无能力提供任何指导，求教者切勿留言。\\nThe partial RDFs of a single crystal structure 代码展示 #这段代码用于计算 RDF by OVITO from ovito.io import import_file from ovito.modifiers import CoordinationAnalysisModifier import numpy as np #导入一个氧化锆（ZrO2）的cif文件，所有OVITO支持的输入文件格式都可以（确保这个.py文件的路径下有这样一个cif文件，也可以稍微修改指定结构路径） pipeline = import_file(\\u0026quot;ZrO.cif\\u0026quot;) #施加一个名叫 CoordinationAnalysisModifier 的修饰器，cutoff用于控制截断半径，number_of_bins用于控制网格细分度（大小100-1000内都可以试试） pipeline.modifiers.append(CoordinationAnalysisModifier(cutoff = 5.0, number_of_bins = 500,partial=True)) #进行计算 rdf_table = pipeline.compute().tables['coordination-rdf'] #得到用于画图的横纵坐标，默认第一列是x轴数据，其余列是y轴数据 total_rdf = rdf_table.xy() #记录total_rdf中y轴数据对应是什么类型的pair-wise #这个例子中，输出为： #g(r) for pair-wise type combination O-O: #g(r) for pair-wise type combination O-Zr: #g(r) for pair-wise type combination Zr-Zr: #说明total_rdf是一个四列的数据，第一列是x轴坐标（其实是bin），第二列就是不同pair-wise的RDF数据 rdf_names = rdf_table.y.component_names for component, name in enumerate(rdf_names): print(\\u0026quot;g(r) for pair-wise type combination %s:\\u0026quot; % name) #将total_rdf保存为txt文件，用于后续画图 np.savetxt(\\u0026quot;total_rdf.txt\\u0026quot;, total_rdf) #这段代码用于绘图 import numpy as np import matplotlib.pyplot as plt rdf_table = np.loadtxt('total_rdf.txt') #g(r) for pair-wise type combination O-O: #g(r) for pair-wise type combination O-Zr: #g(r) for pair-wise type combination Zr-Zr: #这里取的是 total_rdf.txt 中的第一列（对应[:,0]）和第三列（对应[:,2]），所以绘制的是 Zr-O pair-wise的partial RDF plt.plot(rdf_table[:,0], rdf_table[:,2]) #matplotlib的常规设置，问问万能的小迪老师吧 title_font = {'fontsize': 24, 'fontfamily': 'Times New Roman'} xlabel_font = {'fontsize': 22, 'fontfamily': 'Times New Roman'} ylabel_font = {'fontsize': 22, 'fontfamily': 'Times New Roman'} plt.title(\\u0026quot;RDF Zr-O\\u0026quot;, fontdict=title_font,pad=8) plt.xlabel(xlabel='distance r',fontdict=xlabel_font,loc='center',labelpad=8) plt.ylabel(ylabel='g(r)',fontdict=ylabel_font,loc='center',labelpad=8) plt.tick_params(axis='both', which='major', labelsize=16, direction='in') ax = plt.subplot() #因为只有一个静态结构，pair-wise的某些峰很高，所以这里的y轴坐标上限设置大一些，为200，可灵活改变 ax.set_ylim(0,200) plt.xlim(0,6) fig = plt.gcf() fig.set_size_inches(1200/100, 800/100) plt.savefig('output.png', dpi=100) plt.show() 结果展示 The partial RDFs of trajectories 代码展示 #这段代码用于计算一定时间内（一段轨迹）的平均 RDFs from ovito.io import import_file from ovito.modifiers import CoordinationAnalysisModifier,TimeAveragingModifier import numpy as np #读入轨迹文件，这里是利用 VASP 进行 AIMD 后得到的 XDATCAR 文件 pipeline = import_file(\\u0026quot;XDATCAR\\u0026quot;) #打印轨迹中的结构数 print(\\u0026quot;Number of MD frames:\\u0026quot;, pipeline.num_frames) #添加修饰器，与单个晶体结构相比，多了 TimeAveragingModifier 修饰器 pipeline.modifiers.append(CoordinationAnalysisModifier(cutoff = 5.0, number_of_bins = 500,partial=True)) pipeline.modifiers.append(TimeAveragingModifier(operate_on='table:coordination-rdf')) #计算 RDFs 数据 total_rdf = pipeline.compute().tables['coordination-rdf[average]'].xy() #记录pair-wise类型 rdf_names = pipeline.compute().tables['coordination-rdf[average]'].y.component_names for name in rdf_names: print(\\u0026quot;g(r) for pair-wise type combination %s:\\u0026quot; % name) #输出数据，用于后续绘图，不再重复 np.savetxt('rdf.txt', total_rdf, delimiter='\\\\t') OVITO小知识 References \"",
+      categories: "[\"分子动力学\"]",
+      tags: [],
+      series: "[\"OVITO\"]",
+      date: "\"2025-05-12\""
+    });
+  
+
+  debug("当前本站共有 " + searchIndex.length + " 篇文章");
+  console.log("搜索索引:", searchIndex);
+
+  
+  const options = {
+    includeScore: true,
+    threshold: 0.6, 
+    keys: [
+      { name: 'title', weight: 0.7 },
+      { name: 'content', weight: 0.3 },
+      { name: 'tags', weight: 0.5 },
+      { name: 'categories', weight: 0.5 },
+      { name: 'series', weight: 0.5 }
+    ]
+  };
+
+  
+  const fuse = new Fuse(searchIndex, options);
+
+  document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+      document.getElementById('search-input').value = "";
+      var res = document.getElementById('search-results');
+      while (res.firstChild) {
+        res.removeChild(res.firstChild);
+      }
+      debug("当前本站共有 " + searchIndex.length + " 篇文章");
+      document.getElementById('search-input').focus();
+    }
+  });
+
+  
+  document.getElementById('search-input').addEventListener('input', function(e) {
+    const searchTerm = e.target.value.trim();
+    const resultsContainer = document.getElementById('search-results');
+
+    
+    resultsContainer.innerHTML = '';
+
+    if (searchTerm === '') {
+        debug("当前本站共有 " + searchIndex.length + " 篇文章");
+      return;
+    }
+
+    debug("搜索词: '" + searchTerm + "'");
+
+    
+    const results = fuse.search(searchTerm);
+    debug("找到 " + results.length + " 条结果");
+    console.log("搜索结果:", results);
+
+    if (results.length === 0) {
+      resultsContainer.innerHTML = '<p>没有找到相关文章</p>';
+      return;
+    }
+
+    results.forEach(result => {
+      const item = result.item;
+      const resultItem = document.createElement('div');
+      resultItem.className = 'search-result-item';
+
+      const date = document.createElement('span');
+      date.textContent = item.date.replace(/^"|"$/g, '') + '   ';
+      date.className = 'search-result-date';
+
+      const link = document.createElement('a');
+      link.href = item.permalink.replace(/^"|"$/g, '');
+      link.textContent = item.title.replace(/^"|"$/g, '');
+      link.className = 'search-result-title';
+
+      resultItem.appendChild(date);
+      resultItem.appendChild(link);
+      resultsContainer.appendChild(resultItem);
+    });
+  });
+</script>
+
+<style>
+ 
+.search-container {
+    margin: 2rem 0;
+    text-align: left;
+}
+
+#search-input {
+    width: 100%;
+    padding: 0.8rem;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+.search-results-list {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0;
+}
+
+.search-result-item {
+    padding: 0.7rem;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    align-items: center;
+}
+
+.search-result-date {
+    color: #666;
+    font-size: 0.9rem;
+    margin-right: 0.5rem;
+    text-wrap: nowrap;
+}
+
+.search-result-title {
+    font-weight: bold;
+    color: #1a73e8;
+    text-decoration: none;
+}
+
+.search-result-title:hover {
+    text-decoration: underline;
+}
+</style>
+
+<footer>
+  
+  <hr />
+  © 
+<a href="https://liubaoshuai1402.github.io/"  target="_blank" rel="noopener noreferrer" >xiaoxiaobuaigugujiao</a>
+ 2025 &ndash; 2025 | 🎨
+<a href="https://github.com/captainwc/captainwc.github.io/tree/main/themes/ksimple"  target="_blank" rel="noopener noreferrer" >KSimple</a>
+  
+
+</footer>
+</body>
+
+</html>

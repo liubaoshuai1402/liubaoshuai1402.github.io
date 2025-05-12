@@ -1,0 +1,39 @@
+<footer>
+  <!-- 默认直接渲染公式文本 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/captainwc/cdn-release/website/js/auto-render.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/captainwc/cdn-release/website/js/math-code.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/captainwc/cdn-release/website/js/render-katex.min.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/gh/captainwc/cdn-release/website/js/center-img.min.js"></script>
+  
+  {{ partial "menu_btn.html" . }}
+
+  {{ partial "todolist.html" . }}
+  
+  {{ partial "code_highlight.html" . }}
+  
+  {{ partial "code_copy_btn.html" . }}
+
+  {{ partial "diagram_render_utils.html" . }}
+  {{ partial "plantuml_render.html" . }}
+  {{ partial "mermaid_render.html" . }}
+  {{ partial "markmap_render.html" . }}
+  {{ partial "kroki_graph_render.html" . }}
+
+  {{ partial "foot_custom.html" . }}
+
+  {{ partial "search_modal.html" . }}
+
+  {{ partial "note_down.html" . }}
+
+  {{ with .Site.Params.footer }}
+  <hr />
+  {{ replace . "{Year}" now.Year | markdownify }}
+  {{ end }}
+
+</footer>
+</body>
+
+</html>

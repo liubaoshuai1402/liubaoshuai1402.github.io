@@ -1,0 +1,176 @@
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 找到所有可能的任务列表
+    document.querySelectorAll('ul').forEach(ul => {
+      // 检测是否是任务列表
+      const isTodoList = Array.from(ul.children).some(li => {
+        return li.innerHTML.includes('type="checkbox"')
+      });
+
+      if (isTodoList) {
+        // 创建todolist
+        const todolistContainer = document.createElement('div');
+        todolistContainer.className = 'todolist';
+
+        // 添加进度条
+        addTaskProgressBar(ul, todolistContainer);
+
+        // 转换每个列表项
+        ul.querySelectorAll('li').forEach(li => {
+          const todoItemDiv = document.createElement('div');
+          todoItemDiv.className = 'todo-item';
+
+          // 提取 checkbox 状态
+          const isChecked = li.innerHTML.includes('checked');
+          const content = li.innerHTML
+            .replace(/<input[^>]+>/g, '') // 移除原生的 input
+            .trim();
+
+          // 定义图标
+          const checkedIcon = `<svg t="1742522457277" class="todo-item-checked-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="12342"><path d="M512 938.688A426.624 426.624 0 1 1 512 85.376a426.624 426.624 0 0 1 0 853.312z m0-85.312A341.312 341.312 0 1 0 512 170.688a341.312 341.312 0 0 0 0 682.688z m-42.56-170.688L288.448 501.632l60.288-60.288L469.44 561.92l241.28-241.28 60.416 60.288-301.696 301.696z" p-id="12343"></path></svg>`;
+          const uncheckedIcon = `<svg t="1742522354856" class="todo-item-unchecked-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="11882"><path d="M512 938.666667C276.352 938.666667 85.333333 747.648 85.333333 512S276.352 85.333333 512 85.333333s426.666667 191.018667 426.666667 426.666667-191.018667 426.666667-426.666667 426.666667z m0-85.333334a341.333333 341.333333 0 1 0 0-682.709333A341.333333 341.333333 0 0 0 512 853.333333z" p-id="11883"></path></svg>`;
+
+          // 组合todoitem内容
+          todoItemDiv.innerHTML = `
+            <span class="todo-item-checkbox">
+              ${isChecked ? checkedIcon : uncheckedIcon}
+            </span>
+            <span class="todo-item-content">
+              ${isChecked ? `<del>${content}</del>` : content}
+            </span>
+          `;
+
+          // 添加 item
+          todolistContainer.appendChild(todoItemDiv);
+        });
+
+        // 替换原列表
+        ul.parentNode.replaceChild(todolistContainer, ul);
+      }
+    });
+
+    function addTaskProgressBar(ul, todolistContainer) {
+      // 任务完成计数
+      const totalTasks = ul.children.length;
+      const finishedTasks = Array.from(ul.children).filter(li => li.innerHTML.includes('checked')).length;
+
+      // 创建进度条容器
+      const progressContainer = document.createElement('div');
+      progressContainer.className = 'todo-progress';
+
+      // 左侧计数
+      const counterSpan = document.createElement('span');
+      counterSpan.className = 'todo-progress-counter';
+      counterSpan.textContent = `${finishedTasks}/${totalTasks}`;
+
+      // 进度条轨道
+      const progressTrack = document.createElement('div');
+      progressTrack.className = 'todo-progress-bar';
+
+      // 进度条填充
+      const progressFill = document.createElement('div');
+      progressFill.className = 'todo-progress-bar-fill';
+      progressFill.style.width = `${(finishedTasks / totalTasks) * 100}%`;
+
+      // 右侧旗帜
+      const flagSpan = document.createElement('span');
+      flagSpan.className = 'todo-progress-flag';
+      flagSpan.innerHTML = `${finishedTasks === totalTasks ? '🌟' : '🚧'}`;
+
+      // 组装进度条
+      progressTrack.appendChild(progressFill);
+      progressContainer.append(flagSpan, progressTrack, counterSpan);
+      todolistContainer.appendChild(progressContainer);
+    }
+  });
+</script>
+
+<style>
+  /* todolist样式 */
+  .todolist {
+    padding-left: 0.6rem;
+  }
+
+  .todo-item {
+    padding: 0.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin: -0.5rem 0 -0.5rem -0.7rem;
+    line-height: 1.3;
+  }
+
+  .todo-item-checkbox {
+    flex-shrink: 0;
+    font-size: 1.2em;
+
+    svg {
+      margin-top: 0.46rem;
+      width: 16px !important;
+      height: 16px !important;
+    }
+  }
+
+  .todo-item-checked-icon {
+    fill: #707070;
+  }
+
+  .todo-item-unchecked-icon {
+    fill: #1A61CC;
+  }
+
+  .todo-item-unchecked-icon:hover {
+    fill: red;
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  .todo-item-content {
+    flex: 1;
+    word-break: break-all;
+
+    p {
+      margin: 0;
+      padding: 0;
+    }
+  }
+
+  /* 进度条样式 */
+  .todo-progress {
+    display: flex;
+    /*    display: none;*/
+    align-items: center;
+    gap: 0.3rem;
+    /*    margin: -0.1rem 0 -0.5rem -0.3rem;*/
+    margin: 0.1rem 0 0 0.7rem;
+  }
+
+  .todo-progress-counter {
+    /*    font-family: "Maple Mono NF CN";*/
+    font-family: "LXGW WenKai";
+    font-size: 0.8rem;
+    color: #707070;
+  }
+
+  .todo-progress-bar {
+    flex: 1;
+    height: 2px;
+    background: #a64036;
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+    max-width: 20%;
+  }
+
+  .todo-progress-bar-fill {
+    height: 100%;
+    background: #84a729;
+    transition: width 0.3s ease;
+  }
+
+  .todo-progress-flag {
+    display: none;
+    position: relative;
+    font-size: 0.9rem;
+  }
+</style>

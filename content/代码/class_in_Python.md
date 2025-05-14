@@ -1,6 +1,6 @@
 ---
 title: 稍微深入一些Python中的类（class）
-data: 2025-05-13
+date: 2025-05-13
 series: ["python"]
 categories: [代码]
 ---

@@ -1,6 +1,6 @@
 ---
 title: 均方位移（MSD）-OVITO
-data: 2025-05-13
+date: 2025-05-13
 series: ["OVITO"]
 categories: [分子动力学]
 ---

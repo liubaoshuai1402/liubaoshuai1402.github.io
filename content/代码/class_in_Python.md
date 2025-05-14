@@ -1,5 +1,5 @@
 ---
-title: 稍微深入一些Python中的class
+title: 稍微深入一些Python中的类（class）
 data: 2025-05-13
 series: ["python"]
 categories: [代码]
@@ -346,7 +346,7 @@ print(MyLoveGame)
 - ### super()函数
 
 - ```python
-  #code 3-9
+  #code 3-10
   class student:
       def __init__(self,gender=1,age=18):
           self.gender = gender

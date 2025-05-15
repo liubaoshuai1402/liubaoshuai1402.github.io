@@ -322,8 +322,8 @@ print(MyLoveGame)
 
 - ### 如何继承父类
 
-- ```python
-  #code 3-9
+  ```python
+  #code 4-1
   class student:
       def __init__(self,gender=1,age=18):
           self.gender = gender
@@ -345,8 +345,8 @@ print(MyLoveGame)
 
 - ### super()函数
 
-- ```python
-  #code 3-10
+  ```python
+  #code 4-2
   class student:
       def __init__(self,gender=1,age=18):
           self.gender = gender
@@ -370,3 +370,7 @@ print(MyLoveGame)
   ```
 
   `super()`函数通常出现在子类定义方法的时候，用于调用父类的构造方法，并可以加以补充，这里我们在子类初始化时，就调用了父类`student`的构造方法，并额外补充了`height`。
+
+- ### 抽象基类
+
+抽象基类只能被继承。它要求子类必须实现某些**抽象方法**。

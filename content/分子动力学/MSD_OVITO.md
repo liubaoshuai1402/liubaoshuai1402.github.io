@@ -83,7 +83,7 @@ np.savetxt("msd_data.csv",table,delimiter=",")
 
 ### 自定义修饰器
 
-这里介绍的自定义修饰器，按官方说法是 Simple programming interface，它是一个函数，接受两个基本输入：frame 和 data
+这里介绍的自定义修饰器，按官方说法是 Simple programming interface，它是一个函数，接受两个基本输入：`frame` 和 `data`。
 
 即，`def modify(frame: int, data: DataCollection):`
 
@@ -97,16 +97,23 @@ def calculate_msd(frame, data):
     data.attributes["MSD"] = msd 
 ```
 
-**DataCollection** 类的 **attributes** 属性是一个 由 **@property** 装饰器
+`DataCollection` 类的 `attributes` 属性储存了这个实例数据集的所有的`global attributes`（全局信息）。
 
-#### 小结
+`attributes` 属性是由经过`@propert`装饰器装饰的方法，这个方法返回一个辅助类，也可以叫功能类（`_AttributesView`）的实例，`_AttributesView`是抽象基类`MutableMapping`的子类。
 
-- 什么是类？
-- 
+`_AttributesView`类用于实现类似字典的功能。
+
+每次访问`attributes` 属性时，都会返回一个`_AttributesView`类的实例，这个实例会先通过`__init__`接收`DataCollection`实例的数据，并支持对其进行字典操作。
+
+所以，当我们`data.attributes["MSD"] = msd`时，是通过`_AttributesView`类提供的字典操作，把MSD数据添加到了`DataCollection`实例中。
+
+由于`_AttributesView`类实现了`__repr__`方法，我们可以直接`print(data.attributes)`来查看包含了哪些全局信息。
 
 ### `for frame,data in enumerate(pipeline.frames):`语句
 
+`DataCollection`要`pipeline`经过`compute()`方法得到，但这个例子中并没有见到`compute()`方法。其实隐藏在了这句`for`循环中。
 
+`pipeline.frames`会返回一个迭代器，这个迭代器中`yield`产生每一帧的`DataCollection`。
 
 ## References
 

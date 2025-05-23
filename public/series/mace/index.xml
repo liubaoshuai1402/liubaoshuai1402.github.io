@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>MACE on BOGHTW</title>
+    <link>http://localhost:1313/series/mace/</link>
+    <description>Recent content in MACE on BOGHTW</description>
+    <generator>Hugo</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Fri, 16 May 2025 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1313/series/mace/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>机器学习势MACE的输入文件</title>
+      <link>http://localhost:1313/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%8A%BF/mace2/</link>
+      <pubDate>Fri, 16 May 2025 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%8A%BF/mace2/</guid>
+      <description>&lt;h1 id=&#34;机器学习势mace的输入文件&#34;&gt;机器学习势MACE的输入文件&lt;/h1&gt;&#xA;&lt;h2 id=&#34;前言&#34;&gt;前言&lt;/h2&gt;&#xA;&lt;p&gt;不同MACE版本的参数设置会有一定的调查，注意查看自己的MACE版本。&lt;/p&gt;&#xA;&lt;p&gt;&lt;strong&gt;注意&lt;/strong&gt;：本文仅供参考，欢迎指出错误或分享补充。无能力提供任何指导，&lt;strong&gt;求教者切勿留言&lt;/strong&gt;。&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;&#xD;&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
+    </item>
+  </channel>
+</rss>

@@ -17,7 +17,7 @@ categories: [分子动力学]
 
 软件：OVITO、matplotlib、numpy
 
-**注意**：本文仅供学习交流，欢迎指出错误或分享补充。无能力提供任何指导，**求教者切勿留言**。
+**注意**：本文仅供参考，欢迎指出错误或分享补充。无能力提供任何指导，**求教者切勿留言**。
 
 ## OVITO版
 
@@ -52,12 +52,12 @@ pipeline.modifiers.append(CalculateDisplacementsModifier(reference_frame=0))    
 #本文的 OVITO小知识 将简单介绍自定义修饰器是如何工作的
 def calculate_msd(frame, data):
     
-    #用一个变量 displacement_magnitudes 记录 data.particles['Displacement Magnitude']，简化代码
-    displacement_magnitudes = data.particles['Displacement Magnitude']
-    #计算 MSD （将所有原子位移的平方加和然后求平均），OVITO 的数据可以直接和 numpy 交互，nice
+	#用一个变量 displacement_magnitudes 记录 data.particles['Displacement Magnitude']，简化代码
+	displacement_magnitudes = data.particles['Displacement Magnitude']
+	#计算 MSD （将所有原子位移的平方加和然后求平均），OVITO 的数据可以直接和 numpy 交互，nice
 	msd = np.sum(displacement_magnitudes ** 2) / len(displacement_magnitudes)           
-    #把计算的 MSD 传递给 data (DataCollection类)
-    data.attributes["MSD"] = msd 
+	#把计算的 MSD 传递给 data (DataCollection类)
+	data.attributes["MSD"] = msd 
     
 #添加自定义 calculate_msd 修饰器
 pipeline.modifiers.append(calculate_msd)
@@ -67,11 +67,11 @@ pipeline.modifiers.append(calculate_msd)
 table = []     #用于存放数据，time vs MSD
 
 for frame,data in enumerate(pipeline.frames):
-    if frame >= reference_frame:
-        #这里的 *10 一定要根据自己的计算调整，我的轨迹在lammps计算设置：时间步是0.5fs，每20步输出一帧，所以轨迹中每帧其实经历了10fs，所以乘以10
-        #我们 time vs MSD 的x横坐标单位是fs，也可以是别的，自己调整
-        time = (frame-reference_frame)*10                 
-        table.append([time,data.attributes['MSD']])
+	if frame >= reference_frame:
+		#这里的 *10 一定要根据自己的计算调整，我的轨迹在lammps计算设置：时间步是0.5fs，每20步输出一帧，所以轨迹中每帧其实经历了10fs，所以乘以10
+		#我们 time vs MSD 的x横坐标单位是fs，也可以是别的，自己调整
+		time = (frame-reference_frame)*10                 
+		table.append([time,data.attributes['MSD']])
 
 #.csv文件还是比较高级的，比纯txt好些，delimiter 指定间隔符为 "," ,这样方便直接excel打开
 np.savetxt("msd_data.csv",table,delimiter=",")
@@ -92,9 +92,9 @@ np.savetxt("msd_data.csv",table,delimiter=",")
 ```python
 def calculate_msd(frame, data):
     
-    displacement_magnitudes = data.particles['Displacement Magnitude']
+	displacement_magnitudes = data.particles['Displacement Magnitude']
 	msd = np.sum(displacement_magnitudes ** 2) / len(displacement_magnitudes)           
-    data.attributes["MSD"] = msd 
+	data.attributes["MSD"] = msd 
 ```
 
 `DataCollection` 类的 `attributes` 属性储存了这个实例数据集的所有的`global attributes`（全局信息）。
@@ -117,4 +117,4 @@ def calculate_msd(frame, data):
 
 ## References
 
-https://www.ovito.org/manual/python/introduction/examples/modifiers/msd_calculation.html
+1.[OVITO官方的MSD脚本](https://www.ovito.org/manual/python/introduction/examples/modifiers/msd_calculation.html)

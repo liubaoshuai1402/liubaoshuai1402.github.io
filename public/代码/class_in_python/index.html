@@ -1,0 +1,2511 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>稍微深入一些Python中的类（class） | BOGHTW</title>
+    <link rel="icon" href= /images/favicon.png />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/">主页</a></li>
+      
+      <li><a href="/series/">专栏</a></li>
+      
+      <li><a href="/categories/">分类</a></li>
+      
+      <li><a href="/tags/">标签</a></li>
+      
+      <li><a href="/archives/">归档</a></li>
+      
+      <li><a href="/search/">搜索</a></li>
+      
+      <li><a href="/about/">关于</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+
+<div class="article-meta">
+    <h1><span class="article-meta-title">稍微深入一些Python中的类（class）</span></h1>
+
+    <div class="article-meta-info">
+        
+
+        
+        
+
+        
+        
+        
+        
+
+        
+        
+        
+        
+        
+        
+        
+        
+        
+
+        
+        
+        
+        
+        
+        
+        
+        
+        
+
+        
+        
+
+        🗓️ 2025-05-13 🎖️ <a href="/series/python/">python</a> 🗂️ <a href="/categories/%E4%BB%A3%E7%A0%81/">代码</a>
+    </div>
+</div>
+
+<main>
+
+    
+
+<div class="toc-btn" id="tocBtn"><i class="fa-solid fa-bars-staggered"></i></div>
+<div class="toc-panel" id="tocPanel"></div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('tocBtn');
+    const panel = document.getElementById('tocPanel');
+    let hoverTimeout;
+
+    
+    btn.addEventListener('mouseenter', () => {
+      clearTimeout(hoverTimeout);
+      generateToc();
+      panel.classList.add('show');
+
+      
+      requestAnimationFrame(() => {
+        const headers = Array.from(document.querySelectorAll('h2, h3, h4, h5, h6'));
+        let activeHeader = null;
+        let minDistance = Infinity;
+
+        
+        headers.forEach(header => {
+          const rect = header.getBoundingClientRect();
+          const distance = Math.abs(rect.top);
+          if (distance < minDistance) {
+            minDistance = distance;
+            activeHeader = header;
+          }
+        });
+
+        
+        if (activeHeader) {
+          const activeLink = panel.querySelector(`a[href="#${activeHeader.id}"]`);
+          if (activeLink) {
+            
+            const panelHeight = panel.offsetHeight;
+            const linkOffset = activeLink.offsetTop;
+            const centerPosition = linkOffset - (panelHeight / 2) + (activeLink.offsetHeight / 2);
+            
+            panel.scrollTo({
+              top: centerPosition,
+              behavior: 'auto'
+            });
+          }
+        }
+      });
+    });
+
+    panel.addEventListener('mouseenter', () => clearTimeout(hoverTimeout));
+
+    [btn, panel].forEach(el => {
+      el.addEventListener('mouseleave', () => {
+        hoverTimeout = setTimeout(() => {
+          panel.classList.remove('show');
+        }, 200);
+      });
+    });
+
+    
+    function generateToc() {
+      if (panel.children.length > 0) return;
+
+      const headers = Array.from(document.querySelectorAll('h2, h3, h4, h5, h6'));
+      const counts = [0, 0, 0, 0, 0]; 
+
+      headers.forEach(header => {
+        const level = parseInt(header.tagName[1]) - 2;
+        if (level < 0) return;
+
+        counts[level]++;
+        for (let i = level + 1; i < counts.length; i++) counts[i] = 0;
+        const number = counts.slice(0, level + 1).join('.');
+
+        
+        const numberSpan = document.createElement('span');
+        numberSpan.className = 'toc-number';
+        numberSpan.textContent = number;
+
+        
+        const link = document.createElement('a');
+        link.href = `#${header.id}`;
+        link.style.paddingLeft = `${level * 12}px`;
+
+        
+        link.appendChild(numberSpan);
+        link.appendChild(document.createTextNode(header.textContent));
+
+        panel.appendChild(link);
+      });
+    }
+  });
+</script>
+
+<style>
+   
+  .toc-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    cursor: pointer;
+    padding: 6px 10px;
+    background: #EFEFEF;
+    border-radius: 8px;
+    transition: background 0.3s;
+    color: #999;
+    opacity: 0.7;
+  }
+
+  .toc-btn:hover {
+    background: #BEC2B3;
+  }
+
+   
+  .toc-number {
+    vertical-align: middle;
+    margin-right: 8px;
+    font-family: "LXGW WenKai";
+    font-size: 0.8rem;
+  }
+
+   
+  .toc-panel {
+    border-radius: 8px;
+    display: none;
+    position: fixed;
+    top: 66px;
+    right: 20px;
+    max-width: 360px;
+    min-width: 200px;
+    max-height: 80vh;
+    overflow-y: auto;
+    background: white;
+    border: 1px solid #eee;
+    padding: 10px 5px 10px 15px;
+    z-index: 9998;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+     
+    list-style: none;
+  }
+
+  .toc-panel a {
+    display: block;
+    padding: 4px 0;
+    text-decoration: none;
+    color: #333;
+    white-space: nowrap;
+     
+     
+     
+  }
+
+  .toc-panel a:hover {
+    color: #007bff;
+  }
+
+   
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateX(10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .toc-panel.show {
+    display: block;
+    animation: fadeIn 0.3s ease-out;
+  }
+</style>
+
+
+    
+    
+    
+        <h1 id="稍微深入一些python中的类class">稍微深入一些Python中的类（class）</h1>
+<h2 id="前言">前言</h2>
+<p>**类（class）**在python代码中几乎无处不在，但在近日的学习中发现，我对它真是了解甚少，甚至基础结构都不能熟稔于心，故开此笔记认真学习。和我一起重新认识一下它吧。</p>
+<h2 id="一个简单的类">一个简单的类</h2>
+<pre><code class="language-python">#code 1
+class Dog:
+    # 类属性
+    species = &quot;Dog&quot;
+    # 初始化方法
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+    # 实例方法
+    def bark(self):
+        return print(&quot;旺旺&quot;)
+
+print(mydog.species)
+print(mydog.name,mydog.age)
+mydog.bark()
+
+#输出为：
+#Dog
+#doudou 2
+#旺旺
+</code></pre>
+<p><strong>类</strong>是一种对数据进行计算操作的蓝图，离不开<strong>属性</strong>和<strong>方法</strong>。</p>
+<p>code 1中，我们定义了一个 Dog 类，并对它进行了实例化，生成了一个对象。</p>
+<p>这个类的结构，很简单。</p>
+<p>首先是放在第一部分的<strong>类属性</strong>。<strong>类属性</strong>是<strong>直接在类中定义变量</strong>。所有通过这个类生成的对象都具有这些属性。</p>
+<p>然后是放在第二部分的诸多方法，其实就是一个个的函数。</p>
+<pre><code class="language-python">    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+</code></pre>
+<ul>
+<li>
+<p><code>_init_</code>方法叫<strong>初始化方法</strong>，是<strong>魔法方法</strong>的一种。让实例初始化时就具有<code>name</code>和<code>age</code>属性和相应的值。具体表现为<code>mydog = Dog(&quot;doudou&quot;,2)</code>，这个类在初始化时就<strong>需要两个参数</strong>才能转变为实例。</p>
+</li>
+<li>
+<p>python中所有的实例方法，包括<code>__init__</code>方法，第一个参数都必须是<code>self</code>，用于区别<strong>普通函数</strong>和<strong>方法</strong>。</p>
+</li>
+<li>
+<p><strong>默认值</strong>，在定义方法的时候，可以传入默认值，这可以保证在不传入参数时，也能生成一个默认实例。</p>
+<pre><code class="language-python">    def __init__(self, name=&quot;小卡拉米&quot;, age=5):
+        self.name = name
+        self.age = age
+</code></pre>
+<p>这样的<code>__init__</code>方法就保证了，即使狗主人忘记了填写信息，<code>mydog = Dog()</code>也能正常工作，但默认的狗狗是<strong>小卡拉米</strong>，还是应该记得为自己的狗狗正确填写信息呦。（对于其他实例方法也适用）</p>
+</li>
+</ul>
+<p>在一般的实例方法中，也可以设置参数，定义属性。我们看一段新的代码:</p>
+<pre><code class="language-python">#code 2-1
+class phone:
+    owner = &quot;xiyangyang&quot;
+    def __init__(self,type=&quot;huawei&quot;):
+        self.type = type
+    def call(self,number=10086):
+        self.number = number
+        print(&quot;the number is {}&quot;.format(self.number))
+print(phone.owner)
+myphone = phone(&quot;apple&quot;)
+myphone.call(110)
+print(&quot;what number is called? &quot;,myphone.number)
+</code></pre>
+<p>这里在<code>phone</code>类的<code>call</code>方法下，定义了一个<strong>实例属性</strong>，并需要一个输入<code>number</code>指定值。</p>
+<p>但实例方法的参数不一定都是实例属性，且看以下代码：</p>
+<pre><code class="language-python">#code 2-2
+class phone:
+    def __init__(self,type=&quot;huawei&quot;):
+        self.type = type
+    def call(self,number=10086):
+        print(&quot;the number is {}&quot;.format(number))
+myphone = phone(&quot;apple&quot;)
+myphone.call(110)
+</code></pre>
+<p>这样定义<code>call</code>方法，在使用的时候也需要传入一个<code>number</code>，但是这个<code>number</code>不是这个实例的属性，无法随时查看。</p>
+<p>这就是说，对于类中的方法，目前涉及的参数有三类，一个是默认参数<code>self</code>，一个是<strong>实例属性参数</strong>，一个是<strong>普通参数</strong>。</p>
+<ol>
+<li>截至目前，我们已经了解了一个简单<strong>类的结构</strong>。即：声明类属性，声明实例方法（其中涉及到添加实例属性）。</li>
+<li>由类生成实例时的参数接口，由魔法方法<code>__init__</code>定义，而一般实例方法的接口，在调用方法的时候才会出现。这也就意味着，<code>__init__</code>方法中定义的实例属性，是伴生的，只要生成实例就存在。而随一般实例方法定义的实例属性，则需要首次调用后才存在。</li>
+</ol>
+<h2 id="魔法方法">魔法方法</h2>
+<p>在python中，所有被双下划线包围的方法，统称为魔法方法。太多了，我这里只记录我遇到的，不定时更新。</p>
+<h3 id="1__init__方法">1.<code>__init__</code>方法</h3>
+<p>这个魔法方法用于类的初始化。规定了实例化<strong>类</strong>时接受的参数。</p>
+<h3 id="2__len__方法">2.<code>__len__</code>方法</h3>
+<pre><code class="language-python">#code 3-1
+class menu:
+    restaurant=&quot;hepingfandian&quot;
+    def __init__(self,foods):
+        self.foods = foods
+    def __len__(self):
+        count = 0
+        for food in foods:
+            count = count + 1
+        return count
+mymenu = menu([&quot;宫保鸡丁&quot;,&quot;鱼香肉丝&quot;,&quot;米饭&quot;])
+print(len(mymenu))
+#输出：3
+</code></pre>
+<p>这个魔法方法让实例可以被用<code>len()</code>函数统计长度，<strong>核心是要返回一个整数</strong>，至于这个整数是如何计算得到的，这部分内容就由自己定义了。</p>
+<h3 id="3__getitem__方法">3.<code>__getitem__</code>方法</h3>
+<pre><code class="language-python">#code 3-2
+class menu:
+    restaurant=&quot;hepingfandian&quot;
+    def __init__(self,foods):
+        self.foods = foods
+    def __getitem__(self,key):
+        return 10
+mymenu = menu([&quot;宫保鸡丁&quot;,&quot;鱼香肉丝&quot;,&quot;米饭&quot;])
+print(mymenu[&quot;霸王餐&quot;])
+#输出：10
+</code></pre>
+<p>这个魔法方法可以让实例像字典或列表一样，实现键值对和索引切片的功能。具体来说，就是<strong>根据条件返回不同的值</strong>。不然就像上述代码一样，客人要吃霸王餐，对应的值却是10。</p>
+<pre><code class="language-python">#code 3-3
+class menu:
+    restaurant=&quot;hepingfandian&quot;
+    def __init__(self,foods):
+        self.foods = foods
+    def __getitem__(self,key):
+        if not isinstance(key,str):
+            raise TypeError(&quot;Attribute key must be a string&quot;)
+        
+        if key == &quot;霸王餐&quot;:
+            return &quot;你吃牛魔&quot;
+
+        for food in self.foods:
+            if food == key:
+                return self.foods[key]
+        raise KeyError(f&quot;Food '{key}' does not exist in menu.&quot;)
+        
+mymenu = menu({&quot;宫保鸡丁&quot;:25,&quot;鱼香肉丝&quot;:10,&quot;米饭&quot;:2})
+print(mymenu[&quot;霸王餐&quot;])
+print(mymenu[&quot;米饭&quot;])
+#输出：你吃牛魔
+#输出：2
+</code></pre>
+<p><code>__getitem__</code>方法可以为实例提供独特的接口，就是<code>[参数]</code>。这里的参数可以是字符串、数字或者切片，使用起来像字典或者列表。而一般方法的使用则要<code>.onemethod(参数1，参数2，...)</code>。</p>
+<pre><code class="language-python">#code 3-4
+class top3:
+    ip = &quot;harbin&quot;
+    def __init__(self,school):
+        self.school = school
+    def __getitem__(self,index):
+        if isinstance(index,int):
+            return self.school[index]
+        if isinstance(index,slice):
+            return self.school[index]
+Top3InMyheart = top3([&quot;qinghua&quot;,&quot;beida&quot;,&quot;hagongda&quot;])
+
+print(&quot;who is top3?&quot;,Top3InMyheart[0:3])
+print(Top3InMyheart.ip)
+</code></pre>
+<p>这段代码定义了一个名叫<code>top3</code>类，实现了索引和切片功能，同时可以这个类的实例拥有列表不同的功能，即这个类的实例有一个类属性：<code>ip</code>。让我们可以得知这个排名来自<code>harbin</code>。</p>
+<h3 id="4__setitem__方法">4.<code>__setitem__</code>方法</h3>
+<pre><code class="language-python">#code 3-5
+class games:
+    def __init__(self):
+        self.games={}
+    def __setitem__(self,key,value):
+        self.games[key]=value
+    def __getitem__(self,key):
+        return self.games[key]
+
+MyLoveGames = games()
+MyLoveGames[1] = &quot;原神&quot;
+print(MyLoveGames[1])
+#输出：原神
+</code></pre>
+<p>这个魔法方法让类的实例可以像字典或者列表一样，添加新的键值对或者添加新的索引和值。</p>
+<h3 id="5__delitem__方法">5.<code>__delitem__</code>方法</h3>
+<pre><code class="language-python">#code 3-6
+class games:
+    def __init__(self):
+        self.games={}
+    def __setitem__(self,key,value):
+        self.games[key]=value
+    def __getitem__(self,key):
+        return self.games[key]
+    def __delitem__(self,key):
+        del self.games[key]
+
+MyLoveGames = games()
+MyLoveGames[1] = &quot;原神&quot;
+MyLoveGames[1] = &quot;DOTA2&quot;
+print(MyLoveGames[1])
+del MyLoveGames[1]
+#输出：DOTA2
+</code></pre>
+<p>这个魔法方法可以让类的实例使用<code>del</code>关键字来删除键或索引。</p>
+<h3 id="6__iter__方法">6.<code>__iter__</code>方法</h3>
+<pre><code class="language-python">#code 3-7
+class games:
+    def __init__(self):
+        self.games={}
+    def __setitem__(self,key,value):
+        self.games[key]=value
+    def __getitem__(self,key):
+        return self.games[key]
+    def __delitem__(self,key):
+        del self.games[key]
+    def __iter__(self):
+        for game in self.games:
+            yield game
+            
+            
+MyLoveGame = games()
+MyLoveGame[0] = &quot;原神&quot;
+MyLoveGame[3] = &quot;DOTA2&quot;
+MyLoveGame[2] = &quot;明日方舟&quot;
+del MyLoveGame[2]
+for game in MyLoveGame:
+    print(game)
+#输出：0
+#输出：3
+</code></pre>
+<p>这个魔法方法让实例变为可迭代对象，可以进行<code>for</code>循环。也可以用<code>iter()</code>函数生成迭代器。这里涉及到一个头疼的<code>yield</code>关键字，又涉及到<strong>生成器</strong>和<strong>迭代器</strong>。还是另开一文来记录吧。</p>
+<p>简单来讲，当一个可迭代对象遇到<code>for</code>循环事件时，会自动转到它的<code>__iter__</code>方法，又因为这里的<code>__iter__</code>方法含有<code>yield</code>关键字，所以不会立即执行，而是得到了一个<strong>生成器</strong>对象。</p>
+<p>紧接着，<code>for</code>循环又根据这个生成器对象的<code>__next__</code>方法（注意，这里是<strong>生成器对象的</strong><code>__next__</code>方法，而非是，我们这个自定义类的<code>__next__</code>方法，其实，我们这里也没有写<code>__next__</code>方法）把得到的值赋值给<code>for game in MyLoveGame:</code>中的<code>game</code>，然后打印。</p>
+<p>在进行第二次循环的时候，同样地，再次进入实例的<code>__iter__</code>方法，得到同一个<strong>生成器</strong>对象。并对这个生成器对象再此施加<code>__next__</code>方法，并把得到的值赋值给<code>for game in MyLoveGame:</code>中的<code>game</code>，然后打印。</p>
+<ul>
+<li>谁是<code>for game in MyLoveGame:</code>中的<code>game</code>值？</li>
+</ul>
+<p><code>__iter__</code>方法本质上定义了一个<strong>生成器</strong>对象，而非函数。<code>for</code>循环会不断调用这个生成器对象<code>__next__</code>方法并把得到的值传递给<code>game</code>。</p>
+<h3 id="7__repr__方法">7.<code>__repr__</code>方法</h3>
+<pre><code class="language-python">#code 3-8
+import collections.abc
+class games(collections.abc.MutableMapping):
+    def __init__(self):
+        self.games={}
+    def __len__(self):
+        return 0
+    def __setitem__(self,key,value):
+        self.games[key]=value
+    def __getitem__(self,key):
+        return self.games[key]
+    def __delitem__(self,key):
+        del self.games[key]
+    def __iter__(self):
+        for game in self.games:
+            yield game
+    def __repr__(self):
+        return repr(dict(self))
+            
+MyLoveGame = games()
+MyLoveGame[0] = &quot;原神&quot;
+MyLoveGame[1] = &quot;DOTA2&quot;
+MyLoveGame[2] = &quot;明日方舟&quot;
+
+print(MyLoveGame)
+#输出：{0: '原神', 1: 'DOTA2', 2: '明日方舟'}
+</code></pre>
+<p>这里让自定义的games继承了一个抽象基类，这样<code>return repr(dict(self))</code>才不报错。</p>
+<p>这个魔法方法让实例可以直接使用实例时，返回一个官方字符串。</p>
+<h2 id="继承与抽象基类">继承与抽象基类</h2>
+<ul>
+<li>
+<h3 id="如何继承父类">如何继承父类</h3>
+<pre><code class="language-python">#code 4-1
+class student:
+    def __init__(self,gender=1,age=18):
+        self.gender = gender
+        self.age = age
+
+class xiaoxiaobuaigugujiao(student):
+    def interests(self,data):
+        self.interests = data
+        print(self.interests)
+me = xiaoxiaobuaigugujiao()
+print(me.gender)
+print(me.age)
+me.interests(&quot;games&quot;)
+
+
+</code></pre>
+<p>在定义子类的时候，在子类的名字后加上<code>(父类名)</code>即可。</p>
+</li>
+<li>
+<h3 id="super函数">super()函数</h3>
+<pre><code class="language-python">#code 4-2
+class student:
+    def __init__(self,gender=1,age=18):
+        self.gender = gender
+        self.age = age
+
+class xiaoxiaobuaigugujiao(student):
+    #子类中，当覆盖父类中的同名方法后，与父类同名方法的默认参数也要重新写一篇，不会继承
+    def __init__(self,gender=1,age=18,height=170):
+        #调用父类的构造方法
+        super().__init__(gender,age)
+        #额外补充
+        self.height = height
+    def interests(self,data):
+        self.interests = data
+        print(self.interests)
+me = xiaoxiaobuaigugujiao()
+print(me.gender)
+print(me.age)
+print(me.height)
+me.interests(&quot;games&quot;)
+</code></pre>
+<p><code>super()</code>函数通常出现在子类定义方法的时候，用于调用父类的构造方法，并可以加以补充，这里我们在子类初始化时，就调用了父类<code>student</code>的构造方法，并额外补充了<code>height</code>。</p>
+</li>
+<li>
+<h3 id="抽象基类">抽象基类</h3>
+</li>
+</ul>
+<p>抽象基类只能被继承。它要求子类必须实现某些<strong>抽象方法</strong>。</p>
+
+</main>
+
+<style>
+ 
+.article-meta {
+    text-align: center;
+    text-decoration: none;
+    background: #efefef;
+    padding: 1px;
+    border-radius: 5px;
+}
+
+.article-meta-title {
+    font-size: 1em;
+}
+
+.article-meta-info {
+    color: #666;
+    font-size: 0.9rem;
+    margin: -0.6rem 0 0.2rem 10px;
+    text-align: left;
+}
+
+.article-meta-info a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+</style>
+
+
+
+<h1 style="font-size: 1.2rem; margin: 2.5rem 0 0.1rem 0;">Comment</h1>
+<div class="cusdis-comments">
+  <div id="cusdis_thread"
+    data-host="https://cusdis.com"
+    data-app-id="0eeb9b3b-40ad-41b5-94e8-13a830e599d7"
+    data-page-id="02f4b0fc777bad91d53c13e190935dc0"
+    data-page-url="http://localhost:1313/%E4%BB%A3%E7%A0%81/class_in_python/"
+    data-page-title="稍微深入一些Python中的类（class）"
+  ></div>
+  <script async defer src="https://cdn.jsdelivr.net/gh/captainwc/cdn-release/website/cusdis/cusdis.es.min.js"></script>
+</div>
+
+<style>
+.cusdis-comments {
+  border-top: 2px dashed #cfcfcf;
+  padding-top: 1.3rem;
+}
+
+#cusdis_thread iframe {
+  min-height: 500px !important;
+  overflow: visible !important;
+}
+</style>
+
+
+<footer>
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/captainwc/cdn-release/website/js/auto-render.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/captainwc/cdn-release/website/js/math-code.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/captainwc/cdn-release/website/js/render-katex.min.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/gh/captainwc/cdn-release/website/js/center-img.min.js"></script>
+  
+  
+
+<div id="menuBtnContainer">
+    
+    <button id="menuBtn"><i class="fa-solid fa-screwdriver-wrench"></i></button>
+
+    
+    <button id="backToBottomBtn" class="menu-popup-btn top-btn"><i class="fa-solid fa-square-caret-down"></i></button>
+    <button id="backToTopBtn" class="menu-popup-btn top-btn"><i class="fa-solid fa-square-caret-up"></i></button>
+
+    
+    <div class="menu-popup-btn edit-btn">
+        <a href='https://github.com/liubaoshuai1402/liubaoshuai1402.github.io/edit/main/content/%e4%bb%a3%e7%a0%81/class_in_Python.md'
+            target="_blank" rel="noopener">
+            <i class="fa-solid fa-square-pen"></i>
+        </a>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var menuBtn = document.getElementById('menuBtn');
+        var menuBtnContainer = document.getElementById('menuBtnContainer');
+        var backToTopBtn = document.getElementById('backToTopBtn');
+        var backToBottomBtn = document.getElementById('backToBottomBtn');
+        var popupBtns = document.querySelectorAll('.menu-popup-btn');
+        var hoverTimeout;
+
+        
+        menuBtnContainer.classList.add('visible');
+
+        
+        function showPopupBtns() {
+            clearTimeout(hoverTimeout);
+            menuBtnContainer.classList.add('active');
+        }
+
+        
+        function hidePopupBtns() {
+            hoverTimeout = setTimeout(function() {
+                menuBtnContainer.classList.remove('active');
+            }, 300);
+        }
+
+        
+        menuBtnContainer.addEventListener('mouseenter', showPopupBtns);
+        menuBtnContainer.addEventListener('mouseleave', hidePopupBtns);
+
+        
+        menuBtn.addEventListener('click', function() {
+            if (menuBtnContainer.classList.contains('active')) {
+                menuBtnContainer.classList.remove('active');
+            } else {
+                showPopupBtns();
+            }
+        });
+
+        
+        backToTopBtn.addEventListener('click', function() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        
+        backToBottomBtn.addEventListener('click', function() {
+            window.scrollTo({
+                top: document.body.scrollHeight,
+                behavior: 'smooth'
+            });
+        });
+    });
+</script>
+
+<style>
+     
+    #menuBtnContainer {
+        position: fixed;
+        right: 20px;
+        bottom: 20px;
+        z-index: 999;
+        opacity: 0.6;
+        visibility: visible;
+        transition: opacity 0.3s;
+    }
+
+    #menuBtnContainer:hover {
+        opacity: 1;
+    }
+
+     
+    #menuBtn {
+        border-radius: 8px;
+        border: none;
+        color: #aaa;
+        font-family: "Maple Mono NF CN";
+        font-size: 1.2rem;
+        transition: background 0.3s;
+        cursor: pointer;
+        background: #EFEFEF;
+        z-index: 1000;
+        position: relative;
+    }
+
+    #menuBtn:hover {
+        background: #BEC2B3;
+        color: #666;
+    }
+
+     
+    .menu-popup-btn {
+        position: absolute;
+        opacity: 0;
+        visibility: hidden;
+        border-radius: 8px;
+        border: none;
+        color: #aaa;
+        font-family: "Maple Mono NF CN";
+        font-size: 1.3rem;
+        transition: all 0.3s ease;
+        background: #EFEFEF;
+        cursor: pointer;
+        z-index: 999;
+    }
+
+     
+    .menu-popup-btn.top-btn {
+        right: 0;
+        transform: translateY(0) scale(0.8);
+    }
+
+     
+    .menu-popup-btn.edit-btn {
+        bottom: 0;
+        transform: translateX(0) scale(0.8);
+        padding: 1px 6.6px 0px 6.6px;
+    }
+
+    .menu-popup-btn.edit-btn a {
+        color: #ccc;
+        text-decoration: none;
+        background: none !important;
+        transition: opacity 0.2s;
+        padding: 0;
+        margin: 0;
+    }
+
+     
+    #menuBtnContainer.active .menu-popup-btn {
+        opacity: 1;
+        visibility: visible;
+    }
+
+     
+    #menuBtnContainer.active #backToBottomBtn {
+        transform: translateY(-60px) scale(1);
+    }
+
+     
+    #menuBtnContainer.active #backToTopBtn {
+        transform: translateY(-110px) scale(1);
+    }
+
+     
+    #menuBtnContainer.active .edit-btn {
+        transform: translateX(-60px) scale(1);
+    }
+
+     
+    .menu-popup-btn:hover,
+    .menu-popup-btn.edit-btn:hover {
+        background: #BEC2B3;
+        color: #666;
+    }
+
+    .menu-popup-btn.edit-btn:hover a {
+        color: #666;
+    }
+
+     
+    @media (max-width: 768px) {
+        #menuBtnContainer {
+            right: 15px;
+            bottom: 15px;
+        }
+
+        #menuBtnContainer.active #backToBottomBtn {
+            transform: translateY(-50px) scale(1);
+        }
+
+        #menuBtnContainer.active #backToTopBtn {
+            transform: translateY(-90px) scale(1);
+        }
+
+        #menuBtnContainer.active .edit-btn {
+            transform: translateX(-50px) scale(1);
+        }
+    }
+</style>
+
+
+
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    
+    document.querySelectorAll('ul').forEach(ul => {
+      
+      const isTodoList = Array.from(ul.children).some(li => {
+        return li.innerHTML.includes('type="checkbox"')
+      });
+
+      if (isTodoList) {
+        
+        const todolistContainer = document.createElement('div');
+        todolistContainer.className = 'todolist';
+
+        
+        addTaskProgressBar(ul, todolistContainer);
+
+        
+        ul.querySelectorAll('li').forEach(li => {
+          const todoItemDiv = document.createElement('div');
+          todoItemDiv.className = 'todo-item';
+
+          
+          const isChecked = li.innerHTML.includes('checked');
+          const content = li.innerHTML
+            .replace(/<input[^>]+>/g, '') 
+            .trim();
+
+          
+          const checkedIcon = `<svg t="1742522457277" class="todo-item-checked-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="12342"><path d="M512 938.688A426.624 426.624 0 1 1 512 85.376a426.624 426.624 0 0 1 0 853.312z m0-85.312A341.312 341.312 0 1 0 512 170.688a341.312 341.312 0 0 0 0 682.688z m-42.56-170.688L288.448 501.632l60.288-60.288L469.44 561.92l241.28-241.28 60.416 60.288-301.696 301.696z" p-id="12343"></path></svg>`;
+          const uncheckedIcon = `<svg t="1742522354856" class="todo-item-unchecked-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="11882"><path d="M512 938.666667C276.352 938.666667 85.333333 747.648 85.333333 512S276.352 85.333333 512 85.333333s426.666667 191.018667 426.666667 426.666667-191.018667 426.666667-426.666667 426.666667z m0-85.333334a341.333333 341.333333 0 1 0 0-682.709333A341.333333 341.333333 0 0 0 512 853.333333z" p-id="11883"></path></svg>`;
+
+          
+          todoItemDiv.innerHTML = `
+            <span class="todo-item-checkbox">
+              ${isChecked ? checkedIcon : uncheckedIcon}
+            </span>
+            <span class="todo-item-content">
+              ${isChecked ? `<del>${content}</del>` : content}
+            </span>
+          `;
+
+          
+          todolistContainer.appendChild(todoItemDiv);
+        });
+
+        
+        ul.parentNode.replaceChild(todolistContainer, ul);
+      }
+    });
+
+    function addTaskProgressBar(ul, todolistContainer) {
+      
+      const totalTasks = ul.children.length;
+      const finishedTasks = Array.from(ul.children).filter(li => li.innerHTML.includes('checked')).length;
+
+      
+      const progressContainer = document.createElement('div');
+      progressContainer.className = 'todo-progress';
+
+      
+      const counterSpan = document.createElement('span');
+      counterSpan.className = 'todo-progress-counter';
+      counterSpan.textContent = `${finishedTasks}/${totalTasks}`;
+
+      
+      const progressTrack = document.createElement('div');
+      progressTrack.className = 'todo-progress-bar';
+
+      
+      const progressFill = document.createElement('div');
+      progressFill.className = 'todo-progress-bar-fill';
+      progressFill.style.width = `${(finishedTasks / totalTasks) * 100}%`;
+
+      
+      const flagSpan = document.createElement('span');
+      flagSpan.className = 'todo-progress-flag';
+      flagSpan.innerHTML = `${finishedTasks === totalTasks ? '🌟' : '🚧'}`;
+
+      
+      progressTrack.appendChild(progressFill);
+      progressContainer.append(flagSpan, progressTrack, counterSpan);
+      todolistContainer.appendChild(progressContainer);
+    }
+  });
+</script>
+
+<style>
+   
+  .todolist {
+    padding-left: 0.6rem;
+  }
+
+  .todo-item {
+    padding: 0.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin: -0.5rem 0 -0.5rem -0.7rem;
+    line-height: 1.3;
+  }
+
+  .todo-item-checkbox {
+    flex-shrink: 0;
+    font-size: 1.2em;
+
+    svg {
+      margin-top: 0.46rem;
+      width: 16px !important;
+      height: 16px !important;
+    }
+  }
+
+  .todo-item-checked-icon {
+    fill: #707070;
+  }
+
+  .todo-item-unchecked-icon {
+    fill: #1A61CC;
+  }
+
+  .todo-item-unchecked-icon:hover {
+    fill: red;
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  .todo-item-content {
+    flex: 1;
+    word-break: break-all;
+
+    p {
+      margin: 0;
+      padding: 0;
+    }
+  }
+
+   
+  .todo-progress {
+    display: flex;
+     
+    align-items: center;
+    gap: 0.3rem;
+     
+    margin: 0.1rem 0 0 0.7rem;
+  }
+
+  .todo-progress-counter {
+     
+    font-family: "LXGW WenKai";
+    font-size: 0.8rem;
+    color: #707070;
+  }
+
+  .todo-progress-bar {
+    flex: 1;
+    height: 2px;
+    background: #a64036;
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+    max-width: 20%;
+  }
+
+  .todo-progress-bar-fill {
+    height: 100%;
+    background: #84a729;
+    transition: width 0.3s ease;
+  }
+
+  .todo-progress-flag {
+    display: none;
+    position: relative;
+    font-size: 0.9rem;
+  }
+</style>
+
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/styles/github.min.css">
+
+<script src="https://cdn.jsdelivr.net/gh/captainwc/cdn-release/website/highlight/highlight.min.js"></script>
+
+<script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll())</script>
+
+  
+  <script>
+    const langToNerdFontMap = {
+        asm: '\ue6ab',
+        bash: '\ue760',
+        bazel: '\ue63a',
+        c: '\ue61e',
+        cmake: '\ue794',
+        cmd: '\uebc4',
+        cpp: '\ue61d',
+        'c++': '\ue61d',
+        csharp: '\ue7b2',
+        css: '\ue749',
+        diff: '\ueae1',
+        dockerfile: '\uf21f',
+        go: '\udb81\udfd3',
+        gradle: '\ue7f2',
+        html: '\ue736',
+        java: '\uedaf',
+        javascript: '\ue781',
+        json: '\ueb0f',
+        latex: '\ue81f',
+        llvm: '\ue823',
+        lua: '\ue826',
+        makefile: '\ue673',
+        markdown: '\uf48a',
+        maven: '\ue82c',
+        plaintext: '\udb80\udd4d',
+        plantuml: '\ue8cb',
+        powershell: '\ue86c',
+        python: '\ued1b',
+        rust: '\udb85\ude17',
+        shell: '\ue760',
+        sql: '\udb82\udc66',
+        text: '\udb80\udd4d',
+        toml: '\ue6b2',
+        txt: '\udb80\udd4d',
+        typescript: '\ue8ca',
+        uml: '\ue8cb',
+        vim: '\ue7c5',
+        wasm: '\ue8e0',
+        xml: '\ue8ea',
+        yaml: '\ue8eb',
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('pre > code').forEach(codeBlock => {
+            const parentElement = codeBlock.parentElement;
+
+            
+            const tools = document.createElement('div');
+            tools.className = 'code-tools';
+
+            
+            const foldBtn = document.createElement('button');
+            foldBtn.className = 'fold-btn';
+            foldBtn.innerHTML = '\uf48c';
+            foldBtn.style.display = 'none';
+
+            
+            const langLabel = document.createElement('div');
+            langLabel.className = 'lang-label';
+            const lang = [...codeBlock.classList].find(c => c.startsWith('language-'))?.split('-')[1] || 'text';
+            const icon = langToNerdFontMap[lang.toLowerCase()];
+            langLabel.textContent = icon || lang.toUpperCase();
+            if (!icon) langLabel.style.fontSize = '0.8rem';
+
+            
+            const copyBtn = document.createElement('button');
+            copyBtn.className = 'copy-btn';
+            copyBtn.textContent = '\uf4bb COPY';
+
+            
+            const scale_height = 500;       
+            const collapsed_height = 300;   
+            const checkHeight = () => {
+                const originalDisplay = parentElement.style.display;
+                parentElement.style.display = 'block';
+                const fullHeight = parentElement.scrollHeight;
+                parentElement.style.display = originalDisplay;
+                return fullHeight > scale_height;
+            };
+
+            
+            if (checkHeight()) {
+                foldBtn.style.display = 'flex';
+                parentElement.dataset.fullHeight = `${parentElement.scrollHeight}px`;
+
+                
+                parentElement.classList.add('collapsed');
+                parentElement.style.maxHeight = `${collapsed_height}px`;
+                foldBtn.innerHTML = '\uf4d9';
+
+                parentElement.style.overflowY = 'auto'; 
+
+                foldBtn.addEventListener('click', () => {
+                    const isCollapsed = parentElement.classList.toggle('collapsed');
+                    foldBtn.innerHTML = isCollapsed ? '\uf4d9' : '\uf48c';
+
+                    if (isCollapsed) {
+                        parentElement.style.maxHeight = `${collapsed_height}px`;
+                        parentElement.style.overflowX = 'auto';
+                    } else {
+                        parentElement.style.maxHeight = 'none';
+                        void parentElement.offsetHeight;
+                        parentElement.dataset.fullHeight = `${parentElement.scrollHeight}px`;
+                    }
+                });
+            }
+
+            
+            copyBtn.addEventListener('click', async () => {
+                try {
+                    await navigator.clipboard.writeText(codeBlock.textContent);
+                    copyBtn.textContent = '\uf00c COPIED!';
+                    setTimeout(() => copyBtn.textContent = '\uf4bb COPY', 2000);
+                } catch (err) {
+                    console.error('复制失败:', err);
+                }
+            });
+
+            
+            tools.append(langLabel, foldBtn, copyBtn);
+            parentElement.prepend(tools);
+        });
+    });
+</script>
+
+<style>
+ 
+.code-tools {
+    position: absolute;
+    right: 10px;
+    top: 20px;
+    display: flex;
+    align-items: center;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.2s ease;
+    pointer-events: none;
+    font-family: "Maple Mono NF CN";
+}
+
+.fold-btn {
+    cursor: pointer;
+    border: none;
+    color: #666;
+    background: none;
+    font-family: "Maple Mono NF CN";
+    font-size: 0.9rem;
+    line-height: 1.2;
+    margin: 0 0 0 0.45rem;
+    transition: all 0.2s ease;
+}
+
+ 
+.lang-label {
+     
+    color: #666;
+    font-size: 1.2rem;
+    line-height: 1.2;
+}
+
+ 
+.copy-btn {
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 0 0.3rem;
+    margin: 0 0 0 0.6rem;
+    color: #333;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    font-size: 0.6rem;
+    line-height: 1.8;
+    cursor: pointer;
+    font-family: "Maple Mono NF CN";
+}
+
+ 
+pre:hover .code-tools {
+    opacity: 1;
+    pointer-events: auto;
+}
+</style>
+
+
+  
+<script>
+    
+    window.diagramRenderUtils = {
+        
+        getOrCreateFullscreenOverlay: function() {
+            let overlay = document.querySelector('.fullscreen-overlay');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.className = 'fullscreen-overlay';
+                document.body.appendChild(overlay);
+
+                
+                overlay.addEventListener('dblclick', (e) => {
+                    if (e.target === overlay) {
+                        overlay.classList.remove('active');
+                    }
+                });
+
+                
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && overlay.classList.contains('active')) {
+                        overlay.classList.remove('active');
+                    }
+                });
+            }
+            return overlay;
+        },
+
+        
+        createDiagramContainer: function() {
+            const container = document.createElement('div');
+            container.className = 'code-rendered-diagram';
+            return container;
+        },
+
+        
+        createCopyButton: function() {
+            const copyButton = document.createElement('button');
+            copyButton.className = 'code-rendered-diagram-copy-button';
+            copyButton.innerHTML = '&#xf4bb; COPY-SRC';
+            return copyButton;
+        },
+
+        
+        createFullscreenButton: function() {
+            const fullscreenButton = document.createElement('button');
+            fullscreenButton.className = 'code-rendered-diagram-fullscreen-button';
+            fullscreenButton.innerHTML = '&#xf065; FULL';
+            return fullscreenButton;
+        },
+
+        
+        makeSVGTransparent: function(svgText) {
+            const doc = new DOMParser().parseFromString(svgText, 'image/svg+xml');
+            doc.querySelectorAll('[fill="#ffffff"],[fill="white"],[style*="fill: white"]')
+                .forEach(el => {
+                    if (el.tagName !== 'svg') {
+                        el.setAttribute('fill', 'transparent');
+                    }
+                });
+            doc.documentElement.style.backgroundColor = 'transparent';
+            return new XMLSerializer().serializeToString(doc);
+        },
+
+        
+        setupCopyButton: function(copyButton, codeContent) {
+            copyButton.addEventListener('click', async () => {
+                try {
+                    await navigator.clipboard.writeText(codeContent);
+                    copyButton.textContent = '\uf00c COPIED!';
+                    setTimeout(() => copyButton.innerHTML = '&#xf4bb; COPY-SRC', 2000);
+                } catch (err) {
+                    copyButton.textContent = 'FAILED';
+                    console.error('复制失败:', err);
+                }
+            });
+        },
+
+        
+        setupShowSourceCode: function(imageElem, sourceCode) {
+            
+            imageElem.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+
+                
+                const pre = document.createElement('pre');
+                const codeElem = document.createElement('code');
+                codeElem.textContent = sourceCode;
+                pre.appendChild(codeElem);
+
+                
+                window.diagramRenderUtils.popupWindowUtils.create({
+                    title: 'Source Code',
+                    content: pre,
+                    x: e.clientX,
+                    y: e.clientY,
+                    minWidth: 300,
+                    maxWidth: '60%',
+                    maxHeight: '60%',
+                    closeOnClickOutside: true,
+                    closeOnEsc: true,
+                    className: 'source-code-viewer'
+                });
+            });
+        },
+
+        
+        setupFullscreenButton: function(fullscreenButton, contentElement, isImage = false) {
+            fullscreenButton.addEventListener('click', () => {
+                const overlay = this.getOrCreateFullscreenOverlay();
+                let clonedContent;
+
+                if (isImage) {
+                    
+                    clonedContent = contentElement.cloneNode(true);
+                } else {
+                    
+                    const svgElement = contentElement.querySelector('svg');
+                    if (!svgElement) return;
+                    clonedContent = svgElement.cloneNode(true);
+                }
+
+                overlay.innerHTML = '';
+
+                
+                const exitButton = document.createElement('button');
+                exitButton.className = 'fullscreen-exit-button';
+                exitButton.innerHTML = 'ESC';
+                exitButton.onclick = () => overlay.classList.remove('active');
+
+                overlay.appendChild(exitButton);
+                overlay.appendChild(clonedContent);
+                overlay.classList.add('active');
+
+                
+                this.setupZoomAndDrag(overlay, isImage ? 'img' : 'svg');
+            });
+        },
+
+        
+        setupZoomAndDrag: function(overlay, selector) {
+            let scale = 1;
+            let posX = 0;
+            let posY = 0;
+            let isDragging = false;
+            let startX = 0;
+            let startY = 0;
+
+            const element = overlay.querySelector(selector);
+
+            
+            overlay.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const delta = e.deltaY * -0.002;
+                const newScale = Math.min(Math.max(scale + delta, 0.1), 10);
+
+                
+                const rect = element.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+
+                
+                posX += mouseX * (1 - newScale / scale);
+                posY += mouseY * (1 - newScale / scale);
+
+                scale = newScale;
+                updateTransform();
+            });
+
+            
+            overlay.addEventListener('mousedown', (e) => {
+                if (e.target === overlay) return;
+                isDragging = true;
+                startX = e.clientX - posX;
+                startY = e.clientY - posY;
+                overlay.classList.add('dragging');
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                posX = e.clientX - startX;
+                posY = e.clientY - startY;
+                updateTransform();
+            });
+
+            window.addEventListener('mouseup', () => {
+                isDragging = false;
+                overlay.classList.remove('dragging');
+            });
+
+            function updateTransform() {
+                element.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
+            }
+        },
+
+        
+        popupWindowUtils: {
+            
+            create: function(options) {
+                
+                const config = {
+                    title: 'Popup Window',
+                    content: '',         
+                    x: 100,              
+                    y: 100,              
+                    minWidth: 300,       
+                    maxWidth: '80%',     
+                    maxHeight: '80%',    
+                    closeOnClickOutside: true,
+                    closeOnEsc: true,
+                    onClose: null,       
+                    className: ''        
+                };
+
+                
+                Object.assign(config, options);
+
+                
+                if (config.className) {
+                    const existingPopup = document.querySelector(`.popup-window.${config.className}`);
+                    if (existingPopup) {
+                        document.body.removeChild(existingPopup);
+                    }
+                }
+
+                
+                const popup = document.createElement('div');
+                popup.className = `popup-window ${config.className}`.trim();
+
+                
+                const titleBar = document.createElement('div');
+                titleBar.className = 'popup-window-title';
+                titleBar.textContent = config.title;
+
+                
+                const closeButton = document.createElement('button');
+                closeButton.className = 'popup-window-close';
+                closeButton.innerHTML = '&times;';
+
+                
+                titleBar.appendChild(closeButton);
+
+                
+                const contentContainer = document.createElement('div');
+                contentContainer.className = 'popup-window-content';
+
+                
+                if (typeof config.content === 'string') {
+                    contentContainer.innerHTML = config.content;
+                } else if (config.content instanceof Element) {
+                    contentContainer.appendChild(config.content);
+                }
+
+                
+                popup.appendChild(titleBar);
+                popup.appendChild(contentContainer);
+
+                
+                popup.style.minWidth = typeof config.minWidth === 'number' ? `${config.minWidth}px` : config.minWidth;
+                popup.style.maxWidth = typeof config.maxWidth === 'number' ? `${config.maxWidth}px` : config.maxWidth;
+                popup.style.maxHeight = typeof config.maxHeight === 'number' ? `${config.maxHeight}px` : config.maxHeight;
+
+                
+                document.body.appendChild(popup);
+
+                
+                const popupRect = popup.getBoundingClientRect();
+                const windowWidth = window.innerWidth;
+                const windowHeight = window.innerHeight;
+
+                
+                let left = Math.min(Math.max(config.x, 20), windowWidth - popupRect.width - 20);
+                let top = Math.min(Math.max(config.y, 20), windowHeight - popupRect.height - 20);
+
+                popup.style.left = `${left}px`;
+                popup.style.top = `${top}px`;
+
+                
+                const closePopup = () => {
+                    if (document.body.contains(popup)) {
+                        document.body.removeChild(popup);
+                        if (typeof config.onClose === 'function') {
+                            config.onClose();
+                        }
+                    }
+                };
+
+                closeButton.addEventListener('click', closePopup);
+
+                
+                if (config.closeOnEsc) {
+                    const escHandler = (e) => {
+                        if (e.key === 'Escape' && document.body.contains(popup)) {
+                            closePopup();
+                            document.removeEventListener('keydown', escHandler);
+                        }
+                    };
+                    document.addEventListener('keydown', escHandler);
+                }
+
+                
+                if (config.closeOnClickOutside) {
+                    const outsideClickHandler = (e) => {
+                        if (popup && !popup.contains(e.target) && document.body.contains(popup)) {
+                            closePopup();
+                            document.removeEventListener('mousedown', outsideClickHandler);
+                        }
+                    };
+
+                    
+                    setTimeout(() => {
+                        document.addEventListener('mousedown', outsideClickHandler);
+                    }, 100);
+                }
+
+                
+                let isDragging = false;
+                let offsetX = 0;
+                let offsetY = 0;
+
+                titleBar.addEventListener('mousedown', (e) => {
+                    
+                    if (e.target !== closeButton) {
+                        isDragging = true;
+                        offsetX = e.clientX - popup.getBoundingClientRect().left;
+                        offsetY = e.clientY - popup.getBoundingClientRect().top;
+                        popup.classList.add('dragging');
+                    }
+                });
+
+                const mouseMoveHandler = (e) => {
+                    if (isDragging) {
+                        let newLeft = e.clientX - offsetX;
+                        let newTop = e.clientY - offsetY;
+
+                        
+                        newLeft = Math.max(0, Math.min(windowWidth - popupRect.width, newLeft));
+                        newTop = Math.max(0, Math.min(windowHeight - popupRect.height, newTop));
+
+                        popup.style.left = `${newLeft}px`;
+                        popup.style.top = `${newTop}px`;
+                    }
+                };
+
+                const mouseUpHandler = () => {
+                    if (isDragging) {
+                        isDragging = false;
+                        popup.classList.remove('dragging');
+                    }
+                };
+
+                document.addEventListener('mousemove', mouseMoveHandler);
+                document.addEventListener('mouseup', mouseUpHandler);
+
+                
+                return {
+                    element: popup,
+                    contentElement: contentContainer,
+                    close: closePopup,
+                    setTitle: (title) => {
+                        titleBar.textContent = title;
+                        titleBar.appendChild(closeButton); 
+                    },
+                    setContent: (content) => {
+                        contentContainer.innerHTML = '';
+                        if (typeof content === 'string') {
+                            contentContainer.innerHTML = content;
+                        } else if (content instanceof Element) {
+                            contentContainer.appendChild(content);
+                        }
+                    },
+                    setPosition: (x, y) => {
+                        let newLeft = Math.min(Math.max(x, 0), windowWidth - popupRect.width);
+                        let newTop = Math.min(Math.max(y, 0), windowHeight - popupRect.height);
+                        popup.style.left = `${newLeft}px`;
+                        popup.style.top = `${newTop}px`;
+                    },
+                    
+                    destroy: () => {
+                        document.removeEventListener('mousemove', mouseMoveHandler);
+                        document.removeEventListener('mouseup', mouseUpHandler);
+                        if (document.body.contains(popup)) {
+                            document.body.removeChild(popup);
+                        }
+                    }
+                };
+            }
+        }
+    };
+</script>
+<style>
+     
+    .code-rendered-diagram {
+        max-width: 80% !important;
+        height: auto;
+        position: relative;
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+    }
+
+    .code-rendered-diagram-copy-button,
+    .code-rendered-diagram-fullscreen-button {
+        position: absolute;
+        top: 20px;
+        transform: translateY(-10px);
+        transition: all 0.2s ease;
+        background-color: #f0f0f0;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 0 0.3rem;
+        margin: 0 0 0 0.6rem;
+        color: #333;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        font-size: 0.6rem;
+        line-height: 1.8;
+        cursor: pointer;
+        font-family: "Maple Mono NF CN";
+        opacity: 0;
+    }
+
+    .code-rendered-diagram-copy-button {
+        right: 10px;
+    }
+
+    .code-rendered-diagram-fullscreen-button {
+        right: 100px;
+    }
+
+    .code-rendered-diagram:hover .code-rendered-diagram-copy-button,
+    .code-rendered-diagram:hover .code-rendered-diagram-fullscreen-button {
+        opacity: 1;
+    }
+
+    .fullscreen-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #FBFBFB;
+         
+        z-index: 99999;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .fullscreen-overlay.active {
+        display: flex;
+    }
+
+    .fullscreen-overlay img,
+    .fullscreen-overlay svg {
+        max-width: 90%;
+        max-height: 90%;
+        object-fit: contain;
+        cursor: move;
+        transition: transform 0.1s ease-out;
+        transform-origin: center center;
+    }
+
+    .fullscreen-overlay svg {
+        user-select: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+    }
+
+    .fullscreen-overlay.dragging {
+        cursor: move;
+    }
+
+    .fullscreen-exit-button {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        background-color: #f0f0f0;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        color: #666;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        font-size: 0.8rem;
+        line-height: 1.8;
+        cursor: pointer;
+        font-family: "Maple Mono NF CN";
+        transition: all 0.2s ease;
+        z-index: 100000;
+    }
+
+    .fullscreen-exit-button:hover {
+        background-color: #e0e0e0;
+        color: #333;
+    }
+
+     
+    .popup-window {
+        position: fixed;
+        z-index: 10000;
+        background-color: #f8f8f8;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        transition: box-shadow 0.3s ease;
+    }
+
+    .popup-window.dragging {
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+        opacity: 0.95;
+    }
+
+    .popup-window-title {
+        background-color: #e8e8e8;
+        padding: 8px 12px;
+        font-weight: bold;
+        border-bottom: 1px solid #ddd;
+        cursor: move;
+        user-select: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #333;
+        font-family: "Maple Mono NF CN", monospace;
+        font-size: 0.9rem;
+    }
+
+    .popup-window-close {
+        background: none;
+        border: none;
+        font-size: 1.2rem;
+        line-height: 1;
+        cursor: pointer;
+        color: #666;
+        padding: 0 4px;
+        margin: -4px -4px 0 0;
+        transition: color 0.2s ease;
+    }
+
+    .popup-window-close:hover {
+        color: #333;
+    }
+
+    .popup-window-content {
+        overflow: auto;
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+
+     
+    .popup-window.source-code-viewer .popup-window-content {
+        font-family: "Maple Mono NF CN", monospace;
+    }
+
+    .popup-window.source-code-viewer .popup-window-content pre {
+        margin: 0;
+        white-space: pre-wrap;
+    }
+
+    .popup-window.source-code-viewer .popup-window-content code {
+        font-family: "Maple Mono NF CN", monospace;
+        color: #333;
+    }
+</style>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        const plantumlBlocks = document.querySelectorAll('pre code.language-plantuml');
+        if (!plantumlBlocks.length) return;
+
+        
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/plantuml-encoder@1.4.0/dist/plantuml-encoder.min.js';
+
+        
+        script.onload = () => {
+            const plantuml_theme = `
+scale 5
+skinparam shadowing false
+skinparam BackgroundColor transparent
+skinparam UsecaseBackgroundColor #white
+skinparam classBackgroundColor #white
+skinparam ActivityBackgroundColor #white
+skinparam ActorBackgroundColor #white
+skinparam participantBackgroundColor #white
+    `.trim();
+
+            plantumlBlocks.forEach(codeBlock => {
+                
+                const container = window.diagramRenderUtils.createDiagramContainer();
+
+                
+                const img = document.createElement('img');
+                img.className = 'code-rendered-diagram-img';
+                img.style.display = 'block';
+                img.alt = 'PlantUML Diagram';
+
+                
+                const fullCode = `${plantuml_theme}\n\n${codeBlock.textContent}`;
+                img.src = 'https://www.plantuml.com/plantuml/svg/' + plantumlEncoder.encode(fullCode);
+
+                
+                const copyButton = window.diagramRenderUtils.createCopyButton();
+                window.diagramRenderUtils.setupCopyButton(copyButton, fullCode);
+
+                
+                window.diagramRenderUtils.setupShowSourceCode(img, fullCode);
+
+                
+                const fullscreenButton = window.diagramRenderUtils.createFullscreenButton();
+                window.diagramRenderUtils.setupFullscreenButton(fullscreenButton, img, true);
+
+                
+                
+
+                
+                container.appendChild(img);
+                container.appendChild(fullscreenButton);
+                container.appendChild(copyButton);
+                codeBlock.parentElement.replaceWith(container);
+            });
+        };
+
+        
+        document.head.appendChild(script);
+    });
+</script>
+
+  
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        const mermaidBlocks = document.querySelectorAll('pre code.language-mermaid');
+        if (!mermaidBlocks.length) return;
+
+        
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/mermaid@11.6.0/dist/mermaid.min.js';
+
+        
+        script.onload = () => {
+            
+            mermaid.initialize({
+                startOnLoad: false,
+                securityLevel: 'loose',
+                
+                
+                
+                theme: 'neutral',
+                
+                
+            });
+
+            
+            mermaidBlocks.forEach((codeBlock, index) => {
+                
+                const container = window.diagramRenderUtils.createDiagramContainer();
+
+                
+                const renderDiv = document.createElement('div');
+                renderDiv.id = `mermaid-diagram-${index}`;
+                renderDiv.style.background = 'transparent';
+
+                
+                const code = codeBlock.textContent.trim();
+
+                try {
+                    
+                    mermaid.render(`mermaid-svg-${index}`, code).then(result => {
+                        renderDiv.innerHTML = result.svg;
+
+                        
+                        const svg = renderDiv.querySelector('svg');
+                        if (svg) {
+                            svg.style.backgroundColor = 'transparent';
+                            
+                            svg.querySelectorAll('[fill="#ffffff"],[fill="white"],[style*="fill: white"]')
+                                .forEach(el => {
+                                    if (el.tagName !== 'svg') {
+                                        el.setAttribute('fill', 'transparent');
+                                    }
+                                });
+                        }
+                    });
+                } catch (error) {
+                    console.error('Mermaid渲染错误:', error);
+                    renderDiv.innerHTML = `<div style="color:red;border:1px solid red;padding:10px;">
+                        Mermaid渲染错误: ${error.message}
+                    </div>`;
+                }
+
+                
+                const copyButton = window.diagramRenderUtils.createCopyButton();
+                window.diagramRenderUtils.setupCopyButton(copyButton, code);
+
+                
+                window.diagramRenderUtils.setupShowSourceCode(renderDiv, code);
+
+                
+                const fullscreenButton = window.diagramRenderUtils.createFullscreenButton();
+                window.diagramRenderUtils.setupFullscreenButton(fullscreenButton, renderDiv, false);
+
+                
+                container.appendChild(renderDiv);
+                container.appendChild(fullscreenButton);
+                container.appendChild(copyButton);
+
+                
+                const pre = codeBlock.closest('pre');
+                pre.insertAdjacentElement('afterend', container);
+                pre.remove();
+            });
+        };
+
+        
+        document.head.appendChild(script);
+    });
+</script>
+
+  
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        const markmapBlocks = document.querySelectorAll('pre code.language-map, pre code.language-mindmap');
+        if (!markmapBlocks.length) return;
+
+        
+        Promise.all([
+            loadScript('https://cdn.jsdelivr.net/npm/d3@latest'),
+            loadScript('https://cdn.jsdelivr.net/npm/markmap-view@latest'),
+            loadScript('https://cdn.jsdelivr.net/npm/markmap-lib@latest')
+        ]).then(() => {
+            
+            markmapBlocks.forEach((codeBlock, index) => {
+                
+                const container = window.diagramRenderUtils.createDiagramContainer();
+
+                
+                const markmapContainer = document.createElement('div');
+                markmapContainer.className = 'markmap';
+                markmapContainer.id = `markmap-${index}`;
+                markmapContainer.style.minHeight = '300px';
+                markmapContainer.style.width = '100%';
+                markmapContainer.style.position = 'relative';
+
+                
+                const code = codeBlock.textContent.trim();
+
+                
+                const svgElement = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                svgElement.style.width = '100%';
+                svgElement.style.height = '400px';
+                markmapContainer.appendChild(svgElement);
+
+                
+                const copyButton = window.diagramRenderUtils.createCopyButton();
+                window.diagramRenderUtils.setupCopyButton(copyButton, code);
+
+                
+                window.diagramRenderUtils.setupShowSourceCode(markmapContainer, code);
+
+                
+                const fullscreenButton = window.diagramRenderUtils.createFullscreenButton();
+                window.diagramRenderUtils.setupFullscreenButton(fullscreenButton, markmapContainer, false);
+
+                
+                container.appendChild(markmapContainer);
+                container.appendChild(fullscreenButton);
+                container.appendChild(copyButton);
+
+                
+                const pre = codeBlock.closest('pre');
+                pre.insertAdjacentElement('afterend', container);
+                pre.remove();
+
+                
+                try {
+                    
+                    const { Transformer } = window.markmap;
+                    const transformer = new Transformer();
+
+                    
+                    const { root, features } = transformer.transform(code);
+
+                    
+                    const { Markmap } = window.markmap;
+                    const mm = new Markmap(svgElement, {
+                        autoFit: true,
+                        duration: 500,
+                        zoom: true,
+                    });
+
+                    
+                    mm.setData(root, features);
+                    mm.fit();
+
+                    
+                    markmapContainer.dataset.markmapData = JSON.stringify({
+                        root: root,
+                        features: features
+                    });
+
+                    
+                    setTimeout(() => {
+                        const links = svgElement.querySelectorAll('a');
+                        links.forEach(link => {
+                            link.setAttribute('target', '_blank');
+                            link.setAttribute('rel', 'noopener noreferrer');
+                        });
+                    }, 100);
+                } catch (error) {
+                    console.error('Markmap渲染错误:', error);
+                    markmapContainer.innerHTML = `<div style="color:red;border:1px solid red;padding:10px;">
+                        Markmap渲染错误: ${error.message}
+                    </div>`;
+                }
+            });
+        }).catch(error => {
+            console.error('加载markmap库失败:', error);
+        });
+
+        
+        function loadScript(url) {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = url;
+                script.onload = resolve;
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+        }
+    });
+</script>
+
+
+<script>
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        if (!window.diagramRenderUtils) return;
+
+        
+        const originalSetupFullscreenButton = window.diagramRenderUtils.setupFullscreenButton;
+        window.diagramRenderUtils.setupFullscreenButton = function(fullscreenButton, contentElement, isImage = false) {
+            
+            const isMarkmap = contentElement.classList.contains('markmap');
+
+            if (isMarkmap) {
+                fullscreenButton.addEventListener('click', () => {
+                    const overlay = this.getOrCreateFullscreenOverlay();
+                    overlay.innerHTML = '';
+
+                    
+                    const exitButton = document.createElement('button');
+                    exitButton.className = 'fullscreen-exit-button';
+                    exitButton.innerHTML = 'ESC';
+                    exitButton.onclick = () => overlay.classList.remove('active');
+                    overlay.appendChild(exitButton);
+
+                    
+                    const fullscreenContainer = document.createElement('div');
+                    fullscreenContainer.className = 'markmap';
+                    fullscreenContainer.style.width = '100%';
+                    fullscreenContainer.style.height = '100%';
+
+                    
+                    const svgElement = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                    svgElement.style.width = '100%';
+                    svgElement.style.height = '100%';
+                    fullscreenContainer.appendChild(svgElement);
+
+                    overlay.appendChild(fullscreenContainer);
+                    overlay.classList.add('active');
+
+                    
+                    try {
+                        const markmapData = JSON.parse(contentElement.dataset.markmapData || '{}');
+                        if (markmapData.root) {
+                            
+                            const { Markmap } = window.markmap;
+                            const mm = new Markmap(svgElement, {
+                                autoFit: true,
+                                duration: 500,
+                                zoom: true,
+                            });
+
+                            
+                            mm.setData(markmapData.root, markmapData.features);
+                            mm.fit();
+
+                            
+                            setTimeout(() => {
+                                const links = svgElement.querySelectorAll('a');
+                                links.forEach(link => {
+                                    link.setAttribute('target', '_blank');
+                                    link.setAttribute('rel', 'noopener noreferrer');
+                                });
+                            }, 100);
+                        }
+                    } catch (error) {
+                        console.error('全屏模式下渲染markmap失败:', error);
+                    }
+
+                    
+                    this.setupZoomAndDrag(overlay, 'svg');
+                });
+            } else {
+                
+                originalSetupFullscreenButton.call(this, fullscreenButton, contentElement, isImage);
+            }
+        };
+    });
+</script>
+
+  
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        
+        const DIAGRAM_MAP = new Map([
+            ['plantuml_kroki', 'plantuml'],
+            ['mermaid_kroki', 'mermaid'],
+            ['graphviz', 'graphviz'],
+            ['blockdiag', 'blockdiag'],
+            ['seqdiag', 'seqdiag'],
+            ['actdiag', 'actdiag'],
+            ['packetdiag', 'packetdiag'],
+            ['database', 'dbml'],
+            ['dbml', 'dbml'],
+            ['vega', 'vega']
+        ]);
+
+        
+        const blocks = [];
+        document.querySelectorAll('pre code[class]').forEach(block => {
+            if (block.dataset.kroki) return;
+            const lang = [...block.classList].find(c => DIAGRAM_MAP.has(c.split('-')[1]));
+            if (lang) {
+                block.dataset.kroki = 'processed';
+                blocks.push({ block, api: DIAGRAM_MAP.get(lang.split('-')[1]) });
+            }
+        });
+
+        if (!blocks.length) return;
+
+        
+        const CONCURRENCY = 6;
+        const queue = blocks.slice();
+
+        (async function processQueue() {
+            const workers = Array(Math.min(CONCURRENCY, queue.length))
+                .fill()
+                .map(async () => {
+                    while (queue.length) {
+                        const { block, api } = queue.pop();
+                        await renderBlock(block, api);
+                    }
+                });
+            await Promise.all(workers);
+        })();
+
+        async function renderBlock(block, api) {
+            const pre = block.closest('pre');
+            try {
+                const code = block.textContent.trim();
+                if (!code) {
+                    pre.style.border = '2px solid orange';
+                    return;
+                }
+
+                const res = await fetch(`https://kroki.io/${api}/svg`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: code
+                });
+
+                if (!res.ok) throw new Error(`${await res.text()} (HTTP ${res.status})`);
+
+                
+                const svg = window.diagramRenderUtils.createDiagramContainer();
+                svg.innerHTML = window.diagramRenderUtils.makeSVGTransparent(await res.text());
+
+                
+                const fullscreenButton = window.diagramRenderUtils.createFullscreenButton();
+                window.diagramRenderUtils.setupFullscreenButton(fullscreenButton, svg, false);
+                svg.appendChild(fullscreenButton);
+
+                
+                const copyButton = window.diagramRenderUtils.createCopyButton();
+                window.diagramRenderUtils.setupCopyButton(copyButton, code);
+                svg.appendChild(copyButton);
+
+                
+                window.diagramRenderUtils.setupShowSourceCode(svg, code);
+
+                pre.insertAdjacentElement('afterend', svg);
+
+                
+                pre.remove();
+            } catch (err) {
+                console.error(`[Kroki] 渲染失败: ${err.message}`);
+                pre.style.border = '2px solid red';
+                pre.title = err.message;
+            }
+        }
+    });
+</script>
+
+
+  
+
+  <div id="search-modal">
+  <input type="text" id="modal-search-input" placeholder="输入关键词搜索..." aria-label="搜索框" autocomplete="off">
+  <div id="modal-search-debug" style="margin-bottom: 10px; color: #999;"></div>
+  <div id="modal-search-results"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
+
+<script>
+  function debug(text) {
+      document.getElementById('modal-search-debug').textContent = text;
+  }
+  function showpages() {
+    debug("当前本站共有 " + searchIndex.length + " 篇文章");
+  }
+
+  let searchIndex = [];
+  
+  
+    
+  
+
+  
+    searchIndex.push({
+      title: "\"用于搭建神经网络的函数\"",
+      permalink: "\"/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/pytorch2/\"",
+      
+      categories: "[\"深度学习\"]",
+      tags: [],
+      series: [],
+      date: "\"2025-05-19\""
+    });
+  
+    searchIndex.push({
+      title: "\"Python中的文件操作\"",
+      permalink: "\"/%E4%BB%A3%E7%A0%81/fileoperations/\"",
+      
+      categories: "[\"代码\"]",
+      tags: [],
+      series: [],
+      date: "\"2025-05-18\""
+    });
+  
+    searchIndex.push({
+      title: "\"花朵分类\"",
+      permalink: "\"/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/pytorch1/\"",
+      
+      categories: "[\"深度学习\"]",
+      tags: [],
+      series: [],
+      date: "\"2025-05-18\""
+    });
+  
+    searchIndex.push({
+      title: "\"使用rNEMD方法计算热导率的lammps输入文件\"",
+      permalink: "\"/%E5%88%86%E5%AD%90%E5%8A%A8%E5%8A%9B%E5%AD%A6/thermal_conductivity_rnemd/\"",
+      
+      categories: "[\"分子动力学\"]",
+      tags: [],
+      series: "[\"LAMMPS\"]",
+      date: "\"2025-05-16\""
+    });
+  
+    searchIndex.push({
+      title: "\"如何构建训练集用于训练机器学习势\"",
+      permalink: "\"/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%8A%BF/mace1/\"",
+      
+      categories: "[\"机器学习势\"]",
+      tags: [],
+      series: "[\"ASE\",\"DeepMD-Kit\"]",
+      date: "\"2025-05-16\""
+    });
+  
+    searchIndex.push({
+      title: "\"机器学习势MACE的输入文件\"",
+      permalink: "\"/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%8A%BF/mace2/\"",
+      
+      categories: "[\"机器学习势\"]",
+      tags: [],
+      series: "[\"MACE\"]",
+      date: "\"2025-05-16\""
+    });
+  
+    searchIndex.push({
+      title: "\"均方位移（MSD）-OVITO\"",
+      permalink: "\"/%E5%88%86%E5%AD%90%E5%8A%A8%E5%8A%9B%E5%AD%A6/msd_ovito/\"",
+      
+      categories: "[\"分子动力学\"]",
+      tags: [],
+      series: "[\"OVITO\"]",
+      date: "\"2025-05-13\""
+    });
+  
+    searchIndex.push({
+      title: "\"稍微深入一些Python中的类（class）\"",
+      permalink: "\"/%E4%BB%A3%E7%A0%81/class_in_python/\"",
+      
+      categories: "[\"代码\"]",
+      tags: [],
+      series: "[\"python\"]",
+      date: "\"2025-05-13\""
+    });
+  
+    searchIndex.push({
+      title: "\"径向分布函数（RDF）-OVITO\"",
+      permalink: "\"/%E5%88%86%E5%AD%90%E5%8A%A8%E5%8A%9B%E5%AD%A6/rdf_ovito/\"",
+      
+      categories: "[\"分子动力学\"]",
+      tags: [],
+      series: "[\"OVITO\"]",
+      date: "\"2025-05-12\""
+    });
+  
+
+  showpages()
+
+  const options = {
+    includeScore: true,
+    threshold: 0.6,
+    keys: [
+      { name: 'title', weight: 0.7 },
+      { name: 'content', weight: 0.3 },
+      { name: 'tags', weight: 0.5 },
+      { name: 'categories', weight: 0.5 },
+      { name: 'series', weight: 0.5 }
+    ]
+  };
+
+  const fuse = new Fuse(searchIndex, options);
+
+  document.addEventListener('keydown', function(event) {
+    if (event.ctrlKey && event.key === 'k') {
+      event.preventDefault();
+      toggleSearchModal();
+    } else if (event.key === 'Escape') {
+      document.getElementById('modal-search-input').value = "";
+      closeSearchModal();
+      var res = document.getElementById('modal-search-results');
+      while (res.firstChild) {
+        res.removeChild(res.firstChild);
+      }
+      showpages();
+    }
+  });
+
+  function toggleSearchModal() {
+    const modal = document.getElementById('search-modal');
+    if (modal.style.display === 'none') {
+      modal.style.display = 'block';
+      document.getElementById('modal-search-input').focus();
+    } else {
+      modal.style.display = 'none';
+    }
+  }
+
+  function closeSearchModal() {
+    const modal = document.getElementById('search-modal');
+    modal.style.display = 'none';
+  }
+
+  document.getElementById('modal-search-input').addEventListener('input', function(e) {
+    const searchTerm = e.target.value.trim();
+    const resultsContainer = document.getElementById('modal-search-results');
+    resultsContainer.innerHTML = '';
+
+    if (searchTerm === '') {
+      showpages()
+      return;
+    }
+
+    const results = fuse.search(searchTerm);
+
+    results.sort((a, b) => new Date(b.item.date) - new Date(a.item.date));
+
+    if (results.length === 0) {
+      showpages()
+      resultsContainer.innerHTML = '<p>没有找到相关文章</p>';
+      return;
+    } else {
+      debug("共找到 " + results.length + " 篇匹配的文章")
+    }
+
+    results.forEach(result => {
+      const item = result.item;
+      const resultItem = document.createElement('div');
+      resultItem.className = 'modal-search-result-item';
+
+      const date = document.createElement('span');
+      date.textContent = item.date.replace(/^"|"$/g, '') + '   ';
+      date.className = 'modal-search-result-date';
+
+      const link = document.createElement('a');
+      link.href = item.permalink.replace(/^"|"$/g, '');
+      link.textContent = item.title.replace(/^"|"$/g, '');
+      link.className = 'modal-search-result-title';
+
+      resultItem.appendChild(date);
+      resultItem.appendChild(link);
+      resultsContainer.appendChild(resultItem);
+    });
+  });
+</script>
+
+<style>
+ 
+#search-modal {
+    display: none;
+    position: fixed;
+    top: 6%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    padding: 20px;
+    box-shadow: 0 0 6px rgba(45, 45, 45, 0.5);
+    border-radius: 6px;
+    z-index: 1000;
+    width: 80%;
+    max-width: 600px;
+    text-align: left;
+}
+
+#modal-search-input {
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+#modal-search-results {
+    margin-top: 10px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.modal-search-result-item {
+    padding: 0.7rem;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    align-items: center;
+}
+
+.modal-search-result-date {
+    color: #666;
+    font-size: 0.9rem;
+    margin-right: 0.5rem;
+    text-wrap: nowrap;
+}
+
+.modal-search-result-title {
+    font-weight: bold;
+    color: #1a73e8;
+    text-decoration: none;
+}
+
+.modal-search-result-title:hover {
+    text-decoration: underline;
+}
+</style>
+
+
+  
+<link rel="stylesheet" href="/css/note_down.min.6f53446a3926929fbd997660313634ca1db4a0566a04ccb07965d98c77e930d8.css">
+
+
+<script src="/js/note_down.min.f712cab3a19c2b6a7f727ecc52c9666678bba69993e36c2ada9d44bfbf4f5b13.js" defer></script>
+
+  
+  <hr />
+  © 
+<a href="https://liubaoshuai1402.github.io/"  target="_blank" rel="noopener noreferrer" >xiaoxiaobuaigugujiao</a>
+ 2025 &ndash; 2025 | 🎨
+<a href="https://github.com/captainwc/captainwc.github.io/tree/main/themes/ksimple"  target="_blank" rel="noopener noreferrer" >KSimple</a>
+  
+
+</footer>
+</body>
+
+</html>
+

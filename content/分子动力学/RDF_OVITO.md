@@ -17,7 +17,7 @@ categories: [分子动力学]
 
 软件：OVITO、matplotlib、numpy
 
-**注意**：本文仅供学习交流，欢迎指出错误或分享补充。无能力提供任何指导，**求教者切勿留言**。
+**注意**：本文仅供参考，欢迎指出错误或分享补充。无能力提供任何指导，**求教者切勿留言**。
 
 ## The partial RDFs of a single crystal structure 
 

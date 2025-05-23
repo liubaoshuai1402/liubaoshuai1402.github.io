@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>机器学习势s on BOGHTW</title>
+    <link>http://localhost:1313/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%8A%BF/</link>
+    <description>Recent content in 机器学习势s on BOGHTW</description>
+    <generator>Hugo</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Fri, 16 May 2025 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1313/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%8A%BF/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>如何构建训练集用于训练机器学习势</title>
+      <link>http://localhost:1313/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%8A%BF/mace1/</link>
+      <pubDate>Fri, 16 May 2025 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%8A%BF/mace1/</guid>
+      <description>&lt;h1 id=&#34;如何构建训练集用于训练机器学习势&#34;&gt;如何构建训练集用于训练机器学习势&lt;/h1&gt;&#xA;&lt;h2 id=&#34;前言&#34;&gt;前言&lt;/h2&gt;&#xA;&lt;p&gt;本文将介绍如何构建一个训练集，用于训练MACE势以及DP势。需要提前利用AIMD获取DFT数据集。这里的AIMD软件是VASP。&lt;/p&gt;&#xA;&lt;p&gt;软件：ASE、DeepMD-Kit&lt;/p&gt;&#xA;&lt;p&gt;&lt;strong&gt;注意&lt;/strong&gt;：本文仅供参考，欢迎指出错误或分享补充。无能力提供任何指导，&lt;strong&gt;求教者切勿留言&lt;/strong&gt;。&lt;/p&gt;&#xA;&lt;h2 id=&#34;构建mace势的训练集&#34;&gt;构建MACE势的训练集&lt;/h2&gt;&#xA;&lt;p&gt;MACE接受的训练集非常简单，一个&lt;code&gt;xyz&lt;/code&gt;文件，包含了各种构型和它们对应的DFT数据标签，以及单原子的DFT数据，需要额外的标签&lt;code&gt;config_type=IsolatedAtom&lt;/code&gt;。&lt;/p&gt;&#xA;&lt;p&gt;顺带一提，ASE可以输出一种所谓的&#xA;&lt;a href=&#34;https://wiki.fysik.dtu.dk/ase/ase/io/formatoptions.html#extxyz&#34;  target=&#34;_blank&#34; rel=&#34;noopener noreferrer&#34; &gt;Extended XYZ format&lt;/a&gt;&#xA;，会把各种各样的信息（有点类似OVITO中的全局信息），放到&lt;code&gt;xyz&lt;/code&gt;文件的第二行。这一行会很长很长。MACE所采用的训练集输入格式就是它。&lt;/p&gt;&#xA;&lt;p&gt;假设我们要构建水分子的MACE势，当前所处的路径下，有两个文件夹。&lt;/p&gt;&#xA;&lt;p&gt;一个名为&lt;code&gt;H2O&lt;/code&gt;的文件夹，里面存放着进行第一性原理分子动力学后得到的&lt;code&gt;OUTCAR.tar.gz&lt;/code&gt;文件。路径为&lt;code&gt;H2O/OUTCAR.tar.gz&lt;/code&gt;。&lt;/p&gt;&#xA;&lt;p&gt;一个名为&lt;code&gt;IsolatedAtoms&lt;/code&gt;的文件夹，里面存放着涉及元素（这里是H、O）的单原子的单点能计算（ISPIN=2）。路径分别为&lt;code&gt;IsolatedAtoms/H/OUTCAR.tar.gz&lt;/code&gt;和&lt;code&gt;IsolatedAtoms/O/OUTCAR.tar.gz&lt;/code&gt;。&lt;/p&gt;&#xA;&lt;h3 id=&#34;代码展示&#34;&gt;代码展示&lt;/h3&gt;&#xA;&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;from ase.io import read,write&#xD;&#xA;&#xD;&#xA;#定义一个简单的函数用于打标签,这里可以自由更改标签的名字&#xD;&#xA;def addlabel(configs,energy_label=&#39;energy_dft&#39;,forces_label=&#39;forces_dft&#39;,stress_label=&#39;stress_dft&#39;,is_isolated=False):&#xD;&#xA;    if is_isolated == False:&#xD;&#xA;        for at in configs:&#xD;&#xA;            at.info[energy_label] = at.get_potential_energy(force_consistent=True)&#xD;&#xA;            at.arrays[forces_label] = at.get_forces()&#xD;&#xA;            at.info[stress_label] = at.get_stress(voigt=True)&#xD;&#xA;    if is_isolated == True:&#xD;&#xA;        for at in configs:&#xD;&#xA;            at.info[&#39;config_type&#39;] = &#39;IsolatedAtom&#39;&#xD;&#xA;            at.info[energy_label] = at.get_potential_energy(force_consistent=True)&#xD;&#xA;            at.arrays[forces_label] = at.get_forces()&#xD;&#xA;            at.info[stress_label] = at.get_stress(voigt=True)&#xD;&#xA;&#xD;&#xA;#read()函数，这里，第一个参数是所读文件路径，第二个参数是切片slice&#xD;&#xA;IsolatedH = read(&#39;IsolatedAtoms/H/OUTCAR.tar.gz&#39;,&#39;:&#39;)&#xD;&#xA;IsolatedO = read(&#39;IsolatedAtoms/O/OUTCAR.tar.gz&#39;,&#39;:&#39;)&#xD;&#xA;IsolatedAtoms = IsolatedH + IsolatedO&#xD;&#xA;addlabel(configs=IsolatedAtoms,is_isolated=True)&#xD;&#xA;&#xD;&#xA;#这里的slice的意思是从第一个结构开始到最后一个结构，每100个结构取一个&#xD;&#xA;db = read(&#39;H2O/OUTCAR.tar.gz&#39;,&#39;::100&#39;)&#xD;&#xA;addlabel(configs=db)&#xD;&#xA;&#xD;&#xA;#将打过标签的数据集合并&#xD;&#xA;db = db + IsolatedAtoms&#xD;&#xA;write(&#39;trainset.xyz&#39;,db)&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;&lt;/code&gt;&lt;/pre&gt;&#xA;&lt;p&gt;这里有趣的一点是，为什么对于单个结构的&lt;code&gt;OUTCAR&lt;/code&gt;，也要进行切片：&lt;code&gt;IsolatedH = read(&#39;IsolatedAtoms/H/OUTCAR.tar.gz&#39;,&#39;:&#39;)&lt;/code&gt;，而不是&lt;code&gt;IsolatedH = read(&#39;IsolatedAtoms/H/OUTCAR.tar.gz&#39;)&lt;/code&gt;。&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>机器学习势MACE的输入文件</title>
+      <link>http://localhost:1313/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%8A%BF/mace2/</link>
+      <pubDate>Fri, 16 May 2025 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%8A%BF/mace2/</guid>
+      <description>&lt;h1 id=&#34;机器学习势mace的输入文件&#34;&gt;机器学习势MACE的输入文件&lt;/h1&gt;&#xA;&lt;h2 id=&#34;前言&#34;&gt;前言&lt;/h2&gt;&#xA;&lt;p&gt;不同MACE版本的参数设置会有一定的调查，注意查看自己的MACE版本。&lt;/p&gt;&#xA;&lt;p&gt;&lt;strong&gt;注意&lt;/strong&gt;：本文仅供参考，欢迎指出错误或分享补充。无能力提供任何指导，&lt;strong&gt;求教者切勿留言&lt;/strong&gt;。&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;&#xD;&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
+    </item>
+  </channel>
+</rss>

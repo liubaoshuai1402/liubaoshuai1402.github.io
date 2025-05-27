@@ -84,7 +84,7 @@ tensor([[[0.3299, 0.4336, 0.2365],
 
 默认$\beta$值为1，当输入值*$\beta$大于一定门槛（默认值20）时，会变成线性。
 
-$\mathrm{Softplus}(x)=\frac{1}{\beta}*\log(1+\exp(\beta*x))$
+$\mathrm{Softplus}(x)=\frac{1}{\beta}*\log(1+\exp(\beta * x))$
 
 <img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/Softplus.png"/>
 
@@ -142,7 +142,11 @@ L2正则化，也称Ridge正则化、==权重衰减==。与L1正则化类似，�
 
 $L_{L1}=L_{data}+\lambda||w||_2^2$
 
-这里，$||w||_2^2=\begin{matrix} \sum_{i=1}^n w_i^2 \end{matrix}$ 
+这里，
+$$
+||w|| _2 ^2 = \sum_{i=1}^n w_i^2
+$$
+
 
 ### 4. Elastic Net 正则化
 

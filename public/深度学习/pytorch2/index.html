@@ -257,6 +257,20 @@
         <h1 id="用于搭建神经网络的函数">用于搭建神经网络的函数</h1>
 <h2 id="前言">前言</h2>
 <p>此处记录常见的神经网络函数，排名不分先后。</p>
+<h2 id="全连接层">全连接层</h2>
+<h3 id="1-nnlinear">1. <code>nn.Linear()</code></h3>
+<p>对输入数据施加一个仿射线性变换，一般使用指定两个参数，是输入矩阵和输出矩阵的最高维的<code>size</code>。（因为最高维一般是特征维度，这个函数就是用来控制特征维度<code>size</code>大小的）</p>
+<img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/%E5%9B%BE%E5%8D%B7%E7%A7%AF.png" style="zoom:50%;" />
+<p>这里是CGCNN的图卷积操作公式，这里的W（权重），b（偏置）其实全连接层决定的。看到这样的写法就要明白其实是经历了一个全连接层。</p>
+<pre><code class="language-python">total_gated_fea = self.fc_full(total_nbr_fea)
+        
+total_gated_fea = self.bn1(total_gated_fea.view(
+	-1, self.atom_fea_len*2)).view(N, M, self.atom_fea_len*2)
+nbr_filter, nbr_core = total_gated_fea.chunk(2, dim=2)
+nbr_filter = self.sigmoid(nbr_filter)
+nbr_core = self.softplus1(nbr_core)
+</code></pre>
+<p>对应代码就是进过全连接层后，（再进行批标准化，chunk分割，这些公式里没有体现），然后施加$\sigma$函数和激活函数（g）。</p>
 <h2 id="激活函数">激活函数</h2>
 <h3 id="1-nnrelu">1. <code>nn.ReLU()</code></h3>
 <p>这个激活函数不用指定输入输出特征的维度，它只是把所有特征变为非负，对于正值保留原始值，对于负值则转化为0。</p>
@@ -288,11 +302,50 @@ $$<p>
 <p>对一个n维的张量施加log(Softmax())函数，通常用于获取对数概率，并与损失函数<code>nn.NLLLoss()</code>一起使用</p>
 <h3 id="4-nnsoftmax2d">4. <code>nn.Softmax2d()</code></h3>
 <p>针对3维(C,H,W)或4维(N,C,H,W)的输入，它总是沿着C对应的维度对张量施加Softmax()函数</p>
+<h3 id="5-nnsoftplus">5. <code>nn.Softplus()</code></h3>
+<p>对每个张量元素施加
+<a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.Softplus.html#torch.nn.Softplus"  target="_blank" rel="noopener noreferrer" >Softplus</a>
+函数。这是一个ReLU函数的光滑近似，用于保证正的输出。</p>
+<p>默认$\beta$值为1，当输入值*$\beta$大于一定门槛（默认值20）时，会变成线性。</p>
+<p>$\mathrm{Softplus}(x)=\frac{1}{\beta}*\log(1+\exp(\beta * x))$</p>
+<img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/Softplus.png"/>
+<h3 id="6-nnsigmoid">6. <code>nn.Sigmoid()</code></h3>
+<p>对张量的每个元素施加Sigmoid函数。对于小于0的输入，输出0-0.5；对于大于0的输入，输出0.5-1。整体是非负的。</p>
+<p>$\mathrm{Sigmoid}(x)=\sigma(x)=\frac{1}{1+\exp(-x)}$</p>
+<img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/Sigmoid.png"/>
+<h3 id="7-nntanh">7. <code>nn.Tanh</code></h3>
+<p>对张量的每个元素施加双曲正切函数，输出值范围为(-1,1)。</p>
+<p>$\mathrm{Tanh}(x)=\mathrm{tanh}(x)=\frac{\exp(x)-\exp(-x)}{\exp(x)+\exp(-x)}$</p>
+<img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/Tanh.png"/>
 <h2 id="批标准化">批标准化</h2>
 <h3 id="1-nnbatchnorm1d">1. <code>nn.BatchNorm1d()</code></h3>
 <p>对二维(N,C)或三维(N,C,L)的输入进行批标准化。</p>
 <p>对于二维输入，其实N是batch大小，C是特征数，这里叫Channels，是沿着列求平均和方差的。并且这个函数求的是有偏方差。</p>
 <p>对于三维输入，可以理解成先转化为(N*L,C)，再用二维的处理方法得到结果，再展开。</p>
+<h2 id="池化">池化</h2>
+<h2 id="正则化">正则化</h2>
+<p>
+<a href="[%e4%b8%80%e7%af%87%e6%96%87%e7%ab%a0%e8%af%a6%e8%a7%a3%e6%b7%b1%e5%ba%a6%e5%ad%a6%e4%b9%a0%e6%ad%a3%e5%88%99%e5%8c%96%e6%96%b9%e6%b3%95%ef%bc%88L1%e3%80%81L2%e3%80%81Dropout%e6%ad%a3%e5%88%99%e5%8c%96%e7%9b%b8%e5%85%b3%e6%a6%82%e5%bf%b5%e3%80%81%e5%ae%9a%e4%b9%89%e3%80%81%e6%95%b0%e5%ad%a6%e5%85%ac%e5%bc%8f%e3%80%81Python%e4%bb%a3%e7%a0%81%e5%ae%9e%e7%8e%b0%ef%bc%89-CSDN%e5%8d%9a%e5%ae%a2]%28https://blog.csdn.net/a910247/article/details/137604232%29" >参考文献</a>
+</p>
+<p>在深度学习中，正则化通常用于约束模型的复杂度、防止过拟合、提高模型的泛化能力和鲁棒性。</p>
+<h3 id="1-nndropout">1. <code>nn.Dropout()</code></h3>
+<p>在每次前向传播时，以一定概率让张量中的某些元素归零。防止过拟合。<mark>常用于分类任务</mark>。不要用于回归任务。</p>
+<p>接受一个浮点数，用于表示概率，默认值是0.5。</p>
+<h3 id="2-l1正则化">2. L1正则化</h3>
+<p>L1正则化、也称Lasso正则化。就是在损失函数中引入一个与模型权重的L1范数相关的值，作为惩罚项，用于控制（限制）模型的复杂度和防止过拟合。</p>
+<p>$L_{L1}=L_{data}+\lambda\begin{matrix} \sum_{i=1}^n |w_i| \end{matrix}$</p>
+<h3 id="3-l2正则化">3. L2正则化</h3>
+<p>L2正则化，也称Ridge正则化、<mark>权重衰减</mark>。与L1正则化类似，就是在损失函数中引入一个与模型权重的L2范数相关的值，作为惩罚项，用于控制（限制）模型的复杂度和防止过拟合。它鼓励模型用小的模型参数。</p>
+<p>$L_{L1}=L_{data}+\lambda||w||_2^2$</p>
+<p>这里，
+</p>
+$$
+||w|| _2 ^2 = \sum_{i=1}^n w_i^2
+$$<h3 id="4-elastic-net-正则化">4. Elastic Net 正则化</h3>
+<p>采用L1正则化和L2正则化的组合。</p>
+<h3 id="5-早停止和数据增强">5. 早停止和数据增强</h3>
+<p>早停止：即检测模型在验证集上的性能，当模型在验证集的性能出现下降时停止训练，避免过拟合。</p>
+<p>数据增强：对数据进行一定变换来增强数据的多样性。如在图像分类时，对图片进行旋转、剪裁、翻转等操作。</p>
 
 </main>
 
@@ -1972,6 +2025,26 @@ skinparam participantBackgroundColor #white
     
   
 
+  
+    searchIndex.push({
+      title: "\"晶界建模\"",
+      permalink: "\"/pymatgen/gainbroundary/\"",
+      
+      categories: "[\"pymatgen\"]",
+      tags: [],
+      series: [],
+      date: "\"2025-05-24\""
+    });
+  
+    searchIndex.push({
+      title: "\"Pytorch中的张量操作\"",
+      permalink: "\"/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%BC%A0%E9%87%8F%E6%93%8D%E4%BD%9C/\"",
+      
+      categories: "[\"深度学习\"]",
+      tags: [],
+      series: [],
+      date: "\"2025-05-20\""
+    });
   
     searchIndex.push({
       title: "\"用于搭建神经网络的函数\"",

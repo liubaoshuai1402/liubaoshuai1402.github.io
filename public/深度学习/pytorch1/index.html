@@ -376,6 +376,39 @@ data_loader['valid'] = validate_loader
 <p>训练集的<code>SubsetRandomSampler</code>的初始化参数就是<code>list(range(100))[0:80]</code>。</p>
 <p>验证集的<code>SubsetRandomSampler</code>的初始化参数就是<code>list(range(100))[-20:-5]</code>。</p>
 <p>测试集的<code>SubsetRandomSampler</code>的初始化参数就是<code>list(range(100))[-5:]</code>。</p>
+<h3 id="1-dataset与dataloader">1. Dataset与DataLoader</h3>
+<ul>
+<li>
+<p>在CGCNN中，作者自己手写了<code>CIFData</code>作为自定义的<code>Dataset</code>。</p>
+<p><code>CIFData</code>三个重要的魔法方法的功能：</p>
+<p>1.<code>__init__()</code>方法</p>
+<pre><code class="language-python">    def __init__(self, root_dir, max_num_nbr=12, radius=8, dmin=0, step=0.2,
+                 random_seed=123):
+</code></pre>
+<p>这里简单初始化了：数据集的路径、晶体的解析细节（比如最大邻居数和截断半径，高斯距离的参数）</p>
+<p>2.<code>__len__()</code>方法</p>
+<p>让CIFData的实例可以通过<code>len()</code>函数返回数据集大小。</p>
+<p>3.<code>__getitem__()</code>方法</p>
+<p>这里先用了<code>@functools.lru_cache(maxsize=None)</code>修饰器来缓存数据，避免每次读入相同结构时，都要解析晶体。</p>
+</li>
+<li>
+<p><code>DataLoader</code>中的<code>collate_fn</code>打包函数</p>
+<p>CGCNN代码中自定义了打包函数，名叫<code>collate_pool()</code></p>
+<p><code>DataLoader</code>实例在初始化同样只是规定了一些加载参数，并没有实际加载数据集。</p>
+<p>只有当遍历<code>DataLoader</code>实例时，才开始加载、打包、返回数据。(<code>for</code>循环抽打<code>DataLoader</code>，<code>DataLoader</code>抽打<code>Dataset</code>)</p>
+<p>但是遍历<code>DataLoader</code>并不会得到一个个的数据点，而是得到一个个batch的数据包，这是由<code>collate_fn</code>打包函数完成的，每当经历了batch_size个数据点，打包函数就会把他们合并。</p>
+<p>这里是打包函数返回的内容</p>
+<pre><code class="language-python">    return (torch.cat(batch_atom_fea, dim=0),
+            torch.cat(batch_nbr_fea, dim=0),
+            torch.cat(batch_nbr_fea_idx, dim=0),
+            crystal_atom_idx),\
+        torch.stack(batch_target, dim=0),\
+        batch_cif_ids
+</code></pre>
+<p>以及<code>for</code>循环的例子， <code>for i, (input, target, _) in enumerate(train_loader):</code></p>
+<p>得到的<code>input</code>其实是第一个返回，即一个元组，包含了经过拼接后的同一批次内的原子特征、邻居特征、以及邻居特征索引和全局原子索引。</p>
+</li>
+</ul>
 <h2 id="写神经网络">写神经网络</h2>
 <pre><code class="language-python">model_input = 'resnet152'
 # Build and train network
@@ -428,6 +461,123 @@ print(model.__class__.__name__)
         )
 </code></pre>
 <p>他的分类器本来包含了7层，但是作者觉得最后一层的4096个特征太多了，就改写了一下，减少特征为512个。</p>
+<h2 id="train函数"><code>train()</code>函数</h2>
+<p>让我们看看一个合格的训练函数都应该做哪些工作。</p>
+<pre><code class="language-python">def train(train_loader, model, criterion, optimizer, epoch, normalizer):
+    #每一代epoch都调用一次train函数
+    batch_time = AverageMeter()
+    data_time = AverageMeter()
+    losses = AverageMeter()
+    if args.task == 'regression':
+        mae_errors = AverageMeter()
+    else:
+        accuracies = AverageMeter()
+        precisions = AverageMeter()
+        recalls = AverageMeter()
+        fscores = AverageMeter()
+        auc_scores = AverageMeter()
+
+    # switch to train mode
+    model.train()
+
+    end = time.time()
+    #一个训练函数应该要遍历整个训练集
+    for i, (input, target, _) in enumerate(train_loader):
+        #遍历train_loader，其实是一个个的批次
+        # measure data loading time
+        data_time.update(time.time() - end)
+
+        if args.cuda:
+            input_var = (Variable(input[0].cuda(non_blocking=True)),
+                         Variable(input[1].cuda(non_blocking=True)),
+                         input[2].cuda(non_blocking=True),
+                         [crys_idx.cuda(non_blocking=True) for crys_idx in input[3]])
+        else:
+            input_var = (Variable(input[0]),
+                         Variable(input[1]),
+                         input[2],
+                         input[3])
+        # normalize target
+        if args.task == 'regression':
+            target_normed = normalizer.norm(target)
+        else:
+            target_normed = target.view(-1).long()
+        if args.cuda:
+            target_var = Variable(target_normed.cuda(non_blocking=True))
+        else:
+            target_var = Variable(target_normed)
+
+        # compute output
+        #把这一批次的数据带入模型
+        output = model(*input_var)
+        #由模型得到的结果和目标值得到损失函数
+        loss = criterion(output, target_var)
+
+        # measure accuracy and record loss
+        if args.task == 'regression':
+            mae_error = mae(normalizer.denorm(output.data.cpu()), target)
+            losses.update(loss.data.cpu(), target.size(0))
+            mae_errors.update(mae_error, target.size(0))
+        else:
+            accuracy, precision, recall, fscore, auc_score = \
+                class_eval(output.data.cpu(), target)
+            losses.update(loss.data.cpu().item(), target.size(0))
+            accuracies.update(accuracy, target.size(0))
+            precisions.update(precision, target.size(0))
+            recalls.update(recall, target.size(0))
+            fscores.update(fscore, target.size(0))
+            auc_scores.update(auc_score, target.size(0))
+
+        # compute gradient and do SGD step
+        optimizer.zero_grad()
+        loss.backward()                           #后向传播、计算梯度
+        optimizer.step()                          #传递梯度、调整参数
+
+        # measure elapsed time
+        batch_time.update(time.time() - end)
+        end = time.time()
+
+        if i % args.print_freq == 0:
+            if args.task == 'regression':
+                print('Epoch: [{0}][{1}/{2}]\t'
+                      'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
+                      'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'
+                      'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
+                      'MAE {mae_errors.val:.3f} ({mae_errors.avg:.3f})'.format(
+                    epoch, i, len(train_loader), batch_time=batch_time,
+                    data_time=data_time, loss=losses, mae_errors=mae_errors)
+                )
+            else:
+                print('Epoch: [{0}][{1}/{2}]\t'
+                      'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
+                      'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'
+                      'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
+                      'Accu {accu.val:.3f} ({accu.avg:.3f})\t'
+                      'Precision {prec.val:.3f} ({prec.avg:.3f})\t'
+                      'Recall {recall.val:.3f} ({recall.avg:.3f})\t'
+                      'F1 {f1.val:.3f} ({f1.avg:.3f})\t'
+                      'AUC {auc.val:.3f} ({auc.avg:.3f})'.format(
+                    epoch, i, len(train_loader), batch_time=batch_time,
+                    data_time=data_time, loss=losses, accu=accuracies,
+                    prec=precisions, recall=recalls, f1=fscores,
+                    auc=auc_scores)
+                )
+</code></pre>
+<ul>
+<li><code>def train(train_loader, model, criterion, optimizer, epoch, normalizer):</code></li>
+</ul>
+<p>这里接受的参数有：训练集的DataLoader、模型、损失函数、优化器、epoch、正则化。</p>
+<ul>
+<li>
+<p><code>model.train()</code></p>
+<p>首先，把模型的训练模式打开，这样网格中一些特殊的函数比如Dropout才会被开启。</p>
+</li>
+<li>
+<p><code>for</code>循环遍历训练集的<code>DataLoader</code></p>
+<p>把得到的批数据，经过简单的处理，比如把张量上传到CUDA。</p>
+<p>把批数据流入模型，再后向传播。</p>
+</li>
+</ul>
 
 </main>
 
@@ -2107,6 +2257,26 @@ skinparam participantBackgroundColor #white
     
   
 
+  
+    searchIndex.push({
+      title: "\"晶界建模\"",
+      permalink: "\"/pymatgen/gainbroundary/\"",
+      
+      categories: "[\"pymatgen\"]",
+      tags: [],
+      series: [],
+      date: "\"2025-05-24\""
+    });
+  
+    searchIndex.push({
+      title: "\"Pytorch中的张量操作\"",
+      permalink: "\"/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%BC%A0%E9%87%8F%E6%93%8D%E4%BD%9C/\"",
+      
+      categories: "[\"深度学习\"]",
+      tags: [],
+      series: [],
+      date: "\"2025-05-20\""
+    });
   
     searchIndex.push({
       title: "\"用于搭建神经网络的函数\"",

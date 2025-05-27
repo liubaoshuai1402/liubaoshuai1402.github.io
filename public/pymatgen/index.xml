@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Pymatgens on BOGHTW</title>
+    <link>http://localhost:1313/pymatgen/</link>
+    <description>Recent content in Pymatgens on BOGHTW</description>
+    <generator>Hugo</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Sat, 24 May 2025 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1313/pymatgen/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>晶界建模</title>
+      <link>http://localhost:1313/pymatgen/gainbroundary/</link>
+      <pubDate>Sat, 24 May 2025 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/pymatgen/gainbroundary/</guid>
+      <description>&lt;h1 id=&#34;晶界建模&#34;&gt;晶界建模&lt;/h1&gt;&#xA;&lt;h2 id=&#34;前言&#34;&gt;前言&lt;/h2&gt;&#xA;&lt;p&gt;基于&#xA;&lt;a href=&#34;https://dtrinkle.matse.illinois.edu/MatSE584/kap_7/backbone/r7_1_2.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener noreferrer&#34; &gt;共格点阵模型&lt;/a&gt;&#xA;（Coincidence Site Lattice），使用pymatgen进行晶界建模。&lt;/p&gt;&#xA;&lt;h2 id=&#34;晶界的类型&#34;&gt;晶界的类型&lt;/h2&gt;&#xA;&lt;h3 id=&#34;1-扭转twist晶界&#34;&gt;1. 扭转（twist）晶界&lt;/h3&gt;&#xA;&lt;p&gt;旋转轴垂直于晶界面，也就是两者的密勒指数应该成比列。&lt;/p&gt;&#xA;&lt;h3 id=&#34;2-倾斜tilt晶界&#34;&gt;2. 倾斜（tilt）晶界&lt;/h3&gt;&#xA;&lt;p&gt;旋转轴平行于晶界面，也就是两者的密勒指数的点乘为0。&lt;/p&gt;&#xA;&lt;h3 id=&#34;3-混合mixed晶界&#34;&gt;3. 混合（mixed）晶界&lt;/h3&gt;&#xA;&lt;p&gt;旋转轴既不垂直也不平行于晶界面。&lt;/p&gt;&#xA;&lt;p&gt;基于共格点阵模型的晶界命名法，Σ+number(must be odd)+(hkl)/[uvw]。&lt;/p&gt;&#xA;&lt;p&gt;举一个栗子， Σ13 (510)/[001] symmetric tilt grain-boundary。&lt;/p&gt;&#xA;&lt;p&gt;这里Σ的大小，是指旋转后重合点阵的单胞的提及是原始晶体单胞的体积的多少倍。通常，这个数字越大，代表两个晶粒的取向相差越远，晶界能也往往越远。&lt;/p&gt;&#xA;&lt;p&gt;Σ1则代表趋向一致，那些小角度晶界也被认为Σ的值近似于1。&lt;/p&gt;&#xA;&lt;p&gt;当指明是twist or tilt晶界时，有时可以省略晶向，也不会造成歧义，比如，&lt;mark&gt;the Σ5(310) tilt GB&lt;/mark&gt;，这是一个YSZ中典型的低能量晶界。&lt;/p&gt;&#xA;&lt;p&gt;但它没有给出旋转轴，因为没有必要，tilt GB 要求晶界面与旋转轴平行，所以只能是[001]。&lt;/p&gt;&#xA;&lt;h2 id=&#34;使用pymatgen进行晶界建模&#34;&gt;使用pymatgen进行晶界建模&lt;/h2&gt;&#xA;&lt;p&gt;首先，我们假设一个应用场景，就是说，我们建模肯定是根据实验来的，实验上对哪些晶界感兴趣，我们就去建模研究。&lt;/p&gt;&#xA;&lt;p&gt;所以在这个假设的基础上，我们是知道&lt;mark&gt;Σ的值&lt;/mark&gt;以及&lt;mark&gt;旋转轴&lt;/mark&gt;、&lt;mark&gt;晶界面&lt;/mark&gt;的。&lt;/p&gt;&#xA;&lt;p&gt;这样，用以下代码我们可以得到旋转角。&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;from pymatgen.core import Structure&#xD;&#xA;from pymatgen.core.interface import GrainBoundaryGenerator&#xD;&#xA;&#xD;&#xA;# 1. 读取结构文件&#xD;&#xA;structure = Structure.from_file(&amp;quot;ZrO.cif&amp;quot;)&#xD;&#xA;structure = structure.to_conventional()&#xD;&#xA;&#xD;&#xA;#创建一个晶界生成器，实例化需要一个晶体结构，最好是conventional cell。&#xD;&#xA;gb_gen = GrainBoundaryGenerator(structure)&#xD;&#xA;&#xD;&#xA;# 2. 构建 Σ5 晶界，参数分别对应Σ的值、旋转轴、晶格类型，对非立方体系需要指定轴比&#xD;&#xA;#其实这里感觉很奇怪，轴比和晶格类型，pymatgen不应该自己判断吗，感觉这块代码写的不好&#xD;&#xA;rotation_anglen = gb_gen.get_rotation_angle_from_sigma(5,(0,0,1),lat_type=&#39;c&#39;)&#xD;&#xA;print(rotation_anglen)&#xD;&#xA;&lt;/code&gt;&lt;/pre&gt;&#xA;&lt;p&gt;这里的输出是，[36.86989764584402, 53.13010235415597, 126.86989764584402, 143.13010235415598]。&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

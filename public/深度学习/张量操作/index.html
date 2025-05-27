@@ -3,7 +3,7 @@
   <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>LAMMPS | BOGHTW</title>
+    <title>Pytorch中的张量操作 | BOGHTW</title>
     <link rel="icon" href= /images/favicon.png />
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/css/fonts.css" />
@@ -36,96 +36,416 @@
     </nav>
 
 
+<div class="article-meta">
+    <h1><span class="article-meta-title">Pytorch中的张量操作</span></h1>
 
+    <div class="article-meta-info">
+        
 
+        
+        
 
-  <h1>LAMMPS</h1>
+        
+        
+        
+        
 
+        
+        
 
+        
+        
+        
+        
+        
+        
+        
+        
+        
 
+        
+        
 
+        🗓️ 2025-05-20 🗂️ <a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a>
+    </div>
+</div>
 
+<main>
+
+    
+
+<div class="toc-btn" id="tocBtn"><i class="fa-solid fa-bars-staggered"></i></div>
+<div class="toc-panel" id="tocPanel"></div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('tocBtn');
+    const panel = document.getElementById('tocPanel');
+    let hoverTimeout;
+
+    
+    btn.addEventListener('mouseenter', () => {
+      clearTimeout(hoverTimeout);
+      generateToc();
+      panel.classList.add('show');
+
+      
+      requestAnimationFrame(() => {
+        const headers = Array.from(document.querySelectorAll('h2, h3, h4, h5, h6'));
+        let activeHeader = null;
+        let minDistance = Infinity;
+
+        
+        headers.forEach(header => {
+          const rect = header.getBoundingClientRect();
+          const distance = Math.abs(rect.top);
+          if (distance < minDistance) {
+            minDistance = distance;
+            activeHeader = header;
+          }
+        });
+
+        
+        if (activeHeader) {
+          const activeLink = panel.querySelector(`a[href="#${activeHeader.id}"]`);
+          if (activeLink) {
+            
+            const panelHeight = panel.offsetHeight;
+            const linkOffset = activeLink.offsetTop;
+            const centerPosition = linkOffset - (panelHeight / 2) + (activeLink.offsetHeight / 2);
+            
+            panel.scrollTo({
+              top: centerPosition,
+              behavior: 'auto'
+            });
+          }
+        }
+      });
+    });
+
+    panel.addEventListener('mouseenter', () => clearTimeout(hoverTimeout));
+
+    [btn, panel].forEach(el => {
+      el.addEventListener('mouseleave', () => {
+        hoverTimeout = setTimeout(() => {
+          panel.classList.remove('show');
+        }, 200);
+      });
+    });
+
+    
+    function generateToc() {
+      if (panel.children.length > 0) return;
+
+      const headers = Array.from(document.querySelectorAll('h2, h3, h4, h5, h6'));
+      const counts = [0, 0, 0, 0, 0]; 
+
+      headers.forEach(header => {
+        const level = parseInt(header.tagName[1]) - 2;
+        if (level < 0) return;
+
+        counts[level]++;
+        for (let i = level + 1; i < counts.length; i++) counts[i] = 0;
+        const number = counts.slice(0, level + 1).join('.');
+
+        
+        const numberSpan = document.createElement('span');
+        numberSpan.className = 'toc-number';
+        numberSpan.textContent = number;
+
+        
+        const link = document.createElement('a');
+        link.href = `#${header.id}`;
+        link.style.paddingLeft = `${level * 12}px`;
+
+        
+        link.appendChild(numberSpan);
+        link.appendChild(document.createTextNode(header.textContent));
+
+        panel.appendChild(link);
+      });
+    }
+  });
+</script>
+
+<style>
+   
+  .toc-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    cursor: pointer;
+    padding: 6px 10px;
+    background: #EFEFEF;
+    border-radius: 8px;
+    transition: background 0.3s;
+    color: #999;
+    opacity: 0.7;
+  }
+
+  .toc-btn:hover {
+    background: #BEC2B3;
+  }
 
    
+  .toc-number {
+    vertical-align: middle;
+    margin-right: 8px;
+    font-family: "LXGW WenKai";
+    font-size: 0.8rem;
+  }
+
+   
+  .toc-panel {
+    border-radius: 8px;
+    display: none;
+    position: fixed;
+    top: 66px;
+    right: 20px;
+    max-width: 360px;
+    min-width: 200px;
+    max-height: 80vh;
+    overflow-y: auto;
+    background: white;
+    border: 1px solid #eee;
+    padding: 10px 5px 10px 15px;
+    z-index: 9998;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+     
+    list-style: none;
+  }
+
+  .toc-panel a {
+    display: block;
+    padding: 4px 0;
+    text-decoration: none;
+    color: #333;
+    white-space: nowrap;
+     
+     
+     
+  }
+
+  .toc-panel a:hover {
+    color: #007bff;
+  }
+
+   
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateX(10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .toc-panel.show {
+    display: block;
+    animation: fadeIn 0.3s ease-out;
+  }
+</style>
 
 
-
-
-  <p style="font-size: 1.1rem; font-weight: bold; margin-bottom: -0.8rem;">2025-05</p>
-
-  <ul>
     
     
-      <li class="archieve-list-item">
-        <div class="archieve-left-section">
-          
-          <span class="archive-date">2025-05-16</span>
-          
-          🗞️<a href="/%E5%88%86%E5%AD%90%E5%8A%A8%E5%8A%9B%E5%AD%A6/thermal_conductivity_rnemd/" class="archive-title-link-a">使用rNEMD方法计算热导率的lammps输入文件</a>
-        </div>
-
-        <div class="archieve-right-section">
-          
-            
-            🎖️
-            
-              <a href="/series/lammps" class="archive-taxonomy-link-a">LAMMPS</a>
-            
-          
-          
-            🗂️
-            
-              <a href="/categories/%E5%88%86%E5%AD%90%E5%8A%A8%E5%8A%9B%E5%AD%A6" class="archive-taxonomy-link-a">分子动力学</a>
-            
-          
-          
-        </div>
-      </li>
     
-  </ul>
+        <h1 id="pytorch中的张量操作">Pytorch中的张量操作</h1>
+<h2 id="数学符号">数学符号</h2>
+<h3 id="1--运算符">1. * 运算符</h3>
+<p>如果张量的形状完全一样，张量 * 张量，其实就是对应元素相乘，也可以$\odot$表示。</p>
+<p>如果张量的形状不一样，则要求他们的形状只能在一个维度上不一样，且其中一个张量这个维度的<code>size</code>为1，这样可以用广播机制补全后相乘。</p>
+<p>如果张量 * 数字，则是全体元素乘以这个数字。</p>
+<h2 id="函数方法">函数、方法</h2>
+<h3 id="1-permute">1. <code>permute()</code></h3>
+<p>可以作为张量对象的方法使用，接受置换后的维度。</p>
+<pre><code class="language-python">import torch
 
+table = torch.randn(2,3,4)
+print(table)
+print(table.permute(2,1,0))
+</code></pre>
+<p>这段代码就是将第一维和第三维进行置换。</p>
+<p>由已知的张量还有置换后的顺序，怎么写出新的张量呢，这个问题一直让我困扰。</p>
+<img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/permute.jpg" style="zoom:50%;" />
+<p>今天的学习，我脑子里突然蹦出一个邻居的概念。对于一个四维的张量元素，它应该有四个不同维度的邻居，但如果仅仅把视角局限在矩阵里，那它就只有两个邻居，一个行维度上的，一个列维度上的，这很不对。得把视野打开，通道维度和批次维度的邻居可能隔了很远，但它们也是邻居。</p>
+<h3 id="2-reshape和view">2. <code>reshape()</code>和<code>view()</code></h3>
+<p>深度学习中，经常会把高维张量降维，计算后再展开，要小心翼翼，错位会带来灾难性的错误。</p>
+<p>对于一个（N，F，M）的张量，F是其特征维度。如果想把N和M合并，<mark>应该先把F变成最高维度或者最低维度，让需要合并的维度接壤</mark>。</p>
+<pre><code class="language-python">import torch
+
+table = torch.randn(2,3,4)
+print(table)
+a = table.reshape(3,8)
+b = table.permute(1,0,2).reshape(3,8)
+
+print(a)
+print(b)
+</code></pre>
+<p>这里先把张量形状变成了（3，2，4），再合并，可以保证张量维度不会错位，如果直接改写性质为（3，8），则会错位。</p>
+<p><code>reshape()</code>和<code>view()</code>是一样的，前者可以作用于numpy数组。</p>
+<h3 id="3-flatten">3. <code>flatten()</code></h3>
+<p>将高维张量展平为一维张量。</p>
+<h3 id="4-torchcat">4. <code>torch.cat()</code></h3>
+<p>把张量按给定的顺序和维度进行拼接，除了拼接维度外，张量必须具有相同的形状。</p>
+<p>可用于特征维度的拓展，加入新的特征。</p>
+<h3 id="5-unsqueeze">5. <code>unsqueeze()</code></h3>
+<p>
+<a href="https://docs.pytorch.org/docs/stable/generated/torch.unsqueeze.html#torch.unsqueeze"  target="_blank" rel="noopener noreferrer" >torch.unsqueeze</a>
+</p>
+<p>torch.unsqueeze(<em>input</em>, <em>dim</em>) → Tensor</p>
+<p>为张量插入一个新的<code>size</code>为1的维度。用于升维。配合<code>expand()</code>食用更佳。</p>
+<h3 id="6-expand">6. <code>expand()</code></h3>
+<p>
+<a href="https://docs.pytorch.org/docs/stable/generated/torch.Tensor.expand.html#torch.Tensor.expand"  target="_blank" rel="noopener noreferrer" >torch.Tensor.expand</a>
+</p>
+<p>这个只有张量方法，没有函数。</p>
+<p>Tensor.expand(*<em>sizes</em>) → Tensor</p>
+<p>将张量沿着某个<code>size</code>为1的维度进行复制拓展。</p>
+<pre><code class="language-python">total_nbr_fea = torch.cat(
+	[atom_in_fea.unsqueeze(1).expand(N, M, self.atom_fea_len),
+	atom_nbr_fea, nbr_fea], dim=2)
+</code></pre>
+<p>atom_in_fea张量的形状本是(N,self.atom_fea_len)，通过unsqueeze(1)，变成(N,1,self.atom_fea_len)。</p>
+<p>再通过expand(N, M, self.atom_fea_len),变成(N, M, self.atom_fea_len)形状。</p>
+<h3 id="7-chunk">7. <code>chunk()</code></h3>
+<p>
+<a href="https://docs.pytorch.org/docs/stable/generated/torch.chunk.html#torch.chunk"  target="_blank" rel="noopener noreferrer" >torch.chunk</a>
+</p>
+<p>torch.chunk(<em>input: 
+<a href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor"  target="_blank" rel="noopener noreferrer" >Tensor</a>
+</em>, <em>chunks: 
+<a href="https://docs.python.org/3/library/functions.html#int"  target="_blank" rel="noopener noreferrer" >int</a>
+</em>, <em>dim: 
+<a href="https://docs.python.org/3/library/functions.html#int"  target="_blank" rel="noopener noreferrer" >int</a>
+ = 0</em>) → Tuple[Tensor, &hellip;]</p>
+<p>尝试把张量分成指定数量的块。也就是分割张量。可指定维度分割。但，<mark>数量可能会比指定的少</mark>，一般最好成倍数时使用。</p>
+<p>可用于分割特征维度。</p>
+<h3 id="8-torchsum">8. <code>torch.sum()</code></h3>
+<p>
+<a href="https://docs.pytorch.org/docs/stable/generated/torch.sum.html"  target="_blank" rel="noopener noreferrer" >torch.sum</a>
+</p>
+<p>torch.sum(<em>input</em>, <em>dim</em>, <em>keepdim=False</em>, ***, <em>dtype=None</em>) → Tensor</p>
+<p>将张量元素沿指定维度进行加和。</p>
+<h2 id="切片">切片</h2>
+<h3 id="1-简单切片">1. 简单切片</h3>
+<pre><code class="language-python">import torch
+
+a = torch.tensor(range(12)).view(3,4)
+b = a[1,2]
+print(a)
+print(b)
+</code></pre>
+<p>在张量切片中，<mark>逗号表示维度间隔</mark>。在这个简单切片中，整数代表索引。</p>
+<p>也可以接受<code>start:stop:step</code>格式的索引进行切片，一个简单<code>:</code>代表全选这一维度。</p>
+<pre><code class="language-python">import torch
+
+a = torch.tensor(range(24)).view(2,3,4)
+b = a[1,:]
+print(a)
+print(b)
+</code></pre>
+<p>这里是一个三维张量，但是只用了一个逗号，这是一种简写，其实是逗号后续的所有维度都全选。</p>
+<h3 id="2-高级切片">2. 高级切片</h3>
+<p>张量的某个维度的索引也可以是张量。</p>
+<p>如果索引是一维张量，据测试，其实是列表也行。就是多个整数索引组成的列表或者一维张量。根据这些整数确定这个维度怎么被取。</p>
+<pre><code class="language-python">import torch
+import numpy as np
+
+atom_in_fea = torch.randn(4,5,6)
+
+nbr_fea_idx = torch.tensor([0, 1, 4])
+
+atom_nbr_fea1 = atom_in_fea[:,nbr_fea_idx,:]
+atom_nbr_fea2 = atom_in_fea[:,[0,1,4],:]
+
+print(atom_nbr_fea1==atom_nbr_fea2)
+</code></pre>
+<p>这里<code>dim=1</code>维度的切片索引就是一个一维张量，里面的整数是0，1，4。说明切片时，取这个维度的第1，第2，第5个数据。</p>
+<p>如果索引是二维张量，在切片的同时其实进行了升维。</p>
+<pre><code class="language-python">import torch
+import numpy as np
+
+atom_in_fea = torch.randn(4,5,6)
+
+#shape(2,2)
+nbr_fea_idx = torch.tensor([[0, 1],[1,2]])
+
+atom_nbr_fea = atom_in_fea[:,nbr_fea_idx,:]
+
+print(atom_nbr_fea.shape)
+#torch.Size([4, 2, 2, 6])
+</code></pre>
+<p>这里<code>dim=1</code>维度的切片索引就是一个二维张量，它会按照内部每一行的整数对这个维度进行切片，并根据内部的行数形成新的一维。</p>
+<p>听起来很复杂，这里给出一个具体的应用场景，在CGCNN的卷积操作中。</p>
+<p>atom_in_fea的性质为（N，features），N是批次内的总原子数</p>
+<p>nbr_fea_idx是一个二维张量（N，M），记录了N个原子的邻居原子的原子id。</p>
+<pre><code class="language-python">atom_nbr_fea = atom_in_fea[nbr_fea_idx, :]
+</code></pre>
+<p>从形状上来看，这样的切片结果就是把（N，features）中的N替换成（N，M），最终变成（N，M，features）</p>
+<p>这样，就得到了，每个原子的M个邻居原子的原子特征。</p>
+<p>这里nbr_fea_idx的记录很关键，CIFData给出的是每个晶体内的，collate_pool函数会把它更新成batch内的。模型接受的参数是经collate_pool函数集成后的。</p>
+
+</main>
 
 <style>
  
-.archieve-list-item {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-}
-
-.archieve-left-section {
-    display: flex;
-    align-items: center;
-     
-    gap: 0.2rem;
-    order: 1;
-}
-
-.archieve-right-section {
-    margin-left: auto;
-    display: flex;
-    gap: 0.2rem;
-    flex-wrap: wrap;
-    order: 2;
-    align-items: center;
-}
-
-.archive-date {
-    text-wrap: nowrap;
-}
-
-.archive-title-link-a {
-    color: #3c4654;
+.article-meta {
+    text-align: center;
     text-decoration: none;
-    font-weight: bold;
+    background: #efefef;
+    padding: 1px;
+    border-radius: 5px;
 }
 
-.archive-taxonomy-link-a {
-    text-align: right;
-    color: #7d929f;
+.article-meta-title {
+    font-size: 1em;
+}
+
+.article-meta-info {
+    color: #666;
+    font-size: 0.9rem;
+    margin: -0.6rem 0 0.2rem 10px;
+    text-align: left;
+}
+
+.article-meta-info a {
+    color: inherit;
     text-decoration: none;
+    transition: color 0.3s ease;
 }
 </style>
+
+
+
+<h1 style="font-size: 1.2rem; margin: 2.5rem 0 0.1rem 0;">Comment</h1>
+<div class="cusdis-comments">
+  <div id="cusdis_thread"
+    data-host="https://cusdis.com"
+    data-app-id="0eeb9b3b-40ad-41b5-94e8-13a830e599d7"
+    data-page-id="4f9a6732e3d65c829803469546ac3cae"
+    data-page-url="http://localhost:1313/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%BC%A0%E9%87%8F%E6%93%8D%E4%BD%9C/"
+    data-page-title="Pytorch中的张量操作"
+  ></div>
+  <script async defer src="https://cdn.jsdelivr.net/gh/captainwc/cdn-release/website/cusdis/cusdis.es.min.js"></script>
+</div>
+
+<style>
+.cusdis-comments {
+  border-top: 2px dashed #cfcfcf;
+  padding-top: 1.3rem;
+}
+
+#cusdis_thread iframe {
+  min-height: 500px !important;
+  overflow: visible !important;
+}
+</style>
+
 
 <footer>
   
@@ -138,6 +458,206 @@
   <script src="https://cdn.jsdelivr.net/gh/captainwc/cdn-release/website/js/center-img.min.js"></script>
   
   
+
+<div id="menuBtnContainer">
+    
+    <button id="menuBtn"><i class="fa-solid fa-screwdriver-wrench"></i></button>
+
+    
+    <button id="backToBottomBtn" class="menu-popup-btn top-btn"><i class="fa-solid fa-square-caret-down"></i></button>
+    <button id="backToTopBtn" class="menu-popup-btn top-btn"><i class="fa-solid fa-square-caret-up"></i></button>
+
+    
+    <div class="menu-popup-btn edit-btn">
+        <a href='https://github.com/liubaoshuai1402/liubaoshuai1402.github.io/edit/main/content/%e6%b7%b1%e5%ba%a6%e5%ad%a6%e4%b9%a0/%e5%bc%a0%e9%87%8f%e6%93%8d%e4%bd%9c.md'
+            target="_blank" rel="noopener">
+            <i class="fa-solid fa-square-pen"></i>
+        </a>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var menuBtn = document.getElementById('menuBtn');
+        var menuBtnContainer = document.getElementById('menuBtnContainer');
+        var backToTopBtn = document.getElementById('backToTopBtn');
+        var backToBottomBtn = document.getElementById('backToBottomBtn');
+        var popupBtns = document.querySelectorAll('.menu-popup-btn');
+        var hoverTimeout;
+
+        
+        menuBtnContainer.classList.add('visible');
+
+        
+        function showPopupBtns() {
+            clearTimeout(hoverTimeout);
+            menuBtnContainer.classList.add('active');
+        }
+
+        
+        function hidePopupBtns() {
+            hoverTimeout = setTimeout(function() {
+                menuBtnContainer.classList.remove('active');
+            }, 300);
+        }
+
+        
+        menuBtnContainer.addEventListener('mouseenter', showPopupBtns);
+        menuBtnContainer.addEventListener('mouseleave', hidePopupBtns);
+
+        
+        menuBtn.addEventListener('click', function() {
+            if (menuBtnContainer.classList.contains('active')) {
+                menuBtnContainer.classList.remove('active');
+            } else {
+                showPopupBtns();
+            }
+        });
+
+        
+        backToTopBtn.addEventListener('click', function() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        
+        backToBottomBtn.addEventListener('click', function() {
+            window.scrollTo({
+                top: document.body.scrollHeight,
+                behavior: 'smooth'
+            });
+        });
+    });
+</script>
+
+<style>
+     
+    #menuBtnContainer {
+        position: fixed;
+        right: 20px;
+        bottom: 20px;
+        z-index: 999;
+        opacity: 0.6;
+        visibility: visible;
+        transition: opacity 0.3s;
+    }
+
+    #menuBtnContainer:hover {
+        opacity: 1;
+    }
+
+     
+    #menuBtn {
+        border-radius: 8px;
+        border: none;
+        color: #aaa;
+        font-family: "Maple Mono NF CN";
+        font-size: 1.2rem;
+        transition: background 0.3s;
+        cursor: pointer;
+        background: #EFEFEF;
+        z-index: 1000;
+        position: relative;
+    }
+
+    #menuBtn:hover {
+        background: #BEC2B3;
+        color: #666;
+    }
+
+     
+    .menu-popup-btn {
+        position: absolute;
+        opacity: 0;
+        visibility: hidden;
+        border-radius: 8px;
+        border: none;
+        color: #aaa;
+        font-family: "Maple Mono NF CN";
+        font-size: 1.3rem;
+        transition: all 0.3s ease;
+        background: #EFEFEF;
+        cursor: pointer;
+        z-index: 999;
+    }
+
+     
+    .menu-popup-btn.top-btn {
+        right: 0;
+        transform: translateY(0) scale(0.8);
+    }
+
+     
+    .menu-popup-btn.edit-btn {
+        bottom: 0;
+        transform: translateX(0) scale(0.8);
+        padding: 1px 6.6px 0px 6.6px;
+    }
+
+    .menu-popup-btn.edit-btn a {
+        color: #ccc;
+        text-decoration: none;
+        background: none !important;
+        transition: opacity 0.2s;
+        padding: 0;
+        margin: 0;
+    }
+
+     
+    #menuBtnContainer.active .menu-popup-btn {
+        opacity: 1;
+        visibility: visible;
+    }
+
+     
+    #menuBtnContainer.active #backToBottomBtn {
+        transform: translateY(-60px) scale(1);
+    }
+
+     
+    #menuBtnContainer.active #backToTopBtn {
+        transform: translateY(-110px) scale(1);
+    }
+
+     
+    #menuBtnContainer.active .edit-btn {
+        transform: translateX(-60px) scale(1);
+    }
+
+     
+    .menu-popup-btn:hover,
+    .menu-popup-btn.edit-btn:hover {
+        background: #BEC2B3;
+        color: #666;
+    }
+
+    .menu-popup-btn.edit-btn:hover a {
+        color: #666;
+    }
+
+     
+    @media (max-width: 768px) {
+        #menuBtnContainer {
+            right: 15px;
+            bottom: 15px;
+        }
+
+        #menuBtnContainer.active #backToBottomBtn {
+            transform: translateY(-50px) scale(1);
+        }
+
+        #menuBtnContainer.active #backToTopBtn {
+            transform: translateY(-90px) scale(1);
+        }
+
+        #menuBtnContainer.active .edit-btn {
+            transform: translateX(-50px) scale(1);
+        }
+    }
+</style>
+
 
 
   <script>

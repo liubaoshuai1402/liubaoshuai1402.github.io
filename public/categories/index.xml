@@ -6,12 +6,19 @@
     <description>Recent content in Categories on BOGHTW</description>
     <generator>Hugo</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Mon, 19 May 2025 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 24 May 2025 00:00:00 +0000</lastBuildDate>
     <atom:link href="http://localhost:1313/categories/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Pymatgen</title>
+      <link>http://localhost:1313/categories/pymatgen/</link>
+      <pubDate>Sat, 24 May 2025 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/categories/pymatgen/</guid>
+      <description></description>
+    </item>
     <item>
       <title>深度学习</title>
       <link>http://localhost:1313/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/</link>
-      <pubDate>Mon, 19 May 2025 00:00:00 +0000</pubDate>
+      <pubDate>Tue, 20 May 2025 00:00:00 +0000</pubDate>
       <guid>http://localhost:1313/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/</guid>
       <description></description>
     </item>

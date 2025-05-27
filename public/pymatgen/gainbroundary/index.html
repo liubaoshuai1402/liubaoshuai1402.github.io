@@ -3,7 +3,7 @@
   <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>LAMMPS | BOGHTW</title>
+    <title>晶界建模 | BOGHTW</title>
     <link rel="icon" href= /images/favicon.png />
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/css/fonts.css" />
@@ -36,96 +36,338 @@
     </nav>
 
 
+<div class="article-meta">
+    <h1><span class="article-meta-title">晶界建模</span></h1>
 
+    <div class="article-meta-info">
+        
 
+        
+        
 
-  <h1>LAMMPS</h1>
+        
+        
+        
+        
 
+        
+        
 
+        
+        
+        
+        
+        
+        
+        
+        
+        
 
+        
+        
 
+        🗓️ 2025-05-24 🗂️ <a href="/categories/pymatgen/">pymatgen</a>
+    </div>
+</div>
 
+<main>
+
+    
+
+<div class="toc-btn" id="tocBtn"><i class="fa-solid fa-bars-staggered"></i></div>
+<div class="toc-panel" id="tocPanel"></div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('tocBtn');
+    const panel = document.getElementById('tocPanel');
+    let hoverTimeout;
+
+    
+    btn.addEventListener('mouseenter', () => {
+      clearTimeout(hoverTimeout);
+      generateToc();
+      panel.classList.add('show');
+
+      
+      requestAnimationFrame(() => {
+        const headers = Array.from(document.querySelectorAll('h2, h3, h4, h5, h6'));
+        let activeHeader = null;
+        let minDistance = Infinity;
+
+        
+        headers.forEach(header => {
+          const rect = header.getBoundingClientRect();
+          const distance = Math.abs(rect.top);
+          if (distance < minDistance) {
+            minDistance = distance;
+            activeHeader = header;
+          }
+        });
+
+        
+        if (activeHeader) {
+          const activeLink = panel.querySelector(`a[href="#${activeHeader.id}"]`);
+          if (activeLink) {
+            
+            const panelHeight = panel.offsetHeight;
+            const linkOffset = activeLink.offsetTop;
+            const centerPosition = linkOffset - (panelHeight / 2) + (activeLink.offsetHeight / 2);
+            
+            panel.scrollTo({
+              top: centerPosition,
+              behavior: 'auto'
+            });
+          }
+        }
+      });
+    });
+
+    panel.addEventListener('mouseenter', () => clearTimeout(hoverTimeout));
+
+    [btn, panel].forEach(el => {
+      el.addEventListener('mouseleave', () => {
+        hoverTimeout = setTimeout(() => {
+          panel.classList.remove('show');
+        }, 200);
+      });
+    });
+
+    
+    function generateToc() {
+      if (panel.children.length > 0) return;
+
+      const headers = Array.from(document.querySelectorAll('h2, h3, h4, h5, h6'));
+      const counts = [0, 0, 0, 0, 0]; 
+
+      headers.forEach(header => {
+        const level = parseInt(header.tagName[1]) - 2;
+        if (level < 0) return;
+
+        counts[level]++;
+        for (let i = level + 1; i < counts.length; i++) counts[i] = 0;
+        const number = counts.slice(0, level + 1).join('.');
+
+        
+        const numberSpan = document.createElement('span');
+        numberSpan.className = 'toc-number';
+        numberSpan.textContent = number;
+
+        
+        const link = document.createElement('a');
+        link.href = `#${header.id}`;
+        link.style.paddingLeft = `${level * 12}px`;
+
+        
+        link.appendChild(numberSpan);
+        link.appendChild(document.createTextNode(header.textContent));
+
+        panel.appendChild(link);
+      });
+    }
+  });
+</script>
+
+<style>
+   
+  .toc-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    cursor: pointer;
+    padding: 6px 10px;
+    background: #EFEFEF;
+    border-radius: 8px;
+    transition: background 0.3s;
+    color: #999;
+    opacity: 0.7;
+  }
+
+  .toc-btn:hover {
+    background: #BEC2B3;
+  }
 
    
+  .toc-number {
+    vertical-align: middle;
+    margin-right: 8px;
+    font-family: "LXGW WenKai";
+    font-size: 0.8rem;
+  }
+
+   
+  .toc-panel {
+    border-radius: 8px;
+    display: none;
+    position: fixed;
+    top: 66px;
+    right: 20px;
+    max-width: 360px;
+    min-width: 200px;
+    max-height: 80vh;
+    overflow-y: auto;
+    background: white;
+    border: 1px solid #eee;
+    padding: 10px 5px 10px 15px;
+    z-index: 9998;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+     
+    list-style: none;
+  }
+
+  .toc-panel a {
+    display: block;
+    padding: 4px 0;
+    text-decoration: none;
+    color: #333;
+    white-space: nowrap;
+     
+     
+     
+  }
+
+  .toc-panel a:hover {
+    color: #007bff;
+  }
+
+   
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateX(10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .toc-panel.show {
+    display: block;
+    animation: fadeIn 0.3s ease-out;
+  }
+</style>
 
 
-
-
-  <p style="font-size: 1.1rem; font-weight: bold; margin-bottom: -0.8rem;">2025-05</p>
-
-  <ul>
     
     
-      <li class="archieve-list-item">
-        <div class="archieve-left-section">
-          
-          <span class="archive-date">2025-05-16</span>
-          
-          🗞️<a href="/%E5%88%86%E5%AD%90%E5%8A%A8%E5%8A%9B%E5%AD%A6/thermal_conductivity_rnemd/" class="archive-title-link-a">使用rNEMD方法计算热导率的lammps输入文件</a>
-        </div>
-
-        <div class="archieve-right-section">
-          
-            
-            🎖️
-            
-              <a href="/series/lammps" class="archive-taxonomy-link-a">LAMMPS</a>
-            
-          
-          
-            🗂️
-            
-              <a href="/categories/%E5%88%86%E5%AD%90%E5%8A%A8%E5%8A%9B%E5%AD%A6" class="archive-taxonomy-link-a">分子动力学</a>
-            
-          
-          
-        </div>
-      </li>
     
-  </ul>
+        <h1 id="晶界建模">晶界建模</h1>
+<h2 id="前言">前言</h2>
+<p>基于
+<a href="https://dtrinkle.matse.illinois.edu/MatSE584/kap_7/backbone/r7_1_2.html"  target="_blank" rel="noopener noreferrer" >共格点阵模型</a>
+（Coincidence Site Lattice），使用pymatgen进行晶界建模。</p>
+<h2 id="晶界的类型">晶界的类型</h2>
+<h3 id="1-扭转twist晶界">1. 扭转（twist）晶界</h3>
+<p>旋转轴垂直于晶界面，也就是两者的密勒指数应该成比列。</p>
+<h3 id="2-倾斜tilt晶界">2. 倾斜（tilt）晶界</h3>
+<p>旋转轴平行于晶界面，也就是两者的密勒指数的点乘为0。</p>
+<h3 id="3-混合mixed晶界">3. 混合（mixed）晶界</h3>
+<p>旋转轴既不垂直也不平行于晶界面。</p>
+<p>基于共格点阵模型的晶界命名法，Σ+number(must be odd)+(hkl)/[uvw]。</p>
+<p>举一个栗子， Σ13 (510)/[001] symmetric tilt grain-boundary。</p>
+<p>这里Σ的大小，是指旋转后重合点阵的单胞的提及是原始晶体单胞的体积的多少倍。通常，这个数字越大，代表两个晶粒的取向相差越远，晶界能也往往越远。</p>
+<p>Σ1则代表趋向一致，那些小角度晶界也被认为Σ的值近似于1。</p>
+<p>当指明是twist or tilt晶界时，有时可以省略晶向，也不会造成歧义，比如，<mark>the Σ5(310) tilt GB</mark>，这是一个YSZ中典型的低能量晶界。</p>
+<p>但它没有给出旋转轴，因为没有必要，tilt GB 要求晶界面与旋转轴平行，所以只能是[001]。</p>
+<h2 id="使用pymatgen进行晶界建模">使用pymatgen进行晶界建模</h2>
+<p>首先，我们假设一个应用场景，就是说，我们建模肯定是根据实验来的，实验上对哪些晶界感兴趣，我们就去建模研究。</p>
+<p>所以在这个假设的基础上，我们是知道<mark>Σ的值</mark>以及<mark>旋转轴</mark>、<mark>晶界面</mark>的。</p>
+<p>这样，用以下代码我们可以得到旋转角。</p>
+<pre><code class="language-python">from pymatgen.core import Structure
+from pymatgen.core.interface import GrainBoundaryGenerator
 
+# 1. 读取结构文件
+structure = Structure.from_file(&quot;ZrO.cif&quot;)
+structure = structure.to_conventional()
+
+#创建一个晶界生成器，实例化需要一个晶体结构，最好是conventional cell。
+gb_gen = GrainBoundaryGenerator(structure)
+
+# 2. 构建 Σ5 晶界，参数分别对应Σ的值、旋转轴、晶格类型，对非立方体系需要指定轴比
+#其实这里感觉很奇怪，轴比和晶格类型，pymatgen不应该自己判断吗，感觉这块代码写的不好
+rotation_anglen = gb_gen.get_rotation_angle_from_sigma(5,(0,0,1),lat_type='c')
+print(rotation_anglen)
+</code></pre>
+<p>这里的输出是，[36.86989764584402, 53.13010235415597, 126.86989764584402, 143.13010235415598]。</p>
+<img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/YSZ%E6%99%B6%E7%95%8C.png"/>
+<p>第一个值，36.8°与[参考文献](
+<a href="https://sci-hub.st/https://doi.org/10.1111/j.1151-2916.2001.tb00842.x"  target="_blank" rel="noopener noreferrer" >Sci-Hub | Structure and Chemistry of Yttria-Stabilized Cubic-Zirconia Symmetric Tilt Grain Boundaries. Journal of the American Ceramic Society, 84(6), 1361–1368 | 10.1111/j.1151-2916.2001.tb00842.x</a>
+)一致。</p>
+<p>同样的，如果我们用<code>rotation_anglen = gb_gen.get_rotation_angle_from_sigma(13,(0,0,1),lat_type='c')</code></p>
+<p>则会得到输出，[22.61986494804043, 67.38013505195957, 112.61986494804043, 157.3801350519596]，第一个值与24°差1.4。</p>
+<pre><code class="language-python">#指定旋转轴，旋转角，晶界面
+gb = gb_gen.gb_from_parameters(
+    rotation_axis=(0,0,1),
+    rotation_angle=rotation_anglen[0],
+    expand_times=1,
+    vacuum_thickness=0,
+    plane=(3,1,0)
+)
+# 3. 获取晶界结构
+gb.to(&quot;POSCAR&quot;, &quot;poscar&quot;)
+
+</code></pre>
+<p>再写上这块代码就可以生成晶界了。</p>
+
+</main>
 
 <style>
  
-.archieve-list-item {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-}
-
-.archieve-left-section {
-    display: flex;
-    align-items: center;
-     
-    gap: 0.2rem;
-    order: 1;
-}
-
-.archieve-right-section {
-    margin-left: auto;
-    display: flex;
-    gap: 0.2rem;
-    flex-wrap: wrap;
-    order: 2;
-    align-items: center;
-}
-
-.archive-date {
-    text-wrap: nowrap;
-}
-
-.archive-title-link-a {
-    color: #3c4654;
+.article-meta {
+    text-align: center;
     text-decoration: none;
-    font-weight: bold;
+    background: #efefef;
+    padding: 1px;
+    border-radius: 5px;
 }
 
-.archive-taxonomy-link-a {
-    text-align: right;
-    color: #7d929f;
+.article-meta-title {
+    font-size: 1em;
+}
+
+.article-meta-info {
+    color: #666;
+    font-size: 0.9rem;
+    margin: -0.6rem 0 0.2rem 10px;
+    text-align: left;
+}
+
+.article-meta-info a {
+    color: inherit;
     text-decoration: none;
+    transition: color 0.3s ease;
 }
 </style>
+
+
+
+<h1 style="font-size: 1.2rem; margin: 2.5rem 0 0.1rem 0;">Comment</h1>
+<div class="cusdis-comments">
+  <div id="cusdis_thread"
+    data-host="https://cusdis.com"
+    data-app-id="0eeb9b3b-40ad-41b5-94e8-13a830e599d7"
+    data-page-id="56a7ffe7092ef727d7be6dfb473ec065"
+    data-page-url="http://localhost:1313/pymatgen/gainbroundary/"
+    data-page-title="晶界建模"
+  ></div>
+  <script async defer src="https://cdn.jsdelivr.net/gh/captainwc/cdn-release/website/cusdis/cusdis.es.min.js"></script>
+</div>
+
+<style>
+.cusdis-comments {
+  border-top: 2px dashed #cfcfcf;
+  padding-top: 1.3rem;
+}
+
+#cusdis_thread iframe {
+  min-height: 500px !important;
+  overflow: visible !important;
+}
+</style>
+
 
 <footer>
   
@@ -138,6 +380,206 @@
   <script src="https://cdn.jsdelivr.net/gh/captainwc/cdn-release/website/js/center-img.min.js"></script>
   
   
+
+<div id="menuBtnContainer">
+    
+    <button id="menuBtn"><i class="fa-solid fa-screwdriver-wrench"></i></button>
+
+    
+    <button id="backToBottomBtn" class="menu-popup-btn top-btn"><i class="fa-solid fa-square-caret-down"></i></button>
+    <button id="backToTopBtn" class="menu-popup-btn top-btn"><i class="fa-solid fa-square-caret-up"></i></button>
+
+    
+    <div class="menu-popup-btn edit-btn">
+        <a href='https://github.com/liubaoshuai1402/liubaoshuai1402.github.io/edit/main/content/Pymatgen/GainBroundary.md'
+            target="_blank" rel="noopener">
+            <i class="fa-solid fa-square-pen"></i>
+        </a>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var menuBtn = document.getElementById('menuBtn');
+        var menuBtnContainer = document.getElementById('menuBtnContainer');
+        var backToTopBtn = document.getElementById('backToTopBtn');
+        var backToBottomBtn = document.getElementById('backToBottomBtn');
+        var popupBtns = document.querySelectorAll('.menu-popup-btn');
+        var hoverTimeout;
+
+        
+        menuBtnContainer.classList.add('visible');
+
+        
+        function showPopupBtns() {
+            clearTimeout(hoverTimeout);
+            menuBtnContainer.classList.add('active');
+        }
+
+        
+        function hidePopupBtns() {
+            hoverTimeout = setTimeout(function() {
+                menuBtnContainer.classList.remove('active');
+            }, 300);
+        }
+
+        
+        menuBtnContainer.addEventListener('mouseenter', showPopupBtns);
+        menuBtnContainer.addEventListener('mouseleave', hidePopupBtns);
+
+        
+        menuBtn.addEventListener('click', function() {
+            if (menuBtnContainer.classList.contains('active')) {
+                menuBtnContainer.classList.remove('active');
+            } else {
+                showPopupBtns();
+            }
+        });
+
+        
+        backToTopBtn.addEventListener('click', function() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        
+        backToBottomBtn.addEventListener('click', function() {
+            window.scrollTo({
+                top: document.body.scrollHeight,
+                behavior: 'smooth'
+            });
+        });
+    });
+</script>
+
+<style>
+     
+    #menuBtnContainer {
+        position: fixed;
+        right: 20px;
+        bottom: 20px;
+        z-index: 999;
+        opacity: 0.6;
+        visibility: visible;
+        transition: opacity 0.3s;
+    }
+
+    #menuBtnContainer:hover {
+        opacity: 1;
+    }
+
+     
+    #menuBtn {
+        border-radius: 8px;
+        border: none;
+        color: #aaa;
+        font-family: "Maple Mono NF CN";
+        font-size: 1.2rem;
+        transition: background 0.3s;
+        cursor: pointer;
+        background: #EFEFEF;
+        z-index: 1000;
+        position: relative;
+    }
+
+    #menuBtn:hover {
+        background: #BEC2B3;
+        color: #666;
+    }
+
+     
+    .menu-popup-btn {
+        position: absolute;
+        opacity: 0;
+        visibility: hidden;
+        border-radius: 8px;
+        border: none;
+        color: #aaa;
+        font-family: "Maple Mono NF CN";
+        font-size: 1.3rem;
+        transition: all 0.3s ease;
+        background: #EFEFEF;
+        cursor: pointer;
+        z-index: 999;
+    }
+
+     
+    .menu-popup-btn.top-btn {
+        right: 0;
+        transform: translateY(0) scale(0.8);
+    }
+
+     
+    .menu-popup-btn.edit-btn {
+        bottom: 0;
+        transform: translateX(0) scale(0.8);
+        padding: 1px 6.6px 0px 6.6px;
+    }
+
+    .menu-popup-btn.edit-btn a {
+        color: #ccc;
+        text-decoration: none;
+        background: none !important;
+        transition: opacity 0.2s;
+        padding: 0;
+        margin: 0;
+    }
+
+     
+    #menuBtnContainer.active .menu-popup-btn {
+        opacity: 1;
+        visibility: visible;
+    }
+
+     
+    #menuBtnContainer.active #backToBottomBtn {
+        transform: translateY(-60px) scale(1);
+    }
+
+     
+    #menuBtnContainer.active #backToTopBtn {
+        transform: translateY(-110px) scale(1);
+    }
+
+     
+    #menuBtnContainer.active .edit-btn {
+        transform: translateX(-60px) scale(1);
+    }
+
+     
+    .menu-popup-btn:hover,
+    .menu-popup-btn.edit-btn:hover {
+        background: #BEC2B3;
+        color: #666;
+    }
+
+    .menu-popup-btn.edit-btn:hover a {
+        color: #666;
+    }
+
+     
+    @media (max-width: 768px) {
+        #menuBtnContainer {
+            right: 15px;
+            bottom: 15px;
+        }
+
+        #menuBtnContainer.active #backToBottomBtn {
+            transform: translateY(-50px) scale(1);
+        }
+
+        #menuBtnContainer.active #backToTopBtn {
+            transform: translateY(-90px) scale(1);
+        }
+
+        #menuBtnContainer.active .edit-btn {
+            transform: translateX(-50px) scale(1);
+        }
+    }
+</style>
+
 
 
   <script>

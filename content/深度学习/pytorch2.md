@@ -96,6 +96,14 @@ $\mathrm{Sigmoid}(x)=\sigma(x)=\frac{1}{1+\exp(-x)}$
 
 <img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/Sigmoid.png"/>
 
+### 7. `nn.Tanh`
+
+对张量的每个元素施加双曲正切函数，输出值范围为(-1,1)。
+
+$\mathrm{Tanh}(x)=\mathrm{tanh}(x)=\frac{\exp(x)-\exp(-x)}{\exp(x)+\exp(-x)}$
+
+<img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/Tanh.png"/>
+
 ## 批标准化
 
 ### 1. `nn.BatchNorm1d()`
@@ -112,8 +120,37 @@ $\mathrm{Sigmoid}(x)=\sigma(x)=\frac{1}{1+\exp(-x)}$
 
 ## 正则化
 
+[参考文献]([一篇文章详解深度学习正则化方法（L1、L2、Dropout正则化相关概念、定义、数学公式、Python代码实现）-CSDN博客](https://blog.csdn.net/a910247/article/details/137604232))
+
+在深度学习中，正则化通常用于约束模型的复杂度、防止过拟合、提高模型的泛化能力和鲁棒性。
+
 ### 1. `nn.Dropout()`
 
 在每次前向传播时，以一定概率让张量中的某些元素归零。防止过拟合。==常用于分类任务==。不要用于回归任务。
 
 接受一个浮点数，用于表示概率，默认值是0.5。
+
+### 2. L1正则化
+
+L1正则化、也称Lasso正则化。就是在损失函数中引入一个与模型权重的L1范数相关的值，作为惩罚项，用于控制（限制）模型的复杂度和防止过拟合。
+
+$L_{L1}=L_{data}+\lambda\begin{matrix} \sum_{i=1}^n |w_i| \end{matrix}$
+
+### 3. L2正则化
+
+L2正则化，也称Ridge正则化、==权重衰减==。与L1正则化类似，就是在损失函数中引入一个与模型权重的L2范数相关的值，作为惩罚项，用于控制（限制）模型的复杂度和防止过拟合。它鼓励模型用小的模型参数。
+
+$L_{L1}=L_{data}+\lambda||w||_2^2$
+
+这里，$||w||_2^2=\begin{matrix} \sum_{i=1}^n w_i^2 \end{matrix}$ 
+
+### 4. Elastic Net 正则化
+
+采用L1正则化和L2正则化的组合。
+
+### 5. 早停止和数据增强
+
+早停止：即检测模型在验证集上的性能，当模型在验证集的性能出现下降时停止训练，避免过拟合。
+
+数据增强：对数据进行一定变换来增强数据的多样性。如在图像分类时，对图片进行旋转、剪裁、翻转等操作。
+

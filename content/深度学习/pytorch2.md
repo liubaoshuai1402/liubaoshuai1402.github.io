@@ -114,8 +114,6 @@ $\mathrm{Tanh}(x)=\mathrm{tanh}(x)=\frac{\exp(x)-\exp(-x)}{\exp(x)+\exp(-x)}$
 
 对于三维输入，可以理解成先转化为(N*L,C)，再用二维的处理方法得到结果，再展开。
 
-## 池化
-
 
 
 ## 正则化

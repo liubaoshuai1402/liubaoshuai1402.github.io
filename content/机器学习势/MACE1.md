@@ -31,6 +31,7 @@ MACE接受的训练集非常简单，一个`xyz`文件，包含了各种构型�
 
 ```python
 from ase.io import read,write
+import random
 
 #定义一个简单的函数用于打标签,这里可以自由更改标签的名字
 def addlabel(configs,energy_label='energy_dft',forces_label='forces_dft',stress_label='stress_dft',is_isolated=False):
@@ -55,6 +56,10 @@ addlabel(configs=IsolatedAtoms,is_isolated=True)
 #这里的slice的意思是从第一个结构开始到最后一个结构，每100个结构取一个
 db = read('H2O/OUTCAR.tar.gz','::100')
 addlabel(configs=db)
+
+#打乱训练集，这对训练非常重要
+random.seed(42)
+random.shuffle(db)
 
 #将打过标签的数据集合并
 db = db + IsolatedAtoms
@@ -87,4 +92,6 @@ write('H2O.xyz',db)
 ```
 
 所以，如果我们想让单一结构也加入到我们的数据集时，也要记得用切片的形式进行读取。不过要铭记于心的是，用**切片的形式读取**的其实是一个`list[atoms]`，要使用其中`atoms`实例的方法时，记得用`for`循环遍历其中的`atoms`实例。
+
+
 

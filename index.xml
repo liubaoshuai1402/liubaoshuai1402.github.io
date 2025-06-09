@@ -1,0 +1,691 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>BOGHTW</title><link>https://liubaoshuai1402.github.io/</link><description>Recent content on BOGHTW</description><generator>Hugo</generator><language>zh-cn</language><lastBuildDate>Wed, 04 Jun 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://liubaoshuai1402.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>超算操作</title><link>https://liubaoshuai1402.github.io/%E8%B6%85%E7%AE%97/%E8%B6%85%E7%AE%97%E6%93%8D%E4%BD%9C/</link><pubDate>Wed, 04 Jun 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/%E8%B6%85%E7%AE%97/%E8%B6%85%E7%AE%97%E6%93%8D%E4%BD%9C/</guid><description>&lt;h1 id="超算中心">超算中心&lt;/h1>
+&lt;h3 id="安装nvcc和pytorch">安装nvcc和pytorch&lt;/h3>
+&lt;p>先用conda安装&lt;code>cuda-toolkit&lt;/code>，&lt;code>-&lt;/code>不能省略。这里我选择的12.6版本，之前试了12.9，编译lammps的时候报错了。&lt;/p>
+&lt;p>再用pip安装&lt;code>pytorch&lt;/code>。&lt;/p>
+&lt;p>用conda安装nvcc后，lammps的nvcc_wrapper可能找不到cuda_runtime.h，可以手动指定&lt;/p>
+&lt;p>&lt;code>export CPLUS_INCLUDE_PATH=/home-ssd/Users/nsgm_zcx/miniconda3/envs/mace/targets/x86_64-linux/include:$CPLUS_INCLUDE_PATH&lt;/code>&lt;/p>
+&lt;h3 id="加载模块">加载模块&lt;/h3>
+&lt;p>&lt;code>source /home-ssd/hpc/ini_module.bash&lt;/code>&lt;/p>
+&lt;p>&lt;code>export MODULEPATH=/home-ssd/hpc/modulefiles:/home-ssd/Soft/modules/modulefiles/Soft&lt;/code>&lt;/p>
+&lt;p>&lt;code>export MODULEPATH=/home-ssd/hpc/modulefiles&lt;/code>&lt;/p>
+&lt;p>&lt;code>module av&lt;/code>查看当前可用模块&lt;/p>
+&lt;h3 id="联网">联网&lt;/h3>
+&lt;p>&lt;code>ssh gn001&lt;/code>进入编译节点&lt;/p>
+&lt;p>&lt;code>source /home-ssd/Soft/modules/bashrc&lt;/code>&lt;/p>
+&lt;p>&lt;code>module load proxy/proxy&lt;/code>&lt;/p>
+&lt;h3 id="openmpi">openmpi&lt;/h3>
+&lt;p>下载后解压，进入发行版的文件夹，然后创建一个&lt;code>build&lt;/code>文件夹用于编译和安装。&lt;/p>
+&lt;p>安装命令，在build文件夹中运行：&lt;code>../configure --prefix=/home-ssd/Users/nsgm_zcx/openmpi-5.0.5/build --with-slurm 2&amp;gt;&amp;amp;1 | tee config.out&lt;/code>&lt;/p>
+&lt;p>&lt;code>export PATH=/home-ssd/Users/nsgm_zcx/openmpi-5.0.5/build/bin:$PATH&lt;/code>&lt;/p>
+&lt;p>&lt;code>export LD_LIBRARY_PATH=/home-ssd/Users/nsgm_zcx/openmpi-5.0.5/build/lib:$LD_LIBRARY_PATH&lt;/code>&lt;/p>
+&lt;h3 id="lammps">LAMMPS&lt;/h3>
+&lt;p>cmake的编译缓存可能会记录错误的依赖路径，即使自己下载了新的openmpi，也会因为没有及时更新而报错找不到。&lt;/p>
+&lt;p>所以要删干净，再进行一次cmake。&lt;/p>
+&lt;p>&lt;code>export PATH=/home-ssd/Users/nsgm_zcx/lammps-develop/build-mliap:$PATH&lt;/code>&lt;/p>
+&lt;h3 id="zlib">zlib&lt;/h3>
+&lt;p>安装完&lt;code>cuda-toolkit&lt;/code>和&lt;code>pytorch&lt;/code>后，conda自动安装的zlib可能只是&lt;code>libzlib&lt;/code>，只有库，没有&lt;mark>头文件&lt;/mark>，需要手动安装一个完整的&lt;code>zlib&lt;/code>，保证lammps编译的时候不报错。&lt;/p>
+&lt;p>&lt;code>conda install zlib&lt;/code>&lt;/p></description></item><item><title>绘制DFT数据和MACE预测值的关系图</title><link>https://liubaoshuai1402.github.io/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%8A%BF/dft%E6%95%B0%E6%8D%AEvsmace%E9%A2%84%E6%B5%8B%E5%80%BC/</link><pubDate>Thu, 29 May 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%8A%BF/dft%E6%95%B0%E6%8D%AEvsmace%E9%A2%84%E6%B5%8B%E5%80%BC/</guid><description>&lt;h1 id="绘制dft数据和mace预测值的关系图">绘制DFT数据和MACE预测值的关系图&lt;/h1>
+&lt;h2 id="前言">前言&lt;/h2>
+&lt;p>本文主要搬运一下
+&lt;a href="https://colab.research.google.com/drive/1ZrTuTvavXiCxTFyjBV4GqlARxgFwYAtX#scrollTo=v75wGSfOw9dA" target="_blank" rel="noopener noreferrer" >MACE教程其一&lt;/a>
+，记录一下如何绘制DFT数据和MACE预测值的关系图，用于评估模型的准确性，加上一些自己的理解。&lt;/p>
+&lt;p>软件：ASE、
+&lt;a href="https://github.com/imagdau/aseMolec" target="_blank" rel="noopener noreferrer" >aseMolec&lt;/a>
+、matplotlib、numpy&lt;/p>
+&lt;p>&lt;strong>注意&lt;/strong>：本文仅供参考，欢迎指出错误或分享补充。无能力提供任何指导，&lt;strong>求教者切勿留言&lt;/strong>。&lt;/p>
+&lt;h2 id="准备评估函数">准备评估函数&lt;/h2>
+&lt;p>MACE官方写好了评估的命令行脚本，我们这里给它一个虚拟参数，方便以编程的方式调用它。&lt;/p>
+&lt;pre>&lt;code class="language-python">from mace.cli.eval_configs import main as mace_eval_configs_main
+import sys
+
+def eval_mace(configs, model, output):
+ sys.argv = [&amp;quot;program&amp;quot;, &amp;quot;--configs&amp;quot;, configs, &amp;quot;--model&amp;quot;, model, &amp;quot;--output&amp;quot;, output]
+ mace_eval_configs_main()
+&lt;/code>&lt;/pre>
+&lt;p>这里的&lt;code>eval_mace&lt;/code>函数接受三个参数，数据集如训练集、测试集的路径、训练好的模型的路径以及输出的文件命。&lt;/p>
+&lt;h2 id="评估数据集">评估数据集&lt;/h2>
+&lt;pre>&lt;code class="language-python">#evaluate the training set
+eval_mace(configs=&amp;quot;data/solvent_xtb_train_200.xyz&amp;quot;,
+ model=&amp;quot;MACE_models/mace01_run-123_stagetwo.model&amp;quot;,
+ output=&amp;quot;tests/mace01/solvent_train.xyz&amp;quot;)
+
+#evaluate the test set
+eval_mace(configs=&amp;quot;data/solvent_xtb_test.xyz&amp;quot;,
+ model=&amp;quot;MACE_models/mace01_run-123_stagetwo.model&amp;quot;,
+ output=&amp;quot;tests/mace01/solvent_test.xyz&amp;quot;)
+&lt;/code>&lt;/pre>
+&lt;p>这样，MACE就会对数据集进行评估，因为其实DFT数据是已有的，主要是在输出文件中，补上MACE的预测值。&lt;/p>
+&lt;h2 id="画图">画图&lt;/h2>
+&lt;p>然后就可以用aseMolec的如下代码进行画图了&lt;/p>
+&lt;pre>&lt;code class="language-python">from aseMolec import pltProps as pp
+from ase.io import read
+import matplotlib.pyplot as plt
+from aseMolec import extAtoms as ea
+import numpy as np
+
+def plot_RMSEs(db, labs):
+ ea.rename_prop_tag(db, 'MACE_energy', 'energy_mace') #Backward compatibility
+ ea.rename_prop_tag(db, 'MACE_forces', 'forces_mace') #Backward compatibility
+
+ plt.figure(figsize=(9,6), dpi=100)
+ plt.subplot(1,3,1)
+ pp.plot_prop(ea.get_prop(db, 'bind', '_xtb', True).flatten(), \
+ ea.get_prop(db, 'bind', '_mace', True).flatten(), \
+ title=r'Energy $(\rm eV/atom)$ ', labs=labs, rel=False)
+ plt.subplot(1,3,2)
+ pp.plot_prop(ea.get_prop(db, 'info', 'energy_xtb', True).flatten(), \
+ ea.get_prop(db, 'info', 'energy_mace', True).flatten(), \
+ title=r'Energy $(\rm eV/atom)$ ', labs=labs, rel=False)
+ plt.subplot(1,3,3)
+ pp.plot_prop(np.concatenate(ea.get_prop(db, 'arrays', 'forces_xtb')).flatten(), \
+ np.concatenate(ea.get_prop(db, 'arrays', 'forces_mace')).flatten(), \
+ title=r'Forces $\rm (eV/\AA)$ ', labs=labs, rel=False)
+ plt.tight_layout()
+ return
+
+train_data = read('tests/mace01/solvent_train.xyz', ':')
+test_data = train_data[:3]+read('tests/mace01/solvent_test.xyz', ':') #append the E0s for computing atomization energy errors
+
+plot_RMSEs(train_data, labs=['XTB', 'MACE'])
+plot_RMSEs(test_data, labs=['XTB', 'MACE'])
+&lt;/code>&lt;/pre>
+&lt;p>&lt;code>plot_RMSEs&lt;/code>函数中首先把标签重命名了一下，因为MACE的源代码&lt;code>mace_eval_configs_main()&lt;/code>部分默认打的标签是&lt;code>MACE_&lt;/code>+什么什么的。&lt;/p></description></item><item><title>图池化</title><link>https://liubaoshuai1402.github.io/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%9B%BE%E6%B1%A0%E5%8C%96/</link><pubDate>Wed, 28 May 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%9B%BE%E6%B1%A0%E5%8C%96/</guid><description/></item><item><title>晶界建模</title><link>https://liubaoshuai1402.github.io/pymatgen/gainbroundary/</link><pubDate>Sat, 24 May 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/pymatgen/gainbroundary/</guid><description>&lt;h1 id="晶界建模">晶界建模&lt;/h1>
+&lt;h2 id="前言">前言&lt;/h2>
+&lt;p>基于
+&lt;a href="https://dtrinkle.matse.illinois.edu/MatSE584/kap_7/backbone/r7_1_2.html" target="_blank" rel="noopener noreferrer" >共格点阵模型&lt;/a>
+（Coincidence Site Lattice），使用pymatgen进行晶界建模。&lt;/p>
+&lt;h2 id="晶界的类型">晶界的类型&lt;/h2>
+&lt;h3 id="1-扭转twist晶界">1. 扭转（twist）晶界&lt;/h3>
+&lt;p>旋转轴垂直于晶界面，也就是两者的密勒指数应该成比列。&lt;/p>
+&lt;h3 id="2-倾斜tilt晶界">2. 倾斜（tilt）晶界&lt;/h3>
+&lt;p>旋转轴平行于晶界面，也就是两者的密勒指数的点乘为0。&lt;/p>
+&lt;h3 id="3-混合mixed晶界">3. 混合（mixed）晶界&lt;/h3>
+&lt;p>旋转轴既不垂直也不平行于晶界面。&lt;/p>
+&lt;p>基于共格点阵模型的晶界命名法，Σ+number(must be odd)+(hkl)/[uvw]。&lt;/p>
+&lt;p>举一个栗子， Σ13 (510)/[001] symmetric tilt grain-boundary。&lt;/p>
+&lt;p>这里Σ的大小，是指旋转后重合点阵的单胞的提及是原始晶体单胞的体积的多少倍。通常，这个数字越大，代表两个晶粒的取向相差越远，晶界能也往往越远。&lt;/p>
+&lt;p>Σ1则代表趋向一致，那些小角度晶界也被认为Σ的值近似于1。&lt;/p>
+&lt;p>当指明是twist or tilt晶界时，有时可以省略晶向，也不会造成歧义，比如，&lt;mark>the Σ5(310) tilt GB&lt;/mark>，这是一个YSZ中典型的低能量晶界。&lt;/p>
+&lt;p>但它没有给出旋转轴，因为没有必要，tilt GB 要求晶界面与旋转轴平行，所以只能是[001]。&lt;/p>
+&lt;h2 id="使用pymatgen进行晶界建模">使用pymatgen进行晶界建模&lt;/h2>
+&lt;p>首先，我们假设一个应用场景，就是说，我们建模肯定是根据实验来的，实验上对哪些晶界感兴趣，我们就去建模研究。&lt;/p>
+&lt;p>所以在这个假设的基础上，我们是知道&lt;mark>Σ的值&lt;/mark>以及&lt;mark>旋转轴&lt;/mark>、&lt;mark>晶界面&lt;/mark>的。&lt;/p>
+&lt;p>这样，用以下代码我们可以得到旋转角。&lt;/p>
+&lt;pre>&lt;code class="language-python">from pymatgen.core import Structure
+from pymatgen.core.interface import GrainBoundaryGenerator
+
+# 1. 读取结构文件
+structure = Structure.from_file(&amp;quot;ZrO.cif&amp;quot;)
+structure = structure.to_conventional()
+
+#创建一个晶界生成器，实例化需要一个晶体结构，最好是conventional cell。
+gb_gen = GrainBoundaryGenerator(structure)
+
+# 2. 构建 Σ5 晶界，参数分别对应Σ的值、旋转轴、晶格类型，对非立方体系需要指定轴比
+#其实这里感觉很奇怪，轴比和晶格类型，pymatgen不应该自己判断吗，感觉这块代码写的不好
+rotation_anglen = gb_gen.get_rotation_angle_from_sigma(5,(0,0,1),lat_type='c')
+print(rotation_anglen)
+&lt;/code>&lt;/pre>
+&lt;p>这里的输出是，[36.86989764584402, 53.13010235415597, 126.86989764584402, 143.13010235415598]。&lt;/p></description></item><item><title>Pytorch中的张量操作</title><link>https://liubaoshuai1402.github.io/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%BC%A0%E9%87%8F%E6%93%8D%E4%BD%9C/</link><pubDate>Tue, 20 May 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%BC%A0%E9%87%8F%E6%93%8D%E4%BD%9C/</guid><description>&lt;h1 id="pytorch中的张量操作">Pytorch中的张量操作&lt;/h1>
+&lt;h2 id="数学符号">数学符号&lt;/h2>
+&lt;h3 id="1--运算符">1. * 运算符&lt;/h3>
+&lt;p>如果张量的形状完全一样，张量 * 张量，其实就是对应元素相乘，也可以$\odot$表示。&lt;/p>
+&lt;p>如果张量的形状不一样，则要求他们的形状只能在一个维度上不一样，且其中一个张量这个维度的&lt;code>size&lt;/code>为1，这样可以用广播机制补全后相乘。&lt;/p>
+&lt;p>如果张量 * 数字，则是全体元素乘以这个数字。&lt;/p>
+&lt;h2 id="函数方法">函数、方法&lt;/h2>
+&lt;h3 id="1-permute">1. &lt;code>permute()&lt;/code>&lt;/h3>
+&lt;p>可以作为张量对象的方法使用，接受置换后的维度。&lt;/p>
+&lt;pre>&lt;code class="language-python">import torch
+
+table = torch.randn(2,3,4)
+print(table)
+print(table.permute(2,1,0))
+&lt;/code>&lt;/pre>
+&lt;p>这段代码就是将第一维和第三维进行置换。&lt;/p>
+&lt;p>由已知的张量还有置换后的顺序，怎么写出新的张量呢，这个问题一直让我困扰。&lt;/p>
+&lt;img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/permute.jpg" style="zoom:50%;" />
+&lt;p>今天的学习，我脑子里突然蹦出一个邻居的概念。对于一个四维的张量元素，它应该有四个不同维度的邻居，但如果仅仅把视角局限在矩阵里，那它就只有两个邻居，一个行维度上的，一个列维度上的，这很不对。得把视野打开，通道维度和批次维度的邻居可能隔了很远，但它们也是邻居。&lt;/p>
+&lt;h3 id="2-reshape和view">2. &lt;code>reshape()&lt;/code>和&lt;code>view()&lt;/code>&lt;/h3>
+&lt;p>深度学习中，经常会把高维张量降维，计算后再展开，要小心翼翼，错位会带来灾难性的错误。&lt;/p>
+&lt;p>对于一个（N，F，M）的张量，F是其特征维度。如果想把N和M合并，&lt;mark>应该先把F变成最高维度或者最低维度，让需要合并的维度接壤&lt;/mark>。&lt;/p>
+&lt;pre>&lt;code class="language-python">import torch
+
+table = torch.randn(2,3,4)
+print(table)
+a = table.reshape(3,8)
+b = table.permute(1,0,2).reshape(3,8)
+
+print(a)
+print(b)
+&lt;/code>&lt;/pre>
+&lt;p>这里先把张量形状变成了（3，2，4），再合并，可以保证张量维度不会错位，如果直接改写性质为（3，8），则会错位。&lt;/p>
+&lt;p>&lt;code>reshape()&lt;/code>和&lt;code>view()&lt;/code>是一样的，前者可以作用于numpy数组。&lt;/p>
+&lt;h3 id="3-flatten">3. &lt;code>flatten()&lt;/code>&lt;/h3>
+&lt;p>将高维张量展平为一维张量。&lt;/p>
+&lt;h3 id="4-torchcat">4. &lt;code>torch.cat()&lt;/code>&lt;/h3>
+&lt;p>把张量按给定的顺序和维度进行拼接，除了拼接维度外，张量必须具有相同的形状。&lt;/p>
+&lt;p>可用于特征维度的拓展，加入新的特征。&lt;/p>
+&lt;h3 id="5-unsqueeze">5. &lt;code>unsqueeze()&lt;/code>&lt;/h3>
+&lt;p>
+&lt;a href="https://docs.pytorch.org/docs/stable/generated/torch.unsqueeze.html#torch.unsqueeze" target="_blank" rel="noopener noreferrer" >torch.unsqueeze&lt;/a>
+&lt;/p>
+&lt;p>torch.unsqueeze(&lt;em>input&lt;/em>, &lt;em>dim&lt;/em>) → Tensor&lt;/p>
+&lt;p>为张量插入一个新的&lt;code>size&lt;/code>为1的维度。用于升维。配合&lt;code>expand()&lt;/code>食用更佳。&lt;/p>
+&lt;h3 id="6-expand">6. &lt;code>expand()&lt;/code>&lt;/h3>
+&lt;p>
+&lt;a href="https://docs.pytorch.org/docs/stable/generated/torch.Tensor.expand.html#torch.Tensor.expand" target="_blank" rel="noopener noreferrer" >torch.Tensor.expand&lt;/a>
+&lt;/p>
+&lt;p>这个只有张量方法，没有函数。&lt;/p></description></item><item><title>用于搭建神经网络的函数</title><link>https://liubaoshuai1402.github.io/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/pytorch2/</link><pubDate>Mon, 19 May 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/pytorch2/</guid><description>&lt;h1 id="用于搭建神经网络的函数">用于搭建神经网络的函数&lt;/h1>
+&lt;h2 id="前言">前言&lt;/h2>
+&lt;p>此处记录常见的神经网络函数，排名不分先后。&lt;/p>
+&lt;h2 id="全连接层">全连接层&lt;/h2>
+&lt;h3 id="1-nnlinear">1. &lt;code>nn.Linear()&lt;/code>&lt;/h3>
+&lt;p>对输入数据施加一个仿射线性变换，一般使用指定两个参数，是输入矩阵和输出矩阵的最高维的&lt;code>size&lt;/code>。（因为最高维一般是特征维度，这个函数就是用来控制特征维度&lt;code>size&lt;/code>大小的）&lt;/p>
+&lt;img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/%E5%9B%BE%E5%8D%B7%E7%A7%AF.png" style="zoom:50%;" />
+&lt;p>这里是CGCNN的图卷积操作公式，这里的W（权重），b（偏置）其实全连接层决定的。看到这样的写法就要明白其实是经历了一个全连接层。&lt;/p>
+&lt;pre>&lt;code class="language-python">total_gated_fea = self.fc_full(total_nbr_fea)
+ 
+total_gated_fea = self.bn1(total_gated_fea.view(
+	-1, self.atom_fea_len*2)).view(N, M, self.atom_fea_len*2)
+nbr_filter, nbr_core = total_gated_fea.chunk(2, dim=2)
+nbr_filter = self.sigmoid(nbr_filter)
+nbr_core = self.softplus1(nbr_core)
+&lt;/code>&lt;/pre>
+&lt;p>对应代码就是进过全连接层后，（再进行批标准化，chunk分割，这些公式里没有体现），然后施加$\sigma$函数和激活函数（g）。&lt;/p>
+&lt;h2 id="激活函数">激活函数&lt;/h2>
+&lt;h3 id="1-nnrelu">1. &lt;code>nn.ReLU()&lt;/code>&lt;/h3>
+&lt;p>这个激活函数不用指定输入输出特征的维度，它只是把所有特征变为非负，对于正值保留原始值，对于负值则转化为0。&lt;/p>
+&lt;img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/ReLU.png"/>
+&lt;h3 id="2-nnsoftmax">2. &lt;code>nn.Softmax()&lt;/code>&lt;/h3>
+&lt;p>对一个n维的张量施加Softmax()函数，使得其沿某个维度的元素值的和为1。所以接受一个&lt;code>dim&lt;/code>参数来指定维度。
+&lt;/p>
+$$
+\mathrm{Softmax}(x_i)=\frac{\mathrm{exp}(x_i)}{\sum_{j}\mathrm{exp}(x_j)}
+$$&lt;p>
+这里简单插入一下Pytorch中有关&lt;code>dim&lt;/code>的实践。&lt;/p>
+&lt;p>比如说一个张量的size是(4,2,3)，那么他的dim=0指的是4，dim=1指的是2，dim=2指的是3。&lt;/p>
+&lt;p>比如说对于这个张量，我有个和Pytorch相反的习惯，我习惯先看每行有多少个元素，是3。我就误以为它的dim=0对应的是3。&lt;/p>
+&lt;p>其实不然，深度学习中，dim最大值对应维度的size，往往对应样本的特征数。&lt;/p>
+&lt;p>一个简单的二维的深度学习的输入张量的size一般是这样的：(batch_size,features)。&lt;/p>
+&lt;pre>&lt;code class="language-python">tensor([[[0.3299, 0.4336, 0.2365],
+ [0.0695, 0.0668, 0.8638]],
+
+ [[0.8114, 0.1116, 0.0770],
+ [0.3142, 0.1086, 0.5772]],
+
+ [[0.3178, 0.4508, 0.2315],
+ [0.1620, 0.2610, 0.5770]],
+
+ [[0.4454, 0.4082, 0.1464],
+ [0.2974, 0.5297, 0.1729]]])
+&lt;/code>&lt;/pre>
+&lt;h3 id="3-nnlogsoftmax">3. &lt;code>nn.LogSoftmax()&lt;/code>&lt;/h3>
+&lt;p>对一个n维的张量施加log(Softmax())函数，通常用于获取对数概率，并与损失函数&lt;code>nn.NLLLoss()&lt;/code>一起使用&lt;/p></description></item><item><title>Python中的文件操作</title><link>https://liubaoshuai1402.github.io/%E4%BB%A3%E7%A0%81/fileoperations/</link><pubDate>Sun, 18 May 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/%E4%BB%A3%E7%A0%81/fileoperations/</guid><description>&lt;h1 id="python中的文件操作">Python中的文件操作&lt;/h1>
+&lt;h3 id="1获取当前路径">1.获取当前路径&lt;/h3>
+&lt;p>&lt;code>os.getcwd()&lt;/code>可以返回当前工作目录的绝对路径。cwd可以理解成current work directory。&lt;/p></description></item><item><title>花朵分类</title><link>https://liubaoshuai1402.github.io/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/pytorch1/</link><pubDate>Sun, 18 May 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/pytorch1/</guid><description>&lt;h1 id="花朵分类">花朵分类&lt;/h1>
+&lt;h2 id="前言">前言&lt;/h2>
+&lt;p>本文主要借助torchvision软件包，简单梳理一下深度学习代码的基本框架。&lt;/p>
+&lt;h2 id="数据集加载">数据集加载&lt;/h2>
+&lt;pre>&lt;code class="language-python">#假设当前工作路径下，存放着一个名为'flower_data'的文件夹，里面存放着训练集和验证集的图片
+#用os.path.join()来一级级得获取路径
+data_dir = os.path.join(os.getcwd(),'flower_data')
+train_dir = os.path.join(data_dir, 'train')
+valid_dir = os.path.join(data_dir, 'valid')
+&lt;/code>&lt;/pre>
+&lt;pre>&lt;code class="language-python"># Define batch size
+batch_size = 32
+
+# Define transforms for the training and validation sets
+normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
+ std=[0.229, 0.224, 0.225])
+
+#定义对数据预处理的组合，比如旋转图片、改变尺寸等等，让模型有更强的稳定性
+train_data_transforms = transforms.Compose([
+ transforms.RandomResizedCrop(size=256, scale=(0.8, 1.0)),
+ transforms.RandomRotation(degrees=15),
+ transforms.ColorJitter(),
+ transforms.RandomHorizontalFlip(),
+ transforms.CenterCrop(size=224),
+ transforms.ToTensor(),
+ normalize,
+ ])
+
+validate_data_transforms = transforms.Compose([
+ transforms.Resize(256),
+ transforms.CenterCrop(224),
+ transforms.ToTensor(),
+ normalize,
+ ])
+
+
+#这里才真正的把图片加载成了二维数据。
+train_dataset = datasets.ImageFolder(
+ train_dir,
+ train_data_transforms)
+
+validate_dataset = datasets.ImageFolder(
+ valid_dir,
+ validate_data_transforms)
+
+
+
+#做了那么多铺垫，其实就是为了把可用于训练的数据(二维数据)放到 DataLoader 里面
+train_loader = torch.utils.data.DataLoader(
+ train_dataset, batch_size=batch_size, shuffle=True,
+ num_workers=4)
+
+validate_loader = torch.utils.data.DataLoader(
+ validate_dataset, batch_size=batch_size, shuffle=True,
+ num_workers=4)
+
+data_loader = {}
+data_loader['train'] = train_loader
+data_loader['valid'] = validate_loader
+&lt;/code>&lt;/pre>
+&lt;p>&lt;code>batch_size&lt;/code>，当训练数据很多时，一次性加载全部数据进行训练会是一种挑战。这时就需要用到批次训练。&lt;code>batch_size&lt;/code>即是一次训练中使用的数据量。注意这里的一次训练，不是指一epoch。只有遍历所有训练集后，才能叫做完成了一代训练。一代训练包含了诸多这样的一次训练。&lt;/p></description></item><item><title>使用rNEMD方法计算热导率的lammps输入文件</title><link>https://liubaoshuai1402.github.io/%E5%88%86%E5%AD%90%E5%8A%A8%E5%8A%9B%E5%AD%A6/thermal_conductivity_rnemd/</link><pubDate>Fri, 16 May 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/%E5%88%86%E5%AD%90%E5%8A%A8%E5%8A%9B%E5%AD%A6/thermal_conductivity_rnemd/</guid><description>&lt;h1 id="使用rnemd方法计算热导率的lammps输入文件">使用rNEMD方法计算热导率的LAMMPS输入文件&lt;/h1>
+&lt;h2 id="前言">前言&lt;/h2>
+&lt;p>
+&lt;a href="https://doi.org/10.1063/1.473271" target="_blank" rel="noopener noreferrer" >rNEMD方法&lt;/a>
+，又叫MP方法，计算材料热导率。&lt;/p>
+&lt;p>LAMMPS官方提供了计算脚本，但是使用的单位却是&lt;code>lj&lt;/code>单位制，非常不实用，这里是我自己写的&lt;code>metal&lt;/code>单位制下的脚本。&lt;/p>
+&lt;p>&lt;strong>注意&lt;/strong>：本文仅供参考，欢迎指出错误或分享补充。无能力提供任何指导，&lt;strong>求教者切勿留言&lt;/strong>。&lt;/p>
+&lt;h2 id="in-file">in file&lt;/h2>
+&lt;pre>&lt;code># sample LAMMPS input script for thermal conductivity of liquid LJ
+# Muller-Plathe method via fix thermal_conductivity
+
+# settings temperature, kB and timestep
+
+variable t equal 1500
+variable k equal 8.6173e-5 
+variable dt equal 0.0005
+
+# convert from LAMMPS metal units to SI
+variable eV2J equal 1.6022e-19 #energy convert
+variable A2m equal 1.0e-10 #distance convert
+variable ps2s equal 1.0e-12 #time convert 
+variable convert equal ${eV2J}/${ps2s}/${A2m} 
+
+# setup problem
+
+units metal
+atom_style atomic
+atom_modify map yes
+newton on
+read_data ./333
+pair_style mace no_domain_decomposition
+pair_coeff * * /home-ssd/Users/nsgm_lbs/train/MACE_model/MACE_model_run-123_stagetwo.model-lammps.pt O Zr Y H
+neighbor 1.0 bin
+neigh_modify every 500 delay 0 check no
+minimize 1e-5 1e-7 1000 1000
+timestep ${dt}
+velocity all create $t 87287
+
+
+# 1st equilibration run
+reset_timestep 0
+fix 1 all npt temp $t $t 0.05 iso 0 0 0.5
+thermo_style custom step temp pe etotal enthalpy lx ly lz vol press
+thermo 100
+run 5000
+unfix 1
+velocity all scale $t
+fix 1 all nvt temp $t $t 0.05
+run 5000
+unfix 1
+
+# 2nd equilibration run
+compute ke all ke/atom
+variable temp atom c_ke/1.5/${k}
+
+fix 1 all nve
+
+compute layers all chunk/atom bin/1d z lower 0.05 units reduced
+fix 2 all ave/chunk 10 100 1000 layers v_temp file profile.mp
+fix 3 all thermal/conductivity 100 z 20
+
+variable tdiff equal f_2[11][3]-f_2[1][3]
+thermo_style custom step temp epair etotal f_3 v_tdiff
+thermo_modify colname f_3 E_delta colname v_tdiff dTemp_step
+
+thermo 1000
+run 20000
+
+# thermal conductivity calculation
+# reset fix thermal/conductivity to zero energy accumulation
+fix 3 all thermal/conductivity 100 z 20
+variable start_time equal time
+variable kappa equal (f_3/(time-${start_time})/(lx*ly)/2.0)*(lz/2.0)/f_ave
+fix ave all ave/time 1 1 1000 v_tdiff ave running
+thermo_style custom step temp epair etotal f_3 v_tdiff f_ave
+thermo_modify colname f_3 E_delta colname v_tdiff dTemp_step colname f_ave dTemp
+run 20000
+print &amp;quot;Running average thermal conductivity units metal: $(v_kappa)&amp;quot;
+variable tc equal ${kappa}*${convert}
+print &amp;quot;Running average thermal conductivity units SI: $(v_tc:%.2f)&amp;quot;
+&lt;/code>&lt;/pre></description></item><item><title>如何构建训练集用于训练机器学习势</title><link>https://liubaoshuai1402.github.io/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%8A%BF/mace1/</link><pubDate>Fri, 16 May 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%8A%BF/mace1/</guid><description>&lt;h1 id="如何构建训练集用于训练机器学习势">如何构建训练集用于训练机器学习势&lt;/h1>
+&lt;h2 id="前言">前言&lt;/h2>
+&lt;p>本文将介绍如何构建一个训练集，用于训练MACE势以及DP势。需要提前利用AIMD获取DFT数据集。这里的AIMD软件是VASP。&lt;/p>
+&lt;p>软件：ASE、DeepMD-Kit&lt;/p>
+&lt;p>&lt;strong>注意&lt;/strong>：本文仅供参考，欢迎指出错误或分享补充。无能力提供任何指导，&lt;strong>求教者切勿留言&lt;/strong>。&lt;/p>
+&lt;h2 id="构建mace势的训练集">构建MACE势的训练集&lt;/h2>
+&lt;p>MACE接受的训练集非常简单，一个&lt;code>xyz&lt;/code>文件，包含了各种构型和它们对应的DFT数据标签，以及单原子的DFT数据，需要额外的标签&lt;code>config_type=IsolatedAtom&lt;/code>。&lt;/p>
+&lt;p>顺带一提，ASE可以输出一种所谓的
+&lt;a href="https://wiki.fysik.dtu.dk/ase/ase/io/formatoptions.html#extxyz" target="_blank" rel="noopener noreferrer" >Extended XYZ format&lt;/a>
+，会把各种各样的信息（有点类似OVITO中的全局信息），放到&lt;code>xyz&lt;/code>文件的第二行。这一行会很长很长。MACE所采用的训练集输入格式就是它。&lt;/p>
+&lt;p>假设我们要构建水分子的MACE势，当前所处的路径下，有两个文件夹。&lt;/p>
+&lt;p>一个名为&lt;code>H2O&lt;/code>的文件夹，里面存放着进行第一性原理分子动力学后得到的&lt;code>OUTCAR.tar.gz&lt;/code>文件。路径为&lt;code>H2O/OUTCAR.tar.gz&lt;/code>。&lt;/p>
+&lt;p>一个名为&lt;code>IsolatedAtoms&lt;/code>的文件夹，里面存放着涉及元素（这里是H、O）的单原子的单点能计算（ISPIN=2）。路径分别为&lt;code>IsolatedAtoms/H/OUTCAR.tar.gz&lt;/code>和&lt;code>IsolatedAtoms/O/OUTCAR.tar.gz&lt;/code>。&lt;/p>
+&lt;h3 id="代码展示">代码展示&lt;/h3>
+&lt;pre>&lt;code class="language-python">from ase.io import read,write
+import random
+
+#定义一个简单的函数用于打标签,这里可以自由更改标签的名字
+def addlabel(configs,energy_label='energy_dft',forces_label='forces_dft',stress_label='stress_dft',is_isolated=False):
+ if is_isolated == False:
+ for at in configs:
+ at.info[energy_label] = at.get_potential_energy(force_consistent=True)
+ at.arrays[forces_label] = at.get_forces()
+ at.info[stress_label] = at.get_stress(voigt=True)
+ if is_isolated == True:
+ for at in configs:
+ at.info['config_type'] = 'IsolatedAtom'
+ at.info[energy_label] = at.get_potential_energy(force_consistent=True)
+ at.arrays[forces_label] = at.get_forces()
+ at.info[stress_label] = at.get_stress(voigt=True)
+
+#read()函数，这里，第一个参数是所读文件路径，第二个参数是切片slice
+IsolatedH = read('IsolatedAtoms/H/OUTCAR.tar.gz',':')
+IsolatedO = read('IsolatedAtoms/O/OUTCAR.tar.gz',':')
+IsolatedAtoms = IsolatedH + IsolatedO
+addlabel(configs=IsolatedAtoms,is_isolated=True)
+
+#这里的slice的意思是从第一个结构开始到最后一个结构，每100个结构取一个
+db = read('H2O/OUTCAR.tar.gz','::100')
+addlabel(configs=db)
+
+#打乱训练集，这对训练非常重要
+random.seed(42)
+random.shuffle(db)
+
+#将打过标签的数据集合并
+db = db + IsolatedAtoms
+write('trainset.xyz',db)
+
+
+&lt;/code>&lt;/pre>
+&lt;p>这里有趣的一点是，为什么对于单个结构的&lt;code>OUTCAR&lt;/code>，也要进行切片：&lt;code>IsolatedH = read('IsolatedAtoms/H/OUTCAR.tar.gz',':')&lt;/code>，而不是&lt;code>IsolatedH = read('IsolatedAtoms/H/OUTCAR.tar.gz')&lt;/code>。&lt;/p></description></item><item><title>机器学习势MACE的输入文件</title><link>https://liubaoshuai1402.github.io/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%8A%BF/mace2/</link><pubDate>Fri, 16 May 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%8A%BF/mace2/</guid><description>&lt;h1 id="机器学习势mace的输入文件">机器学习势MACE的输入文件&lt;/h1>
+&lt;h2 id="前言">前言&lt;/h2>
+&lt;p>不同MACE版本的参数设置会有一定的调查，注意查看自己的MACE版本。这里是0.3.13版本&lt;/p>
+&lt;p>&lt;strong>注意&lt;/strong>：本文仅供参考，欢迎指出错误或分享补充。无能力提供任何指导，&lt;strong>求教者切勿留言&lt;/strong>。&lt;/p>
+&lt;h2 id="在超算上用slurm提交python任务">在超算上用slurm提交python任务&lt;/h2>
+&lt;pre>&lt;code class="language-sh">#!/bin/bash
+#SBATCH -o job.%j.out
+#SBATCH -J lmp_job_gpu
+#SBATCH --partition=gpu 
+#SBATCH -N 1 
+#SBATCH -G 1
+#SBATCH --gres=gpu:1
+#SBATCH --exclusive
+
+
+export PATH=/home-ssd/Users/nsgm_zcx/openmpi-5.0.5/build/bin:$PATH
+export LD_LIBRARY_PATH=/home-ssd/Users/nsgm_zcx/openmpi-5.0.5/build/lib:$LD_LIBRARY_PATH
+export PATH=/home-ssd/Users/nsgm_zcx/lammps-develop/build-mliap:$PATH
+
+source /home-ssd/Users/nsgm_zcx/miniconda3/etc/profile.d/conda.sh
+conda activate cuda
+
+mace_run_train --config parameters.yaml
+&lt;/code>&lt;/pre>
+&lt;p>前面几行是为了激活lammps和openmpi，在这里没啥用。&lt;/p>
+&lt;p>重要的是要在sh脚本里激活conda，然后用&lt;code>mace_run_train&lt;/code>命令行脚本来提交训练任务。&lt;/p>
+&lt;p>用&lt;code>--config&lt;/code>参数和一个yaml文件来提供训练参数。&lt;/p>
+&lt;p>以下是&lt;code>parameters.yaml&lt;/code>的内容&lt;/p>
+&lt;pre>&lt;code class="language-yaml">name: YSZH_MACE_model
+seed: 123
+device: cuda
+train_file: train.xyz
+valid_fraction: 0.2
+test_file: test.xyz
+compute_forces: True
+compute_stress: True
+energy_key: energy_vasp
+forces_key: forces_vasp
+stress_key: stress_vasp
+E0s: 'isolated'
+hidden_irreps: '64x0e + 64x1o'
+r_max: 4.0
+batch_size: 20
+max_num_epochs: 600
+swa: True
+start_swa: 480
+ema: True
+ema_decay: 0.99
+default_dtype: float32
+lr: 0.01
+scaling: rms_forces_scaling
+multiheads_finetuning: False
+enable_cueq: True
+&lt;/code>&lt;/pre>
+&lt;p>要使用&lt;code>mliap&lt;/code>，就必须打开参数&lt;code>enable_cueq: True&lt;/code>，并确保python环境中安装了&lt;code>cuEquivariance&lt;/code>和&lt;code>cupy&lt;/code>。&lt;/p></description></item><item><title>均方位移（MSD）-OVITO</title><link>https://liubaoshuai1402.github.io/%E5%88%86%E5%AD%90%E5%8A%A8%E5%8A%9B%E5%AD%A6/msd_ovito/</link><pubDate>Tue, 13 May 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/%E5%88%86%E5%AD%90%E5%8A%A8%E5%8A%9B%E5%AD%A6/msd_ovito/</guid><description>&lt;h1 id="均方位移msd计算-by-ovito">均方位移（MSD）计算 by OVITO&lt;/h1>
+&lt;h2 id="前言">前言&lt;/h2>
+&lt;p>
+&lt;a href="https://docs.ovito.org/python/index.html" target="_blank" rel="noopener noreferrer" >OVITO Python Reference — OVITO Python Reference 3.12.3 documentation&lt;/a>
+ 是一个开源且功能强大的分子动力学后处理软件包。&lt;/p>
+&lt;p>本文将介绍如何利用 OVITO python module 计算某类元素原子在一段轨迹内的均方位移。&lt;/p>
+&lt;p>适用于无机非晶体，其他体系慎用。&lt;/p>
+&lt;p>软件：OVITO、matplotlib、numpy&lt;/p>
+&lt;p>&lt;strong>注意&lt;/strong>：本文仅供参考，欢迎指出错误或分享补充。无能力提供任何指导，&lt;strong>求教者切勿留言&lt;/strong>。&lt;/p>
+&lt;h2 id="ovito版">OVITO版&lt;/h2>
+&lt;h3 id="代码展示">代码展示&lt;/h3>
+&lt;pre>&lt;code class="language-python">from ovito.io import import_file, export_file
+from ovito.modifiers import CalculateDisplacementsModifier
+from ovito.modifiers import SelectTypeModifier,InvertSelectionModifier,DeleteSelectedModifier,ExpressionSelectionModifier
+import numpy as np
+import matplotlib.pyplot as plt
+
+#万物起源 import_file ，导入一段要计算的轨迹
+pipeline = import_file(&amp;quot;1.dump&amp;quot;)
+
+#添加 SelectTypeModifier 修饰器
+#设置参数 property = 'Particle Type' 指定选择的类型（这里我们指定的是原子类型）
+#设置参数 types = {4} 指定具体的原子类型，这里是这个轨迹中的 4 原子（这个值要根据自己的体系修改），这里用数字代表原子是因为我使用的lammps的输出风格没有记录原子的元素符号，如果你的轨迹里记录的是 元素符号 信息，比如说 VASP 输出的 XDATCAR，则需要用类似于 types = {&amp;quot;H&amp;quot;} 的写法
+pipeline.modifiers.append(SelectTypeModifier(property = 'Particle Type', types = {4}))
+
+#添加 InvertSelectionModifier 修饰器，进行原子反选，为剔除不需要计算的原子做准备
+pipeline.modifiers.append(InvertSelectionModifier()) 
+
+#添加 DeleteSelectedModifier 修饰器，删除上一行代码反选的原子，留下需要计算的原子
+pipeline.modifiers.append(DeleteSelectedModifier(operate_on= {'particles'})) 
+
+#添加 CalculateDisplacementsModifier 修饰器，指定计算 MSD 的参考结构，这里 reference_frame = 0 代表初始结构是参考结构
+reference_frame = 0
+pipeline.modifiers.append(CalculateDisplacementsModifier(reference_frame=0)) #a subclass of ovito.pipeline.ReferenceConfigurationModifier
+
+#自定义一个修饰器函数，用于将 per-particle displacement 转化为相应元素的均方位移
+#本文的 OVITO小知识 将简单介绍自定义修饰器是如何工作的
+def calculate_msd(frame, data):
+ 
+	#用一个变量 displacement_magnitudes 记录 data.particles['Displacement Magnitude']，简化代码
+	displacement_magnitudes = data.particles['Displacement Magnitude']
+	#计算 MSD （将所有原子位移的平方加和然后求平均），OVITO 的数据可以直接和 numpy 交互，nice
+	msd = np.sum(displacement_magnitudes ** 2) / len(displacement_magnitudes) 
+	#把计算的 MSD 传递给 data (DataCollection类)
+	data.attributes[&amp;quot;MSD&amp;quot;] = msd 
+ 
+#添加自定义 calculate_msd 修饰器
+pipeline.modifiers.append(calculate_msd)
+
+
+#计算 Pipeline, 得到time vs MSD的数据
+table = [] #用于存放数据，time vs MSD
+
+for frame,data in enumerate(pipeline.frames):
+	if frame &amp;gt;= reference_frame:
+		#这里的 *10 一定要根据自己的计算调整，我的轨迹在lammps计算设置：时间步是0.5fs，每20步输出一帧，所以轨迹中每帧其实经历了10fs，所以乘以10
+		#我们 time vs MSD 的x横坐标单位是fs，也可以是别的，自己调整
+		time = (frame-reference_frame)*10 
+		table.append([time,data.attributes['MSD']])
+
+#.csv文件还是比较高级的，比纯txt好些，delimiter 指定间隔符为 &amp;quot;,&amp;quot; ,这样方便直接excel打开
+np.savetxt(&amp;quot;msd_data.csv&amp;quot;,table,delimiter=&amp;quot;,&amp;quot;)
+&lt;/code>&lt;/pre>
+&lt;h2 id="ovito小知识">OVITO小知识&lt;/h2>
+&lt;p>受限于Python基础和时间精力的限制，以下内容皆为我个人的有限理解，未能严格考究，仅供参考。&lt;/p></description></item><item><title>稍微深入一些Python中的类（class）</title><link>https://liubaoshuai1402.github.io/%E4%BB%A3%E7%A0%81/class_in_python/</link><pubDate>Tue, 13 May 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/%E4%BB%A3%E7%A0%81/class_in_python/</guid><description>&lt;h1 id="稍微深入一些python中的类class">稍微深入一些Python中的类（class）&lt;/h1>
+&lt;h2 id="前言">前言&lt;/h2>
+&lt;p>**类（class）**在python代码中几乎无处不在，但在近日的学习中发现，我对它真是了解甚少，甚至基础结构都不能熟稔于心，故开此笔记认真学习。和我一起重新认识一下它吧。&lt;/p>
+&lt;h2 id="一个简单的类">一个简单的类&lt;/h2>
+&lt;pre>&lt;code class="language-python">#code 1
+class Dog:
+ # 类属性
+ species = &amp;quot;Dog&amp;quot;
+ # 初始化方法
+ def __init__(self, name, age):
+ self.name = name
+ self.age = age
+ # 实例方法
+ def bark(self):
+ return print(&amp;quot;旺旺&amp;quot;)
+
+print(mydog.species)
+print(mydog.name,mydog.age)
+mydog.bark()
+
+#输出为：
+#Dog
+#doudou 2
+#旺旺
+&lt;/code>&lt;/pre>
+&lt;p>&lt;strong>类&lt;/strong>是一种对数据进行计算操作的蓝图，离不开&lt;strong>属性&lt;/strong>和&lt;strong>方法&lt;/strong>。&lt;/p>
+&lt;p>code 1中，我们定义了一个 Dog 类，并对它进行了实例化，生成了一个对象。&lt;/p>
+&lt;p>这个类的结构，很简单。&lt;/p>
+&lt;p>首先是放在第一部分的&lt;strong>类属性&lt;/strong>。&lt;strong>类属性&lt;/strong>是&lt;strong>直接在类中定义变量&lt;/strong>。所有通过这个类生成的对象都具有这些属性。&lt;/p>
+&lt;p>然后是放在第二部分的诸多方法，其实就是一个个的函数。&lt;/p>
+&lt;pre>&lt;code class="language-python"> def __init__(self, name, age):
+ self.name = name
+ self.age = age
+&lt;/code>&lt;/pre>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;code>_init_&lt;/code>方法叫&lt;strong>初始化方法&lt;/strong>，是&lt;strong>魔法方法&lt;/strong>的一种。让实例初始化时就具有&lt;code>name&lt;/code>和&lt;code>age&lt;/code>属性和相应的值。具体表现为&lt;code>mydog = Dog(&amp;quot;doudou&amp;quot;,2)&lt;/code>，这个类在初始化时就&lt;strong>需要两个参数&lt;/strong>才能转变为实例。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>python中所有的实例方法，包括&lt;code>__init__&lt;/code>方法，第一个参数都必须是&lt;code>self&lt;/code>，用于区别&lt;strong>普通函数&lt;/strong>和&lt;strong>方法&lt;/strong>。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>默认值&lt;/strong>，在定义方法的时候，可以传入默认值，这可以保证在不传入参数时，也能生成一个默认实例。&lt;/p>
+&lt;pre>&lt;code class="language-python"> def __init__(self, name=&amp;quot;小卡拉米&amp;quot;, age=5):
+ self.name = name
+ self.age = age
+&lt;/code>&lt;/pre>
+&lt;p>这样的&lt;code>__init__&lt;/code>方法就保证了，即使狗主人忘记了填写信息，&lt;code>mydog = Dog()&lt;/code>也能正常工作，但默认的狗狗是&lt;strong>小卡拉米&lt;/strong>，还是应该记得为自己的狗狗正确填写信息呦。（对于其他实例方法也适用）&lt;/p></description></item><item><title>径向分布函数（RDF）-OVITO</title><link>https://liubaoshuai1402.github.io/%E5%88%86%E5%AD%90%E5%8A%A8%E5%8A%9B%E5%AD%A6/rdf_ovito/</link><pubDate>Mon, 12 May 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/%E5%88%86%E5%AD%90%E5%8A%A8%E5%8A%9B%E5%AD%A6/rdf_ovito/</guid><description>&lt;h1 id="径向分布函数rdf计算-by-ovito">径向分布函数（RDF）计算 by OVITO&lt;/h1>
+&lt;h2 id="前言">前言&lt;/h2>
+&lt;p>
+&lt;a href="https://docs.ovito.org/python/index.html" target="_blank" rel="noopener noreferrer" >OVITO Python Reference — OVITO Python Reference 3.12.3 documentation&lt;/a>
+ 是一个开源且功能强大的分子动力学后处理软件包。&lt;/p>
+&lt;p>本文将介绍如何利用 OVITO python module 计算单个结构以及一段轨迹（多个结构）内的径向分布函数。&lt;/p>
+&lt;p>适用于无机非晶体，其他体系慎用。&lt;/p>
+&lt;p>软件：OVITO、matplotlib、numpy&lt;/p>
+&lt;p>&lt;strong>注意&lt;/strong>：本文仅供参考，欢迎指出错误或分享补充。无能力提供任何指导，&lt;strong>求教者切勿留言&lt;/strong>。&lt;/p>
+&lt;h2 id="the-partial-rdfs-of-a-single-crystal-structure">The partial RDFs of a single crystal structure&lt;/h2>
+&lt;h3 id="代码展示">代码展示&lt;/h3>
+&lt;pre>&lt;code class="language-python">#这段代码用于计算 RDF by OVITO
+from ovito.io import import_file
+from ovito.modifiers import CoordinationAnalysisModifier
+import numpy as np
+
+#导入一个氧化锆（ZrO2）的cif文件，所有OVITO支持的输入文件格式都可以（确保这个.py文件的路径下有这样一个cif文件，也可以稍微修改指定结构路径）
+pipeline = import_file(&amp;quot;ZrO.cif&amp;quot;)
+
+#施加一个名叫 CoordinationAnalysisModifier 的修饰器，cutoff用于控制截断半径，number_of_bins用于控制网格细分度（大小100-1000内都可以试试）
+pipeline.modifiers.append(CoordinationAnalysisModifier(cutoff = 5.0, number_of_bins = 500,partial=True))
+
+#进行计算
+rdf_table = pipeline.compute().tables['coordination-rdf']
+
+#得到用于画图的横纵坐标，默认第一列是x轴数据，其余列是y轴数据
+total_rdf = rdf_table.xy()
+
+#记录total_rdf中y轴数据对应是什么类型的pair-wise
+#这个例子中，输出为：
+#g(r) for pair-wise type combination O-O:
+#g(r) for pair-wise type combination O-Zr:
+#g(r) for pair-wise type combination Zr-Zr:
+#说明total_rdf是一个四列的数据，第一列是x轴坐标（其实是bin），第二列就是不同pair-wise的RDF数据，依次为 O-O,O-Zr,Zr-Zr
+rdf_names = rdf_table.y.component_names
+for component, name in enumerate(rdf_names):
+ print(&amp;quot;g(r) for pair-wise type combination %s:&amp;quot; % name)
+ 
+#将total_rdf保存为txt文件，用于后续画图
+np.savetxt(&amp;quot;total_rdf.txt&amp;quot;, total_rdf)
+
+&lt;/code>&lt;/pre>
+&lt;pre>&lt;code class="language-python">#这段代码用于绘图
+import numpy as np
+import matplotlib.pyplot as plt
+
+rdf_table = np.loadtxt('total_rdf.txt')
+
+#g(r) for pair-wise type combination O-O:
+#g(r) for pair-wise type combination O-Zr:
+#g(r) for pair-wise type combination Zr-Zr:
+
+#这里取的是 total_rdf.txt 中的第一列（对应[:,0]）和第三列（对应[:,2]），所以绘制的是 Zr-O pair-wise的partial RDF
+plt.plot(rdf_table[:,0], rdf_table[:,2])
+
+#matplotlib的常规设置，问问万能的小迪老师吧
+title_font = {'fontsize': 24, 'fontfamily': 'Times New Roman'}
+xlabel_font = {'fontsize': 22, 'fontfamily': 'Times New Roman'}
+ylabel_font = {'fontsize': 22, 'fontfamily': 'Times New Roman'}
+
+plt.title(&amp;quot;RDF Zr-O&amp;quot;, fontdict=title_font,pad=8)
+plt.xlabel(xlabel='distance r',fontdict=xlabel_font,loc='center',labelpad=8)
+plt.ylabel(ylabel='g(r)',fontdict=ylabel_font,loc='center',labelpad=8)
+plt.tick_params(axis='both', which='major', labelsize=16, direction='in')
+
+ax = plt.subplot()
+
+#因为只有一个静态结构，pair-wise的某些峰很高，所以这里的y轴坐标上限设置大一些，为200，可灵活改变
+#x轴设置为6，稍大于截断半径cutoff即可，因为本身也只在截断半径以内统计
+ax.set_ylim(0,200)
+plt.xlim(0,6)
+
+fig = plt.gcf()
+
+fig.set_size_inches(1200/100, 800/100)
+plt.savefig('output.png', dpi=100)
+
+plt.show()
+&lt;/code>&lt;/pre>
+&lt;h3 id="结果展示">结果展示&lt;/h3>
+&lt;img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/output.png"/>
+&lt;h2 id="the-partial-rdfs-of-trajectories">The partial RDFs of trajectories&lt;/h2>
+&lt;h3 id="代码展示-1">代码展示&lt;/h3>
+&lt;pre>&lt;code class="language-python">#这段代码用于计算一定时间内（一段轨迹）的平均 RDFs
+from ovito.io import import_file
+from ovito.modifiers import CoordinationAnalysisModifier,TimeAveragingModifier
+import numpy as np
+
+#读入轨迹文件，这里是利用 VASP 进行 AIMD 后得到的 XDATCAR 文件
+pipeline = import_file(&amp;quot;XDATCAR&amp;quot;)
+
+#打印轨迹中的结构数
+print(&amp;quot;Number of MD frames:&amp;quot;, pipeline.num_frames)
+
+#添加修饰器，与单个晶体结构相比，多了 TimeAveragingModifier 修饰器
+pipeline.modifiers.append(CoordinationAnalysisModifier(cutoff = 5.0, number_of_bins = 500,partial=True))
+pipeline.modifiers.append(TimeAveragingModifier(operate_on='table:coordination-rdf'))
+
+#计算 RDFs 数据
+total_rdf = pipeline.compute().tables['coordination-rdf[average]'].xy()
+
+#记录pair-wise类型
+rdf_names = pipeline.compute().tables['coordination-rdf[average]'].y.component_names
+for name in rdf_names:
+ print(&amp;quot;g(r) for pair-wise type combination %s:&amp;quot; % name)
+
+#输出数据，用于后续绘图，不再重复
+np.savetxt('rdf.txt', total_rdf, delimiter='\t')
+&lt;/code>&lt;/pre>
+&lt;h2 id="ovito小知识">OVITO小知识&lt;/h2>
+&lt;p>受限于Python基础和时间精力的限制，以下内容皆为我个人的有限理解，未能严格考究，仅供参考。&lt;/p></description></item><item><title/><link>https://liubaoshuai1402.github.io/search/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/search/</guid><description/></item><item><title>Archives</title><link>https://liubaoshuai1402.github.io/archives/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/archives/</guid><description/></item><item><title>枭枭不爱咕咕叫</title><link>https://liubaoshuai1402.github.io/about/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/about/</guid><description>&lt;p>保藏秘密、分享知识，人间美德。谦谦君子，温润如是。&lt;/p></description></item></channel></rss>

@@ -103,7 +103,7 @@ print(perturbed_system.data)
 
 但根据计算弹性系数的变形模式施加应变，是不是会让数据集更有意义，同时让训练出的势在计算弹性系数时更具有优势？
 
-那么，如何根据晶型确定需要施加的变形模式呢？这需要一定的物理知识，不过好在已经有人帮我们把做成了软件，名叫[elastool](https://github.com/zhongliliu/elastool)。
+那么，如何根据晶型确定需要施加的变形模式呢？这需要一定的物理知识，不过好在已经有人帮我们把它做成了软件，名叫[elastool](https://github.com/zhongliliu/elastool)。
 
 这个软件是为Linux设计的，如果装到Windows下要改一下源码才能正确运行。
 

@@ -93,5 +93,33 @@ write('H2O.xyz',db)
 
 所以，如果我们想让单一结构也加入到我们的数据集时，也要记得用切片的形式进行读取。不过要铭记于心的是，用**切片的形式读取**的其实是一个`list[atoms]`，要使用其中`atoms`实例的方法时，记得用`for`循环遍历其中的`atoms`实例。
 
+### 拟合势的energy是vasp计算中的哪个energy？
+
+虽然mace开发者已经指明，使用`at.info[energy_label] = at.get_potential_energy(force_consistent=True)`获取能量即可。
+
+但还是好奇这个能量对应于OSZICAR中的哪个。
+
+做了测试，对于单点能，OSZICAR包含F和E0两种能量，上述代码提取的是F，我的体系很多情况下F和E0是相等的。
+
+对于AIMD，OSZICAR包含E、F、E0三种能量，第一个E其实是包含了动能，但我们拟合势只需要势能的值，所以提取的也还是F。
+
+> [!important]
+>
+> 其实就是OUTCAR中的`free energy TOTEN`。
+
+<img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/DFT2.png"/>
+
+至于F和E0到底有什么区别？VASP没说明白，还需要更多实践。
+
+### AIMD的数据间隔取多少合适
+
+个人认为这个和AIMD的timestep有关键，我的系统因为含氢，所以取得是0.5fs。如果步长比较大，间隔可以适当小一些。
+
+取AIMD的间隔，用100和50做了尝试。
+
+前者有5k个结构，后者有1w个结构。
+
+前者的损失函数最终为0.049，后者为0.042。感觉差不多。
+
 
 

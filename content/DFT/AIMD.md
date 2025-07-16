@@ -20,12 +20,12 @@ LCHARG = .F.
 GGA = PS
 ISMEAR = 0
 SIGMA = 0.05
-ISPIN = 2
+ISPIN = 1
 
 #electronstep
-NELM = 300
-NELMIN = 6
-EDIFF = 1E-5
+NELM = 200
+NELMIN = 4
+EDIFF = 1E-4
 
 #AIMD
 IBRION = 0                  
@@ -57,12 +57,12 @@ LCHARG = .F.
 GGA = PS
 ISMEAR = 0
 SIGMA = 0.05
-ISPIN = 2
+ISPIN = 1
 
 #electronstep
-NELM = 300
-NELMIN = 6
-EDIFF = 1E-5
+NELM = 200
+NELMIN = 4
+EDIFF = 1E-4
 
 #AIMD
 IBRION = 0                  
@@ -73,8 +73,8 @@ NSW = 5000
 POTIM = 0.5                    
 PMASS = 50
 
-#O Zr H
-LANGEVIN_GAMMA = 15 5 30    
+#O Zr Y H
+LANGEVIN_GAMMA = 15 5 5 30    
 LANGEVIN_GAMMA_L = 1
 ```
 
@@ -128,23 +128,56 @@ for trajectory,electronic_step in enumerate(oszicar.electronic_steps):
 ```python
 from pymatgen.io.vasp.outputs import Oszicar
 from matplotlib import pyplot as plt
+import numpy as np
 
-oszicar = Oszicar("OSZICAR")
+oszicar = Oszicar("YSZH/d3/d31/OSZICAR")
 stepVStemp = []
 stepVSenergy = []
+
 
 for trajectory, ionic_step in enumerate(oszicar.ionic_steps):
     stepVStemp.append((trajectory,ionic_step['T']))
     stepVSenergy.append((trajectory,ionic_step['F']))
+# 用于打印是否能量有超出特定值
+#    if ionic_step['F'] > -920:
+#        print(trajectory)
 
-# 绘制温度或能量与步数的关系，注释掉其中一个
+#判断某一个轨迹的电子步是否达到最大，300根据INCAR调整
+for trajectory,electronic_step in enumerate(oszicar.electronic_steps):
+    if len(electronic_step) == 300:
+        print(trajectory)
+        print(len(electronic_step))
+        print("this AIMD data is not converged")
+
+# 检查第二步电子步中能量与最后一步的变化是否大于5eV，可能是数据异常，这个判据好用，5eV根据体系调整        
+for trajectory,electronic_step in enumerate(oszicar.electronic_steps):
+    if abs(electronic_step[1]['E']-electronic_step[-1]['E']) > 5:
+        print(trajectory)
+        print('this AIMD data possibly is Local Minimum')
+
+# 绘制温度与步数的关系
 plt.figure()
-plt.plot(*zip(*stepVStemp), label='Temperature (K)')
-plt.plot(*zip(*stepVSenergy), label='Free Energy (eV)')
+#plt.plot(*zip(*stepVStemp), label='Temperature (K)')
+plt.scatter(*zip(*stepVSenergy), label='Free Energy (eV)')
 plt.xlabel('MD Step')
 plt.ylabel('Value')
 plt.legend()
 plt.show()
+
+# 曾用于电子步中检查dE确保收敛性，但不好用      
+#for trajectory,electronic_step in enumerate(oszicar.electronic_steps):
+#    electronic_step_bool_lsit = []
+#    for single_step in electronic_step:
+#        if abs(single_step['dE']) < 1E-5:
+#            electronic_step_bool = 1
+#        else:
+#            electronic_step_bool = 0
+#        electronic_step_bool_lsit.append(electronic_step_bool)
+#    is_non_decreasing = np.all(np.diff(electronic_step_bool_lsit) >= 0)
+#    if is_non_decreasing == False:
+#        print(trajectory)
+#        print("this AIMD data possibly is Local Minimum")
+
 ```
 
 <img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/DFT.png" style="zoom:50%;" />
@@ -191,24 +224,81 @@ for number,at in enumerate(db):
     
         number_path = os.path.join(singlepoint_path,str(number))
         os.makedirs(number_path)
+        
+        #通用文件夹还是在超算上复制吧，自己电脑上复制后再上传太慢了
+        #INCAR_origin_path = os.path.join(path,'INCAR') 
+        #INCAR_path = os.path.join(number_path,'INCAR')
+        #shutil.copy(INCAR_origin_path,INCAR_path)
     
-        INCAR_origin_path = os.path.join(path,'INCAR') 
-        INCAR_path = os.path.join(number_path,'INCAR')
-        shutil.copy(INCAR_origin_path,INCAR_path)
+        #POTCAR_origin_path = os.path.join(path,'POTCAR')
+        #POTCAR_path =os.path.join(number_path,'POTCAR')
+        #shutil.copy(POTCAR_origin_path,POTCAR_path)
     
-        POTCAR_origin_path = os.path.join(path,'POTCAR')
-        POTCAR_path =os.path.join(number_path,'POTCAR')
-        shutil.copy(POTCAR_origin_path,POTCAR_path)
+        #KPOINTS_origin_path = os.path.join(path,'KPOINTS')
+        #KPOINTS_path = os.path.join(number_path,'KPOINTS')
+        #shutil.copy(KPOINTS_origin_path,KPOINTS_path)
     
-        KPOINTS_origin_path = os.path.join(path,'KPOINTS')
-        KPOINTS_path = os.path.join(number_path,'KPOINTS')
-        shutil.copy(KPOINTS_origin_path,KPOINTS_path)
-    
-        PBS_origin_path = os.path.join(path,'vasp.pbs')
-        PBS_path = os.path.join(number_path,'vasp.pbs')
-        shutil.copy(PBS_origin_path,PBS_path)
+        #PBS_origin_path = os.path.join(path,'vasp.pbs')
+        #PBS_path = os.path.join(number_path,'vasp.pbs')
+        #shutil.copy(PBS_origin_path,PBS_path)
     
         POSCAR_path = os.path.join(number_path,'POSCAR')
         write_vasp(POSCAR_path,at,direct=True,symbol_count=[("O",63),("Zr",30),('Y',2),('H',1)])
 ```
 
+### 单点能计算INCAR
+
+```
+#Start Parameters
+PREC = N
+ALGO = Fast
+ISTART = 0
+ICHARG = 2
+GGA = PS
+ISPIN = 1
+LREAL = Auto
+
+#Electronic Relaxation
+NELM = 60
+NELMIN = 4
+EDIFF = 1E-5
+LREAL = AUTO
+ENCUT = 480
+
+#Ionic Relaxation
+NSW = 0
+ISIF = 2
+ISMEAR = 0
+SIGMA = 0.05
+
+#K
+KSPACING = 0.5
+```
+
+经过测试，`KSPACING=0.5`和333的KPOINTS对于我的体系而言，计算得到的能量是差不多的，但是更快些。
+
+ENCUT尝试等于600，但是时间翻了三倍，算了。
+
+### sh脚本提交批量提交超算任务
+
+```
+#!/bin/bash
+
+# 提交 VASP 任务的循环脚本
+# 文件夹名称从 0 到 199
+
+for i in $(seq 0 199); do
+    echo "进入文件夹 $i"
+    cd "$i" || { echo "无法进入文件夹 $i"; exit 1; }
+
+    echo "提交任务：qsub vasp.pbs"
+    cp ../INCAR ./
+    cp ../KPOINTS ./
+    cp ../POTCAR ./
+    cp ../vasp.pbs ./
+    chmod +x vasp.pbs
+    qsub vasp.pbs
+
+    cd .. || exit
+done
+```

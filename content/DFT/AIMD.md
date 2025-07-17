@@ -88,7 +88,7 @@ LANGEVIN_GAMMA_L = 1
 
  `tar -czvf OUTCAR.tar.gz OUTCAR`
 
-### 检查电子步收敛
+### 电子步收敛异常的现象
 
 在进行AIMD的时候，出于某些未知的原因，一些构型在进行电子结构优化时，会陷入局部最小值或者未收敛。
 
@@ -106,24 +106,11 @@ LANGEVIN_GAMMA_L = 1
 
 因为AIMD是一个采样加计算DFT的方法，所以个人觉得，有一两个构型出现不收敛，并不影响其他构型作为数据，把异常点剔除就行了。
 
-利用pymatgen检查电子步达到最大值的构型，代码如下：
+### 检查OSZICAR
 
-```python
-from pymatgen.io.vasp.outputs import Oszicar
+从OSZICAR中检查控温效果以及能量。
 
-oszicar = Oszicar("OSZICAR")
-
-for trajectory,electronic_step in enumerate(oszicar.electronic_steps):
-    if len(electronic_step) == 300:
-        print(trajectory)
-        print("this AIMD data are not converged")
-```
-
-这里的300是我在VASP中设置的最大电子步，根据实际调整。
-
-### 检查温度和能量
-
-从OSZICAR中检查控温效果以及能量计算。
+具体效果看注释。
 
 ```python
 from pymatgen.io.vasp.outputs import Oszicar
@@ -134,7 +121,7 @@ oszicar = Oszicar("YSZH/d3/d31/OSZICAR")
 stepVStemp = []
 stepVSenergy = []
 
-
+#遍历轨迹的温度和能量
 for trajectory, ionic_step in enumerate(oszicar.ionic_steps):
     stepVStemp.append((trajectory,ionic_step['T']))
     stepVSenergy.append((trajectory,ionic_step['F']))
@@ -142,7 +129,7 @@ for trajectory, ionic_step in enumerate(oszicar.ionic_steps):
 #    if ionic_step['F'] > -920:
 #        print(trajectory)
 
-#判断某一个轨迹的电子步是否达到最大，300根据INCAR调整
+#判断某一个轨迹的电子步是否达到最大，300是根据INCAR调整
 for trajectory,electronic_step in enumerate(oszicar.electronic_steps):
     if len(electronic_step) == 300:
         print(trajectory)
@@ -180,21 +167,29 @@ plt.show()
 
 ```
 
-<img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/DFT.png" style="zoom:50%;" />
+通过画图，可以看到AIMD中电子结构优化出现异常（未收敛或陷入局部最小）是比较常见的现象。尽管在一条轨迹中出现较少，但当轨迹数量增多时，难免会混入训练集中。
+
+如何把他们提前筛选出来呢？
+
+<img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/Figure_1.png" style="zoom:50%;" />
 
 <img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/DFT1.png"/>
 
-可以看到，早期温度没有稳定下来，构型有大的变化很正常，所以能量浮动大也正常。
+这里，可以检查某一构型对应的电子步是否达到最大，即检查是否收敛。
 
-但是，在温度稳定的差不多的时候，仍出现了一些与周围构型能量相差很大的点，这些点很可能是==电子结构计算失败==（未收敛或陷入局部最小）导致的错误能量。
+然后对于如何筛选陷入局部最小的结构，则是经验之谈。
+
+<img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/DFT3.png" style="zoom:33%;" />
+
+如图，我发现对于陷入局部最优的结构，他们的能量变化，往往一开始是在全局最优波动，然后出于某些原因，来到了局部最优。
+
+这样他们最初几个电子步的能量和最后的电子步能量差会比较大。对于我的结构，我用5eV作为门槛来判断。
+
+发现效果不错。
 
 > [!important]
 >
-> 这样的数据是不能放入训练集的。
->
 > 所以检查AIMD的能量是非常有必要的。
-
-
 
 ### 用python脚本准备单点能的高通量计算
 

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>后处理 on BOGHTW</title><link>https://liubaoshuai1402.github.io/series/%E5%90%8E%E5%A4%84%E7%90%86/</link><description>Recent content in 后处理 on BOGHTW</description><generator>Hugo</generator><language>zh-cn</language><lastBuildDate>Sat, 28 Jun 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://liubaoshuai1402.github.io/series/%E5%90%8E%E5%A4%84%E7%90%86/index.xml" rel="self" type="application/rss+xml"/><item><title>COHP</title><link>https://liubaoshuai1402.github.io/dft/cohp/</link><pubDate>Sat, 28 Jun 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/dft/cohp/</guid><description>&lt;h1 id="cohp">COHP&lt;/h1>
+&lt;h2 id="前言">前言&lt;/h2>
+&lt;h3 id="vasp文件的准备">VASP文件的准备&lt;/h3>
+&lt;p>LOBSTER要求ISYM=0或-1。其他参数没有特殊要求。&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>结构优化&lt;/p>
+&lt;p>略过&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>静态自洽&lt;/p>
+&lt;p>以较为简单的K点设置计算波函数、电荷密度。&lt;/p>
+&lt;p>用于得到WAVECAR、CHGCAR&lt;/p>
+&lt;pre>&lt;code>#关键参数
+ISTART = 0 
+ICHARG = 2
+NSW = 0
+NBANDS = 500	#这个值要大，多试试
+NEDOS = 1000
+&lt;/code>&lt;/pre>
+&lt;p>后续的非静态自洽的NBANDS和NEDOS尽量和这里保持一致。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>非静态自洽&lt;/p>
+&lt;p>不再更新波函数和电荷密度，进行一次单次的求解。&lt;/p>
+&lt;p>这里可以设置更密的K点来求态密度，也可以设置特殊路径的K点来求能带结构。&lt;/p>
+&lt;pre>&lt;code>#关键参数
+ISTART = 1 # 使用前一轮的波函数
+ICHARG = 11 # 使用前一轮的电荷密度，不再更新
+NSW = 0
+LORBIT = 12
+NBANDS = 500	#这个值要大，多试试
+NEDOS = 1000
+&lt;/code>&lt;/pre>
+&lt;p>特别说一下LORBIT参数，这个参数是后处理参数，和VASP的电子计算无关。&lt;/p>
+&lt;p>指示VASP生成：DOSCAR and lm-decomposed PROCAR + phase factors (not recommended)&lt;/p>
+&lt;p>所以只需要最后非静态自洽的时候设置即可。&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>另外，如果对精度不高，或者不考虑成本，我看也有人直接用静态自洽的结果（这里直接设置比较高的K点密度）进行LOBSTER。&lt;/p>
+&lt;p>如果用的&lt;code>ISMEAR = 0&lt;/code>，后续要在lobsterin文件中指出。&lt;/p></description></item></channel></rss>

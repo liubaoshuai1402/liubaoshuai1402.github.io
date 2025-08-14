@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-cn">
-  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>机器学习势 | BOGHTW</title>
@@ -8,9 +8,9 @@
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/css/fonts.css" />
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/css/custom.css" />
 
-    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   </head>
 
   <body>
@@ -51,10 +51,72 @@
 
 
 
+  <p style="font-size: 1.1rem; font-weight: bold; margin-bottom: -0.8rem;">2025-06</p>
+
+  <ul>
+    
+    
+      <li class="archieve-list-item">
+        <div class="archieve-left-section">
+          
+          <span class="archive-date">2025-06-18</span>
+          
+          🗞️<a href="/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%8A%BF/deepmd%E5%85%A5%E9%97%A8/" class="archive-title-link-a">DeepMD入门</a>
+        </div>
+
+        <div class="archieve-right-section">
+          
+            
+            🎖️
+            
+              <a href="/series/deepmd" class="archive-taxonomy-link-a">deepmd</a>
+            
+          
+          
+            🗂️
+            
+              <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%8A%BF" class="archive-taxonomy-link-a">机器学习势</a>
+            
+          
+          
+        </div>
+      </li>
+    
+  </ul>
+
+
   <p style="font-size: 1.1rem; font-weight: bold; margin-bottom: -0.8rem;">2025-05</p>
 
   <ul>
     
+    
+      <li class="archieve-list-item">
+        <div class="archieve-left-section">
+          
+          <span class="archive-date">2025-05-29</span>
+          
+          🗞️<a href="/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%8A%BF/dft%E6%95%B0%E6%8D%AEvsmace%E9%A2%84%E6%B5%8B%E5%80%BC/" class="archive-title-link-a">绘制DFT数据和MACE预测值的关系图</a>
+        </div>
+
+        <div class="archieve-right-section">
+          
+            
+            🎖️
+            
+              <a href="/series/ase" class="archive-taxonomy-link-a">ASE</a>
+            
+              <a href="/series/mace" class="archive-taxonomy-link-a">MACE</a>
+            
+          
+          
+            🗂️
+            
+              <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%8A%BF" class="archive-taxonomy-link-a">机器学习势</a>
+            
+          
+          
+        </div>
+      </li>
     
       <li class="archieve-list-item">
         <div class="archieve-left-section">
@@ -183,7 +245,9 @@
         todolistContainer.className = 'todolist';
 
         
-        addTaskProgressBar(ul, todolistContainer);
+          
+          addTaskProgressBar(ul, todolistContainer);
+        
 
         
         ul.querySelectorAll('li').forEach(li => {
@@ -346,11 +410,11 @@
 </style>
 
   
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/styles/github.min.css">
-
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/styles/github.min.css">
 <script src="https://cdn.jsdelivr.net/gh/captainwc/cdn-release/website/highlight/highlight.min.js"></script>
-
 <script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll())</script>
+
 
   
   <script>
@@ -425,8 +489,8 @@
             copyBtn.textContent = '\uf4bb COPY';
 
             
-            const scale_height = 500;       
-            const collapsed_height = 300;   
+            const scale_height = 600;       
+            const collapsed_height = 500;   
             const checkHeight = () => {
                 const originalDisplay = parentElement.style.display;
                 parentElement.style.display = 'block';
@@ -1120,16 +1184,7 @@ pre:hover .code-tools {
 
         
         script.onload = () => {
-            const plantuml_theme = `
-scale 5
-skinparam shadowing false
-skinparam BackgroundColor transparent
-skinparam UsecaseBackgroundColor #white
-skinparam classBackgroundColor #white
-skinparam ActivityBackgroundColor #white
-skinparam ActorBackgroundColor #white
-skinparam participantBackgroundColor #white
-    `.trim();
+            const plantuml_theme = parsePlantumlUserConfig();
 
             plantumlBlocks.forEach(codeBlock => {
                 
@@ -1170,6 +1225,41 @@ skinparam participantBackgroundColor #white
         
         document.head.appendChild(script);
     });
+
+    function parsePlantumlUserConfig() {
+        let configItems = [];
+
+        
+            configItems.push(`scale 5`);
+        
+
+        
+
+        
+            configItems.push(`skinparam BackgroundColor transparent`);
+        
+
+        
+        
+            
+                configItems.push(`skinparam shadowing false`);
+            
+        
+
+        
+            configItems.push(`
+skinparam UsecaseBackgroundColor #white
+skinparam classBackgroundColor #white
+skinparam ActivityBackgroundColor #white
+skinparam ActorBackgroundColor #white
+skinparam participantBackgroundColor #white
+            `);
+        
+
+        
+
+        return configItems.join("\n").trim();
+    }
 </script>
 
   
@@ -1189,8 +1279,9 @@ skinparam participantBackgroundColor #white
             mermaid.initialize({
                 startOnLoad: false,
                 securityLevel: 'loose',
+                fontFamily: '',
                 
-                
+                look: 'default',
                 
                 theme: 'neutral',
                 
@@ -1552,8 +1643,6 @@ skinparam participantBackgroundColor #white
 </script>
 
 
-  
-
   <div id="search-modal">
   <input type="text" id="modal-search-input" placeholder="输入关键词搜索..." aria-label="搜索框" autocomplete="off">
   <div id="modal-search-debug" style="margin-bottom: 10px; color: #999;"></div>
@@ -1576,6 +1665,126 @@ skinparam participantBackgroundColor #white
     
   
 
+  
+    searchIndex.push({
+      title: "\"超晶格材料原子尺度建模\"",
+      permalink: "\"/dft/themodelingofsuperlattice/\"",
+      
+      categories: "[\"DFT\"]",
+      tags: [],
+      series: [],
+      date: "\"2025-07-16\""
+    });
+  
+    searchIndex.push({
+      title: "\"随机取代晶体结构中的元素\"",
+      permalink: "\"/dft/%E9%9A%8F%E6%9C%BA%E5%8F%96%E4%BB%A3%E5%85%83%E7%B4%A0/\"",
+      
+      categories: "[\"DFT\"]",
+      tags: [],
+      series: [],
+      date: "\"2025-07-16\""
+    });
+  
+    searchIndex.push({
+      title: "\"COHP\"",
+      permalink: "\"/dft/cohp/\"",
+      
+      categories: "[\"DFT\"]",
+      tags: [],
+      series: "[\"后处理\"]",
+      date: "\"2025-06-28\""
+    });
+  
+    searchIndex.push({
+      title: "\"用VASP进行第一性原理分子动力学（AIMD）\"",
+      permalink: "\"/dft/aimd/\"",
+      
+      categories: "[\"DFT\"]",
+      tags: [],
+      series: "[\"AIMD\"]",
+      date: "\"2025-06-28\""
+    });
+  
+    searchIndex.push({
+      title: "\"Honey\"",
+      permalink: "\"/%E7%94%A8%E5%BF%83%E8%AE%B0%E5%BD%95%E7%94%9F%E6%B4%BB/honey/\"",
+      
+      categories: [],
+      tags: [],
+      series: "[\"用心记录生活\"]",
+      date: "\"2025-06-26\""
+    });
+  
+    searchIndex.push({
+      title: "\"DeepMD入门\"",
+      permalink: "\"/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%8A%BF/deepmd%E5%85%A5%E9%97%A8/\"",
+      
+      categories: "[\"机器学习势\"]",
+      tags: [],
+      series: "[\"deepmd\"]",
+      date: "\"2025-06-18\""
+    });
+  
+    searchIndex.push({
+      title: "\"LAMMPS-dump\"",
+      permalink: "\"/%E5%88%86%E5%AD%90%E5%8A%A8%E5%8A%9B%E5%AD%A6/dump/\"",
+      
+      categories: "[\"分子动力学\"]",
+      tags: [],
+      series: "[\"LAMMPS\"]",
+      date: "\"2025-06-17\""
+    });
+  
+    searchIndex.push({
+      title: "\"LAMMPS中的常见命令\"",
+      permalink: "\"/%E5%88%86%E5%AD%90%E5%8A%A8%E5%8A%9B%E5%AD%A6/lammps%E4%B8%AD%E7%9A%84%E5%B8%B8%E8%A7%81%E5%91%BD%E4%BB%A4/\"",
+      
+      categories: "[\"分子动力学\"]",
+      tags: [],
+      series: "[\"LAMMPS\"]",
+      date: "\"2025-06-17\""
+    });
+  
+    searchIndex.push({
+      title: "\"LAMMPS剪切模拟\"",
+      permalink: "\"/%E5%88%86%E5%AD%90%E5%8A%A8%E5%8A%9B%E5%AD%A6/lammps%E5%89%AA%E5%88%87%E6%A8%A1%E6%8B%9F/\"",
+      
+      categories: "[\"分子动力学\"]",
+      tags: [],
+      series: "[\"LAMMPS\"]",
+      date: "\"2025-06-14\""
+    });
+  
+    searchIndex.push({
+      title: "\"超算操作\"",
+      permalink: "\"/%E8%B6%85%E7%AE%97/%E8%B6%85%E7%AE%97%E6%93%8D%E4%BD%9C/\"",
+      
+      categories: "[\"超算\"]",
+      tags: [],
+      series: [],
+      date: "\"2025-06-04\""
+    });
+  
+    searchIndex.push({
+      title: "\"绘制DFT数据和MACE预测值的关系图\"",
+      permalink: "\"/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%8A%BF/dft%E6%95%B0%E6%8D%AEvsmace%E9%A2%84%E6%B5%8B%E5%80%BC/\"",
+      
+      categories: "[\"机器学习势\"]",
+      tags: [],
+      series: "[\"ASE\",\"MACE\"]",
+      date: "\"2025-05-29\""
+    });
+  
+    searchIndex.push({
+      title: "\"图池化\"",
+      permalink: "\"/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%9B%BE%E6%B1%A0%E5%8C%96/\"",
+      
+      categories: "[\"深度学习\"]",
+      tags: [],
+      series: "[\"图神经网络\"]",
+      date: "\"2025-05-28\""
+    });
   
     searchIndex.push({
       title: "\"晶界建模\"",
@@ -1685,6 +1894,16 @@ skinparam participantBackgroundColor #white
       tags: [],
       series: "[\"OVITO\"]",
       date: "\"2025-05-12\""
+    });
+  
+    searchIndex.push({
+      title: "\"\"",
+      permalink: "\"/%E7%94%A8%E5%BF%83%E8%AE%B0%E5%BD%95%E7%94%9F%E6%B4%BB/%E7%A7%A6%E7%9A%87%E5%B2%9B/\"",
+      
+      categories: [],
+      tags: [],
+      series: [],
+      date: "\"0001-01-01\""
     });
   
 
@@ -1839,10 +2058,12 @@ skinparam participantBackgroundColor #white
 
 
   
+  
 <link rel="stylesheet" href="/css/note_down.min.6f53446a3926929fbd997660313634ca1db4a0566a04ccb07965d98c77e930d8.css">
 
 
 <script src="/js/note_down.min.f712cab3a19c2b6a7f727ecc52c9666678bba69993e36c2ada9d44bfbf4f5b13.js" defer></script>
+  
 
   
   <hr />

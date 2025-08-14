@@ -11,13 +11,37 @@ enableEmoji: true
 
 params:
   description: "Black Obsidian Grandma Heals the World!"
-  footer: "&copy; [xiaoxiaobuaigugujiao](https://liubaoshuai1402.github.io/) 2025 -- {Year} | 🎨[KSimple](https://github.com/captainwc/captainwc.github.io/tree/main/themes/ksimple)"
+  footer: "&copy; [xiaoxiaobuaigugujiao](https://liubaoshuai1402.github.io/) 2025 -- {Year} | 🎨[KSimple](https://github.com/captainwc/ksimple)"
   favicon: "/images/favicon.png"
   githubUserName: "liubaoshuai1402"
+  cusdisID: "0eeb9b3b-40ad-41b5-94e8-13a830e599d7"
+
+## [[🛠️]] Features Config
+  defaultNewPostCreatedFolder: "测试"
+
+  ## [[🛠️]] Mermaid Style Config
+  mermaidDefaultTheme: "neutral" # Themes: 'default' 'neutral', 'dark', 'forest', 'base'
+  mermaidDefaultLook: "handDrawn" # Look: 'handDrawn' 'default'
+  mermaidDefaultFont: "Maple Mono NF CN" # eg: 'Maple Mono Normal NF CN'
+
+  ## [[🛠️]] Plantuml Style Config
+  plantumlDefaultScale: "5" # A larger scale value can make the generated SVG clearer.
+  plantumlDefaultSkin: "rose" # Skin: 'plantuml' 'rose'
+  plantumlBackgroundTransparent: true # The generated SVG uses a transparent background and a lot of white color tones (with some presets already in place).
+  plantumlUseWhiteBlock: false
+  plantumlAddSkinShadowing: false # Whether to add shadows to the images.
+  plantumlCustomParam: "skinparam BackgroundColor transparent" # Any other params you want add to your every plantuml header (Use plantuml's syntax)
+
+  ## [[🛠️ 🧙‍♀️]] NewFeatures
+  ksimpleUseLocalPageNote: false # After enabling this feature, you can right-click on any page of the website to create or view notes that belong to the current page. (These notes are stored in the browser's local cache.)
+  ksimpleUseProgressBarForTodoList: false # Add a progress bar for every todolist.
+  ksimpleUsePrismJs: false # Use highlight.js(Recommended) or prism.js to highlight your code
+  ksimpleUseFloatToc: true
+  ksimpleUseFloatLeftSideBar: true
+  ksimpleUseEmbedScrollSync: true
 
 permalinks:
-  note: "/note/:year/:month/:day/:slug/"
-  post: "/post/:year/:month/:day/:slug/"
+  "网页剪藏": /转载/:year/:month/:day/:filename/
 
 taxonomies:
   categories: categories
@@ -70,7 +94,7 @@ markup:
         subscript:
           enable: true
         superscript:
-          enable: true
+          enable: false
       typographer:
         enable: false # 禁用自动符号转换，防止干扰公式
       passthrough:
@@ -80,4 +104,4 @@ markup:
             - ["\\[", "\\]"] # 块级公式 \[...\]
             - ["$$", "$$"] # 块级公式 $$...$$
           inline:
-            - ["\\(", "\\)"] # 行内公式 \(...\)
+            - ["\\(", "\\)"] # 行

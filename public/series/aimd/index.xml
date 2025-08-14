@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>AIMD on BOGHTW</title>
+    <link>https://liubaoshuai1402.github.io/series/aimd/</link>
+    <description>Recent content in AIMD on BOGHTW</description>
+    <generator>Hugo</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Sat, 28 Jun 2025 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://liubaoshuai1402.github.io/series/aimd/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>用VASP进行第一性原理分子动力学（AIMD）</title>
+      <link>https://liubaoshuai1402.github.io/dft/aimd/</link>
+      <pubDate>Sat, 28 Jun 2025 00:00:00 +0000</pubDate>
+      <guid>https://liubaoshuai1402.github.io/dft/aimd/</guid>
+      <description>&lt;h1 id=&#34;aimd&#34;&gt;AIMD&lt;/h1&gt;&#xA;&lt;h3 id=&#34;nvt系综&#34;&gt;nvt系综&lt;/h3&gt;&#xA;&lt;pre&gt;&lt;code&gt;ISTART = 0&#xD;&#xA;ENCUT = 480&#xD;&#xA;PREC = Normal&#xD;&#xA;ALGO = Fast&#xD;&#xA;LREAL = Auto&#xD;&#xA;LWAVE = .F. &#xD;&#xA;LCHARG = .F.&#xD;&#xA;GGA = PS&#xD;&#xA;ISMEAR = 0&#xD;&#xA;SIGMA = 0.05&#xD;&#xA;ISPIN = 1&#xD;&#xA;&#xD;&#xA;#electronstep&#xD;&#xA;NELM = 200&#xD;&#xA;NELMIN = 4&#xD;&#xA;EDIFF = 1E-4&#xD;&#xA;&#xD;&#xA;#AIMD&#xD;&#xA;IBRION = 0                  &#xD;&#xA;MDALGO = 2                      &#xD;&#xA;ISIF = 2                         &#xD;&#xA;TEBEG = 1500               &#xD;&#xA;NSW = 5000                     &#xD;&#xA;POTIM = 0.5                    &#xD;&#xA;SMASS = 0.5&#xD;&#xA;&#xD;&#xA;&lt;/code&gt;&lt;/pre&gt;&#xA;&lt;p&gt;&lt;code&gt;IBRION&lt;/code&gt;是控制离子步优化算法的参数，进行分子动力学是设置为0。&lt;/p&gt;&#xA;&lt;p&gt;&lt;code&gt;MDALGO&lt;/code&gt;这个参数控制恒温器选项。&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

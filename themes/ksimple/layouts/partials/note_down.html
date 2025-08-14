@@ -1,5 +1,0 @@
-{{ $style := resources.Get "css/note_down.css" | minify | fingerprint }}
-<link rel="stylesheet" href="{{ $style.RelPermalink }}">
-
-{{ $js := resources.Get "js/note_down.js" | minify | fingerprint }}
-<script src="{{ $js.RelPermalink }}" defer></script>

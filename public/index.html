@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-cn">
   <head>
-	<meta name="generator" content="Hugo 0.147.2"><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+	<meta name="generator" content="Hugo 0.147.2">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title> | BOGHTW</title>
@@ -9,9 +9,9 @@
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/css/fonts.css" />
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/css/custom.css" />
 
-    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   </head>
 
   <body>
@@ -40,7 +40,7 @@
 <h1></h1>
 <h1 id="hi-there-">Hi there 👋</h1>
 
-        <link rel="stylesheet" href="/css/vendors/admonitions.css">
+          <link rel="stylesheet" href="/css/vendors/admonitions.e8f9d71468684b38dcc32a3631441f47b6ee45ce52f3bcc31201e76cc2b0a193.css" integrity="sha256-6PnXFGhoSzjcwyo2MUQfR7buRc5S87zDEgHnbMKwoZM=" crossorigin="anonymous">
   <div class="admonition tip">
     <div class="admonition-header">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path d="M272 384c9.6-31.9 29.5-59.1 49.2-86.2c0 0 0 0 0 0c5.2-7.1 10.4-14.2 15.4-21.4c19.8-28.5 31.4-63 31.4-100.3C368 78.8 289.2 0 192 0S16 78.8 16 176c0 37.3 11.6 71.9 31.4 100.3c5 7.2 10.2 14.3 15.4 21.4c0 0 0 0 0 0c19.8 27.1 39.7 54.4 49.2 86.2l160 0zM192 512c44.2 0 80-35.8 80-80l0-16-160 0 0 16c0 44.2 35.8 80 80 80zM112 176c0 8.8-7.2 16-16 16s-16-7.2-16-16c0-61.9 50.1-112 112-112c8.8 0 16 7.2 16 16s-7.2 16-16 16c-44.2 0-80 35.8-80 80z"/></svg>
@@ -60,92 +60,1008 @@
 <hr>
 
 
+<div class="heatmap-container" id="heatmap-container">
+    
+    <div class="heatmap-header">
+        <div class="heatmap-title">Contributions</div>
+        <div class="heatmap-year-selector" id="heatmap-year-selector"></div>
+    </div>
+
+    
+    <div class="heatmap-content-wrapper">
+        
+        <div class="heatmap-months" id="heatmap-months"></div>
+        <div class="heatmap-body">
+            
+            <div class="heatmap-weekdays">
+                <span>Tue</span>
+                <span>Thr</span>
+                <span>Sat</span>
+            </div>
+            
+            <div class="heatmap-grid" id="heatmap-grid"></div>
+        </div>
+    </div>
+
+    
+    <div class="heatmap-footer">
+        <span>Less</span>
+        <div class="heatmap-legend">
+            <div class="heatmap-day" style="background-color: var(--ht-lv-0);"></div>
+            <div class="heatmap-day" style="background-color: var(--ht-lv-1);"></div>
+            <div class="heatmap-day" style="background-color: var(--ht-lv-2);"></div>
+            <div class="heatmap-day" style="background-color: var(--ht-lv-3);"></div>
+            <div class="heatmap-day" style="background-color: var(--ht-lv-4);"></div>
+        </div>
+        <span>More</span>
+    </div>
+
+    
+    <div id="heatmap-tooltip" class="heatmap-tooltip"></div>
+</div>
+
+<style>
+    :root {
+         
+         
+        --ht-main-text: #24292f;
+        --ht-secondary-text: #586069;
+        --ht-border: rgba(27, 31, 35, 0.1);
+        --ht-bg: #fff;
+        --ht-btn-bg: #f6f8fa;
+        --ht-btn-hover-bg: #f3f4f6;
+        --ht-btn-active-bg: #e1e4e8;
+        --ht-btn-active-border: #a0a5ab;
+
+         
+        --ht-lv-0: #ebedf0;
+        --ht-lv-1: #9be9a8;
+        --ht-lv-2: #40c463;
+        --ht-lv-3: #30a14e;
+        --ht-lv-4: #216e39;
+
+         
+        --ht-tooltip-bg: #24292f;
+        --ht-tooltip-text: #fff;
+
+         
+        --day-size: 12px;
+        --day-gap: 3px;
+    }
+
+     
+    body.dark {
+        --ht-main-text: #c9d1d9;
+        --ht-secondary-text: #8b949e;
+        --ht-border: #30363d;
+        --ht-bg: #0d1117;
+        --ht-btn-bg: #21262d;
+        --ht-btn-hover-bg: #30363d;
+        --ht-btn-active-bg: #383e47;
+        --ht-btn-active-border: #6e7681;
+
+         
+        --ht-lv-0: #161b22;
+        --ht-lv-1: #0e4429;
+        --ht-lv-2: #006d32;
+        --ht-lv-3: #26a641;
+        --ht-lv-4: #39d353;
+    }
+
+     
+    .heatmap-container {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+        padding: 15px;
+        border: 1px solid var(--ht-border);
+        border-radius: 6px;
+        background-color: var(--ht-bg);
+        color: var(--ht-main-text);
+        margin: 1.5rem 0;
+        overflow-x: auto;
+         
+    }
+
+    .heatmap-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-left: 32px;
+         
+        margin-bottom: 10px;
+        flex-wrap: wrap;
+    }
+
+    .heatmap-title {
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    .heatmap-year-selector {
+        display: flex;
+        gap: 4px;
+    }
+
+     
+    .year-btn {
+        padding: 3px 10px;
+        font-size: 12px;
+        color: var(--ht-secondary-text);
+        background-color: transparent;
+        border: 1px solid transparent;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .year-btn:hover {
+        background-color: var(--ht-btn-hover-bg);
+        color: var(--ht-main-text);
+    }
+
+    .year-btn.active {
+        color: var(--ht-main-text);
+        font-weight: 600;
+        background-color: var(--ht-btn-bg);
+        border-color: var(--ht-btn-active-border);
+    }
+
+     
+    .heatmap-content-wrapper {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .heatmap-months {
+        display: flex;
+        font-size: 12px;
+        color: var(--ht-secondary-text);
+        margin-left: 32px;
+         
+        margin-bottom: 5px;
+    }
+
+    .heatmap-month-label {
+        text-align: center;
+        flex-basis: 0;
+         
+    }
+
+    .heatmap-body {
+        display: flex;
+    }
+
+    .heatmap-weekdays {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding-right: 8px;
+        padding-top: 12px;
+        padding-bottom: 19px;
+         
+        font-size: 12px;
+        color: var(--ht-secondary-text);
+        flex-shrink: 0;
+    }
+
+    .heatmap-weekdays span {
+        height: var(--day-size);
+    }
+
+    .heatmap-grid {
+        display: flex;
+         
+        flex-flow: column wrap;
+         
+        height: calc(7 * (var(--day-size) + var(--day-gap)) - var(--day-gap));
+        gap: var(--day-gap);
+        flex-grow: 1;
+    }
+
+    .heatmap-day {
+        width: var(--day-size);
+        height: var(--day-size);
+        background-color: var(--ht-lv-0);
+        border-radius: 3px;
+        outline: 1px solid rgba(27, 31, 35, 0.05);
+        outline-offset: -1px;
+        cursor: pointer;
+    }
+
+    body.dark .heatmap-day {
+        outline-color: rgba(255, 255, 255, 0.05);
+         
+    }
+
+     
+    .heatmap-footer {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        margin-top: 10px;
+        font-size: 12px;
+        color: var(--ht-secondary-text);
+    }
+
+    .heatmap-legend {
+        display: flex;
+        gap: 3px;
+        margin: 0 5px;
+    }
+
+     
+    .heatmap-tooltip {
+        position: fixed;
+         
+        background-color: var(--ht-tooltip-bg);
+        color: var(--ht-tooltip-text);
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 12px;
+        pointer-events: none;
+         
+        z-index: 999;
+        white-space: nowrap;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        opacity: 0;
+        transition: opacity 0.2s;
+         
+        display: none;
+         
+    }
+
+    .heatmap-tooltip.show {
+        opacity: 1;
+    }
+
+    .heatmap-tooltip .tooltip-content {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .heatmap-tooltip .titles {
+        font-weight: normal;
+        color: #b1b1b1;
+        white-space: pre-wrap;
+         
+        border-top: 1px solid #555;
+        padding-top: 4px;
+        margin-top: 4px;
+        max-height: 150px;
+         
+        overflow-y: auto;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        
+        
+        const pages = [
+            
+                {
+                    date: "2025-07-16",
+                    title: "\"超晶格材料原子尺度建模\"",
+                    word_count:  137 
+                },
+            
+                {
+                    date: "2025-07-16",
+                    title: "\"随机取代晶体结构中的元素\"",
+                    word_count:  101 
+                },
+            
+                {
+                    date: "2025-06-28",
+                    title: "\"COHP\"",
+                    word_count:  107 
+                },
+            
+                {
+                    date: "2025-06-28",
+                    title: "\"用VASP进行第一性原理分子动力学（AIMD）\"",
+                    word_count:  516 
+                },
+            
+                {
+                    date: "2025-06-26",
+                    title: "\"Honey\"",
+                    word_count:  13 
+                },
+            
+                {
+                    date: "2025-06-18",
+                    title: "\"DeepMD入门\"",
+                    word_count:  110 
+                },
+            
+                {
+                    date: "2025-06-17",
+                    title: "\"LAMMPS-dump\"",
+                    word_count:  81 
+                },
+            
+                {
+                    date: "2025-06-17",
+                    title: "\"LAMMPS中的常见命令\"",
+                    word_count:  172 
+                },
+            
+                {
+                    date: "2025-06-14",
+                    title: "\"LAMMPS剪切模拟\"",
+                    word_count:  374 
+                },
+            
+                {
+                    date: "2025-06-04",
+                    title: "\"超算操作\"",
+                    word_count:  120 
+                },
+            
+                {
+                    date: "2025-05-29",
+                    title: "\"绘制DFT数据和MACE预测值的关系图\"",
+                    word_count:  280 
+                },
+            
+                {
+                    date: "2025-05-28",
+                    title: "\"图池化\"",
+                    word_count:  0 
+                },
+            
+                {
+                    date: "2025-05-24",
+                    title: "\"晶界建模\"",
+                    word_count:  124 
+                },
+            
+                {
+                    date: "2025-05-20",
+                    title: "\"Pytorch中的张量操作\"",
+                    word_count:  199 
+                },
+            
+                {
+                    date: "2025-05-19",
+                    title: "\"用于搭建神经网络的函数\"",
+                    word_count:  133 
+                },
+            
+                {
+                    date: "2025-05-18",
+                    title: "\"Python中的文件操作\"",
+                    word_count:  48 
+                },
+            
+                {
+                    date: "2025-05-18",
+                    title: "\"花朵分类\"",
+                    word_count:  702 
+                },
+            
+                {
+                    date: "2025-05-16",
+                    title: "\"使用rNEMD方法计算热导率的lammps输入文件\"",
+                    word_count:  317 
+                },
+            
+                {
+                    date: "2025-05-16",
+                    title: "\"如何构建训练集用于训练机器学习势\"",
+                    word_count:  146 
+                },
+            
+                {
+                    date: "2025-05-16",
+                    title: "\"机器学习势MACE的输入文件\"",
+                    word_count:  96 
+                },
+            
+                {
+                    date: "2025-05-13",
+                    title: "\"均方位移（MSD）-OVITO\"",
+                    word_count:  248 
+                },
+            
+                {
+                    date: "2025-05-13",
+                    title: "\"稍微深入一些Python中的类（class）\"",
+                    word_count:  522 
+                },
+            
+                {
+                    date: "2025-05-12",
+                    title: "\"径向分布函数（RDF）-OVITO\"",
+                    word_count:  371 
+                },
+            
+                {
+                    date: "0001-01-01",
+                    title: "\"\"",
+                    word_count:  0 
+                },
+            
+                {
+                    date: "0001-01-01",
+                    title: "\"\"",
+                    word_count:  2 
+                },
+            
+                {
+                    date: "0001-01-01",
+                    title: "\"Archives\"",
+                    word_count:  0 
+                },
+            
+                {
+                    date: "0001-01-01",
+                    title: "\"枭枭不爱咕咕叫\"",
+                    word_count:  1 
+                },
+            
+        ];
+
+    
+    const contributions = pages.reduce((acc, page) => {
+        const date = page.date;
+        if (!acc[date]) {
+            acc[date] = { posts: 0, words: 0, titles: [] };
+        }
+        acc[date].posts += 1;
+        acc[date].words += page.word_count;
+        acc[date].titles.push(page.title);
+        return acc;
+    }, {});
+
+    
+    const grid = document.getElementById('heatmap-grid');
+    const tooltip = document.getElementById('heatmap-tooltip');
+    const monthsContainer = document.getElementById('heatmap-months');
+    const yearSelectorContainer = document.getElementById('heatmap-year-selector');
+
+    
+
+    function getLevel(words) {
+        if (words > 0 && words < 1000) return 1;
+        if (words >= 1000 && words < 2000) return 2;
+        if (words >= 2000 && words < 3000) return 3;
+        if (words >= 3000) return 4;
+        return 0;
+    }
+
+    
+
+    function renderHeatmap(year) {
+        
+        grid.innerHTML = '';
+        monthsContainer.innerHTML = '';
+
+        
+        let startDate, endDate;
+        const today = new Date();
+        if (year === 'last') {
+            endDate = new Date(today);
+            startDate = new Date(today);
+            startDate.setFullYear(startDate.getFullYear() - 1);
+        } else {
+            const yearNum = parseInt(year);
+            startDate = new Date(yearNum, 0, 1);
+            endDate = new Date(yearNum, 11, 31);
+            
+            if (yearNum === today.getFullYear()) {
+                endDate = today;
+            }
+        }
+
+        
+        
+        let dayCursor = new Date(startDate);
+        const startDay = dayCursor.getDay(); 
+        const offset = (startDay === 0) ? 6 : startDay - 1;
+        dayCursor.setDate(dayCursor.getDate() - offset);
+
+        
+        const finalDate = new Date(endDate);
+        const finalDay = finalDate.getDay();
+        const padding = (finalDay === 0) ? 0 : 7 - finalDay;
+        finalDate.setDate(finalDate.getDate() + padding);
+
+        
+        const monthLabelData = [];
+        let currentMonth = -1;
+        let totalWeeks = 0;
+
+        while (dayCursor <= finalDate) {
+            
+            if (dayCursor.getDay() === 1) {
+                totalWeeks++;
+                const month = dayCursor.getMonth();
+                if (month !== currentMonth) {
+                    if (dayCursor >= startDate && dayCursor <= endDate) {
+                        monthLabelData.push({ month: month, weekIndex: totalWeeks });
+                    }
+                    currentMonth = month;
+                }
+            }
+
+            const dayCell = document.createElement('div');
+            dayCell.className = 'heatmap-day';
+
+            
+            if (dayCursor >= startDate && dayCursor <= endDate) {
+                const dateString = dayCursor.toISOString().split('T')[0];
+                const data = contributions[dateString];
+
+                if (data) {
+                    const level = getLevel(data.words);
+                    dayCell.style.backgroundColor = `var(--ht-lv-${level})`;
+                    
+                    dayCell.dataset.date = dateString;
+                    dayCell.dataset.posts = data.posts;
+                    dayCell.dataset.words = data.words;
+                    dayCell.dataset.titles = data.titles.map(t => `《${t}》`).join('\n');
+                }
+            } else {
+                
+                dayCell.style.backgroundColor = 'transparent';
+                dayCell.style.outline = 'none';
+                dayCell.style.cursor = 'default';
+            }
+
+            grid.appendChild(dayCell);
+            dayCursor.setDate(dayCursor.getDate() + 1);
+        }
+
+        
+        for (let i = 0; i < monthLabelData.length; i++) {
+            const data = monthLabelData[i];
+            const nextData = monthLabelData[i + 1];
+            const monthLabel = document.createElement('span');
+            monthLabel.className = 'heatmap-month-label';
+            monthLabel.textContent = new Date(2000, data.month).toLocaleString('en-US', { month: 'short' });
+
+            
+            const weeks = nextData ? nextData.weekIndex - data.weekIndex : totalWeeks - data.weekIndex + 1;
+            monthLabel.style.flexGrow = weeks;
+
+            monthsContainer.appendChild(monthLabel);
+        }
+    }
+
+    
+
+    function setupYearSelector() {
+        if (pages.length === 0) return;
+
+        const currentYear = new Date().getFullYear();
+        
+        const yearsSet = new Set(pages.map(p => new Date(p.date).getFullYear()));
+
+        
+        const years = Array.from(yearsSet)
+            .filter(y => y > 1970 && y < currentYear)
+            .sort((a, b) => b - a);
+
+        
+        const lastYearBtn = document.createElement('button');
+        lastYearBtn.textContent = 'Last year';
+        lastYearBtn.className = 'year-btn active';
+        lastYearBtn.dataset.year = 'last';
+        yearSelectorContainer.appendChild(lastYearBtn);
+
+        
+        years.forEach(year => {
+            const yearBtn = document.createElement('button');
+            yearBtn.textContent = year;
+            yearBtn.className = 'year-btn';
+            yearBtn.dataset.year = year;
+            yearSelectorContainer.appendChild(yearBtn);
+        });
+
+        
+        yearSelectorContainer.addEventListener('click', function(e) {
+            if (e.target.classList.contains('year-btn')) {
+                
+                this.querySelectorAll('.year-btn').forEach(btn => btn.classList.remove('active'));
+                e.target.classList.add('active');
+                renderHeatmap(e.target.dataset.year);
+            }
+        });
+    }
+
+    
+
+    function initTooltip() {
+        
+        grid.addEventListener('mousemove', e => {
+            
+            if (e.target.classList.contains('heatmap-day') && e.target.dataset.date) {
+                const currentTarget = e.target;
+                const posts = currentTarget.dataset.posts || '0';
+                const words = currentTarget.dataset.words || '0';
+
+                
+                const dateObj = new Date(currentTarget.dataset.date);
+                const correctedDate = new Date(dateObj.valueOf() + dateObj.getTimezoneOffset() * 60 * 1000);
+                const dateText = correctedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+                const titlesHTML = currentTarget.dataset.titles ? `<div class="titles">${currentTarget.dataset.titles}</div>` : '';
+
+                
+                tooltip.innerHTML = `
+                    <div class="tooltip-content">
+                        <div><strong>${posts} posts, ${words} words</strong> on ${dateText}</div>
+                        ${titlesHTML}
+                    </div>
+                `;
+
+                tooltip.style.display = 'block';
+                tooltip.classList.add('show');
+
+                
+                
+                const tooltipRect = tooltip.getBoundingClientRect();
+                let left = e.clientX + 15;
+                let top = e.clientY;
+
+                if (left + tooltipRect.width > window.innerWidth) {
+                    left = e.clientX - tooltipRect.width - 15;
+                }
+                if (top + tooltipRect.height > window.innerHeight) {
+                    top = e.clientY - tooltipRect.height;
+                }
+
+                tooltip.style.left = `${left}px`;
+                tooltip.style.top = `${top}px`;
+            }
+        });
+
+        grid.addEventListener('mouseout', e => {
+            if (e.target.classList.contains('heatmap-day') && e.target.dataset.date) {
+                tooltip.classList.remove('show');
+                
+                tooltip.addEventListener('transitionend', () => {
+                    if (!tooltip.classList.contains('show')) {
+                        tooltip.style.display = 'none';
+                    }
+                }, { once: true });
+            }
+        });
+    }
+
+    
+    
+    if (pages.length > 0) {
+        setupYearSelector();
+        renderHeatmap('last'); 
+        initTooltip();
+    } else {
+        
+        const container = document.getElementById('heatmap-container');
+        container.innerHTML = '<p>No contribution data to display.</p>';
+    }
+});
+</script>
 
 
-文章列表：
+<div class="timeline-container">
+    
+    
+    
+    <div class="timeline-year-section">
+        <h2 class="timeline-year">2025</h2>
+        <ul class="timeline-list">
+            
+            
+            <li class="timeline-item">
+                <div class="timeline-content">
+                    <span class="timeline-date">07-16</span>
+                    <a href="/dft/%E9%9A%8F%E6%9C%BA%E5%8F%96%E4%BB%A3%E5%85%83%E7%B4%A0/" class="timeline-title">随机取代晶体结构中的元素</a>
+                </div>
+            </li>
+            
+            <li class="timeline-item">
+                <div class="timeline-content">
+                    <span class="timeline-date">07-16</span>
+                    <a href="/dft/themodelingofsuperlattice/" class="timeline-title">超晶格材料原子尺度建模</a>
+                </div>
+            </li>
+            
+            <li class="timeline-item">
+                <div class="timeline-content">
+                    <span class="timeline-date">06-28</span>
+                    <a href="/dft/aimd/" class="timeline-title">用VASP进行第一性原理分子动力学（AIMD）</a>
+                </div>
+            </li>
+            
+            <li class="timeline-item">
+                <div class="timeline-content">
+                    <span class="timeline-date">06-28</span>
+                    <a href="/dft/cohp/" class="timeline-title">COHP</a>
+                </div>
+            </li>
+            
+            <li class="timeline-item">
+                <div class="timeline-content">
+                    <span class="timeline-date">06-26</span>
+                    <a href="/%E7%94%A8%E5%BF%83%E8%AE%B0%E5%BD%95%E7%94%9F%E6%B4%BB/honey/" class="timeline-title">Honey</a>
+                </div>
+            </li>
+            
+            <li class="timeline-item">
+                <div class="timeline-content">
+                    <span class="timeline-date">06-18</span>
+                    <a href="/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%8A%BF/deepmd%E5%85%A5%E9%97%A8/" class="timeline-title">DeepMD入门</a>
+                </div>
+            </li>
+            
+            <li class="timeline-item">
+                <div class="timeline-content">
+                    <span class="timeline-date">06-17</span>
+                    <a href="/%E5%88%86%E5%AD%90%E5%8A%A8%E5%8A%9B%E5%AD%A6/lammps%E4%B8%AD%E7%9A%84%E5%B8%B8%E8%A7%81%E5%91%BD%E4%BB%A4/" class="timeline-title">LAMMPS中的常见命令</a>
+                </div>
+            </li>
+            
+            <li class="timeline-item">
+                <div class="timeline-content">
+                    <span class="timeline-date">06-17</span>
+                    <a href="/%E5%88%86%E5%AD%90%E5%8A%A8%E5%8A%9B%E5%AD%A6/dump/" class="timeline-title">LAMMPS-dump</a>
+                </div>
+            </li>
+            
+            <li class="timeline-item">
+                <div class="timeline-content">
+                    <span class="timeline-date">06-14</span>
+                    <a href="/%E5%88%86%E5%AD%90%E5%8A%A8%E5%8A%9B%E5%AD%A6/lammps%E5%89%AA%E5%88%87%E6%A8%A1%E6%8B%9F/" class="timeline-title">LAMMPS剪切模拟</a>
+                </div>
+            </li>
+            
+            <li class="timeline-item">
+                <div class="timeline-content">
+                    <span class="timeline-date">06-04</span>
+                    <a href="/%E8%B6%85%E7%AE%97/%E8%B6%85%E7%AE%97%E6%93%8D%E4%BD%9C/" class="timeline-title">超算操作</a>
+                </div>
+            </li>
+            
+            <li class="timeline-item">
+                <div class="timeline-content">
+                    <span class="timeline-date">05-29</span>
+                    <a href="/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%8A%BF/dft%E6%95%B0%E6%8D%AEvsmace%E9%A2%84%E6%B5%8B%E5%80%BC/" class="timeline-title">绘制DFT数据和MACE预测值的关系图</a>
+                </div>
+            </li>
+            
+            <li class="timeline-item">
+                <div class="timeline-content">
+                    <span class="timeline-date">05-28</span>
+                    <a href="/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%9B%BE%E6%B1%A0%E5%8C%96/" class="timeline-title">图池化</a>
+                </div>
+            </li>
+            
+            <li class="timeline-item">
+                <div class="timeline-content">
+                    <span class="timeline-date">05-24</span>
+                    <a href="/pymatgen/gainbroundary/" class="timeline-title">晶界建模</a>
+                </div>
+            </li>
+            
+            <li class="timeline-item">
+                <div class="timeline-content">
+                    <span class="timeline-date">05-20</span>
+                    <a href="/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%BC%A0%E9%87%8F%E6%93%8D%E4%BD%9C/" class="timeline-title">Pytorch中的张量操作</a>
+                </div>
+            </li>
+            
+            <li class="timeline-item">
+                <div class="timeline-content">
+                    <span class="timeline-date">05-19</span>
+                    <a href="/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/pytorch2/" class="timeline-title">用于搭建神经网络的函数</a>
+                </div>
+            </li>
+            
+            <li class="timeline-item">
+                <div class="timeline-content">
+                    <span class="timeline-date">05-18</span>
+                    <a href="/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/pytorch1/" class="timeline-title">花朵分类</a>
+                </div>
+            </li>
+            
+            <li class="timeline-item">
+                <div class="timeline-content">
+                    <span class="timeline-date">05-18</span>
+                    <a href="/%E4%BB%A3%E7%A0%81/fileoperations/" class="timeline-title">Python中的文件操作</a>
+                </div>
+            </li>
+            
+            <li class="timeline-item">
+                <div class="timeline-content">
+                    <span class="timeline-date">05-16</span>
+                    <a href="/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%8A%BF/mace2/" class="timeline-title">机器学习势MACE的输入文件</a>
+                </div>
+            </li>
+            
+            <li class="timeline-item">
+                <div class="timeline-content">
+                    <span class="timeline-date">05-16</span>
+                    <a href="/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%8A%BF/mace1/" class="timeline-title">如何构建训练集用于训练机器学习势</a>
+                </div>
+            </li>
+            
+            <li class="timeline-item">
+                <div class="timeline-content">
+                    <span class="timeline-date">05-16</span>
+                    <a href="/%E5%88%86%E5%AD%90%E5%8A%A8%E5%8A%9B%E5%AD%A6/thermal_conductivity_rnemd/" class="timeline-title">使用rNEMD方法计算热导率的lammps输入文件</a>
+                </div>
+            </li>
+            
+            <li class="timeline-item">
+                <div class="timeline-content">
+                    <span class="timeline-date">05-13</span>
+                    <a href="/%E4%BB%A3%E7%A0%81/class_in_python/" class="timeline-title">稍微深入一些Python中的类（class）</a>
+                </div>
+            </li>
+            
+            <li class="timeline-item">
+                <div class="timeline-content">
+                    <span class="timeline-date">05-13</span>
+                    <a href="/%E5%88%86%E5%AD%90%E5%8A%A8%E5%8A%9B%E5%AD%A6/msd_ovito/" class="timeline-title">均方位移（MSD）-OVITO</a>
+                </div>
+            </li>
+            
+            <li class="timeline-item">
+                <div class="timeline-content">
+                    <span class="timeline-date">05-12</span>
+                    <a href="/%E5%88%86%E5%AD%90%E5%8A%A8%E5%8A%9B%E5%AD%A6/rdf_ovito/" class="timeline-title">径向分布函数（RDF）-OVITO</a>
+                </div>
+            </li>
+            
+        </ul>
+    </div>
+    
+    <div class="timeline-year-section">
+        <h2 class="timeline-year">0001</h2>
+        <ul class="timeline-list">
+            
+            
+            <li class="timeline-item">
+                <div class="timeline-content">
+                    <span class="timeline-date">01-01</span>
+                    <a href="/%E7%94%A8%E5%BF%83%E8%AE%B0%E5%BD%95%E7%94%9F%E6%B4%BB/%E7%A7%A6%E7%9A%87%E5%B2%9B/" class="timeline-title"></a>
+                </div>
+            </li>
+            
+        </ul>
+    </div>
+    
+</div>
 
-<ul class="home-page-blog-list">
-    
-    
-    
-    <li>
-        <div style="display: flex; align-items: center; margin: 0 0 -0.4rem 0;">
-            <span style="text-wrap: nowrap; margin-right: 0.36rem">2025/05/24</span>
-            <a href="/pymatgen/gainbroundary/">晶界建模</a>
-        </div>
-    </li>
-    
-    <li>
-        <div style="display: flex; align-items: center; margin: 0 0 -0.4rem 0;">
-            <span style="text-wrap: nowrap; margin-right: 0.36rem">2025/05/20</span>
-            <a href="/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%BC%A0%E9%87%8F%E6%93%8D%E4%BD%9C/">Pytorch中的张量操作</a>
-        </div>
-    </li>
-    
-    <li>
-        <div style="display: flex; align-items: center; margin: 0 0 -0.4rem 0;">
-            <span style="text-wrap: nowrap; margin-right: 0.36rem">2025/05/19</span>
-            <a href="/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/pytorch2/">用于搭建神经网络的函数</a>
-        </div>
-    </li>
-    
-    <li>
-        <div style="display: flex; align-items: center; margin: 0 0 -0.4rem 0;">
-            <span style="text-wrap: nowrap; margin-right: 0.36rem">2025/05/18</span>
-            <a href="/%E4%BB%A3%E7%A0%81/fileoperations/">Python中的文件操作</a>
-        </div>
-    </li>
-    
-    <li>
-        <div style="display: flex; align-items: center; margin: 0 0 -0.4rem 0;">
-            <span style="text-wrap: nowrap; margin-right: 0.36rem">2025/05/18</span>
-            <a href="/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/pytorch1/">花朵分类</a>
-        </div>
-    </li>
-    
-    <li>
-        <div style="display: flex; align-items: center; margin: 0 0 -0.4rem 0;">
-            <span style="text-wrap: nowrap; margin-right: 0.36rem">2025/05/16</span>
-            <a href="/%E5%88%86%E5%AD%90%E5%8A%A8%E5%8A%9B%E5%AD%A6/thermal_conductivity_rnemd/">使用rNEMD方法计算热导率的lammps输入文件</a>
-        </div>
-    </li>
-    
-    <li>
-        <div style="display: flex; align-items: center; margin: 0 0 -0.4rem 0;">
-            <span style="text-wrap: nowrap; margin-right: 0.36rem">2025/05/16</span>
-            <a href="/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%8A%BF/mace1/">如何构建训练集用于训练机器学习势</a>
-        </div>
-    </li>
-    
-    <li>
-        <div style="display: flex; align-items: center; margin: 0 0 -0.4rem 0;">
-            <span style="text-wrap: nowrap; margin-right: 0.36rem">2025/05/16</span>
-            <a href="/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%8A%BF/mace2/">机器学习势MACE的输入文件</a>
-        </div>
-    </li>
-    
-    <li>
-        <div style="display: flex; align-items: center; margin: 0 0 -0.4rem 0;">
-            <span style="text-wrap: nowrap; margin-right: 0.36rem">2025/05/13</span>
-            <a href="/%E5%88%86%E5%AD%90%E5%8A%A8%E5%8A%9B%E5%AD%A6/msd_ovito/">均方位移（MSD）-OVITO</a>
-        </div>
-    </li>
-    
-    <li>
-        <div style="display: flex; align-items: center; margin: 0 0 -0.4rem 0;">
-            <span style="text-wrap: nowrap; margin-right: 0.36rem">2025/05/13</span>
-            <a href="/%E4%BB%A3%E7%A0%81/class_in_python/">稍微深入一些Python中的类（class）</a>
-        </div>
-    </li>
-    
-    <li>
-        <div style="display: flex; align-items: center; margin: 0 0 -0.4rem 0;">
-            <span style="text-wrap: nowrap; margin-right: 0.36rem">2025/05/12</span>
-            <a href="/%E5%88%86%E5%AD%90%E5%8A%A8%E5%8A%9B%E5%AD%A6/rdf_ovito/">径向分布函数（RDF）-OVITO</a>
-        </div>
-    </li>
-    
-</ul>
+
+
+<style>
+    .home-content {
+        margin-bottom: 2rem;
+    }
+
+    .timeline-container {
+        max-width: 800px;
+        margin: 0 0 1.5rem 0;
+        padding: 0;
+    }
+
+    .timeline-year {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #333;
+        padding-bottom: 0.4rem;
+        margin-bottom: 1rem;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .timeline-year::before {
+        content: "" !important;
+    }
+
+    .timeline-list {
+        list-style: none;
+        padding-left: 20px;
+        position: relative;
+        border-left: 2px solid #e9e9e9;
+    }
+
+    .timeline-item {
+        margin-bottom: 0.2rem;
+        position: relative;
+    }
+
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -27px;
+        top: 5px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background-color: #fff;
+        border: 2px solid #c0c0c0;
+        transition: background-color 0.3s ease, border-color 0.3s ease;
+        z-index: 1;
+    }
+
+    .timeline-item:hover::before {
+        background-color: #2e59a7;
+        border-color: #2e59a7;
+    }
+
+    .timeline-content {
+        display: flex;
+        align-items: baseline;
+        gap: 0.6rem;
+    }
+
+    .timeline-date {
+        font-family: "Maple Mono NF CN", "Fira Code", Consolas, monospace;
+        font-size: 0.8rem;
+        color: #888;
+        background-color: #f8f8f8;
+        padding: 1px 6px;
+        border-radius: 4px;
+        flex-shrink: 0;
+    }
+
+    .timeline-title {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: #3c4654;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .timeline-title:hover {
+        color: #2e59a7;
+    }
+
+    .timeline-title::before {
+        display: none !important;
+    }
+
+     
+    @media (max-width: 768px) {
+        .timeline-container {
+            margin: 1rem auto;
+            padding: 0;
+        }
+
+        .timeline-year {
+            font-size: 1.5rem;
+            padding-left: 0.5rem;
+        }
+
+        .timeline-list {
+            border-left: none;
+            padding-left: 0.5rem;
+        }
+
+        .timeline-content {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.25rem;
+            padding-left: 1.5rem;
+            border-left: 2px solid #e9e9e9;
+        }
+
+        .timeline-item {
+            margin-bottom: 1.5rem;
+        }
+
+        .timeline-item::before {
+            left: -7px;
+            top: 4px;
+        }
+    }
+</style>
+
 
 <footer>
   
@@ -169,7 +1085,7 @@
 
     
     <div class="menu-popup-btn edit-btn">
-        <a href='https://github.com/liubaoshuai1402/liubaoshuai1402.github.io/new/main/content/测试'
+        <a href='https://github.com/liubaoshuai1402/liubaoshuai1402.github.io/new/main/content/'
             target="_blank" rel="noopener">
             <i class="fa-solid fa-square-pen"></i>
         </a>
@@ -375,7 +1291,9 @@
         todolistContainer.className = 'todolist';
 
         
-        addTaskProgressBar(ul, todolistContainer);
+          
+          addTaskProgressBar(ul, todolistContainer);
+        
 
         
         ul.querySelectorAll('li').forEach(li => {
@@ -538,11 +1456,11 @@
 </style>
 
   
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/styles/github.min.css">
-
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/styles/github.min.css">
 <script src="https://cdn.jsdelivr.net/gh/captainwc/cdn-release/website/highlight/highlight.min.js"></script>
-
 <script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll())</script>
+
 
   
   <script>
@@ -617,8 +1535,8 @@
             copyBtn.textContent = '\uf4bb COPY';
 
             
-            const scale_height = 500;       
-            const collapsed_height = 300;   
+            const scale_height = 600;       
+            const collapsed_height = 500;   
             const checkHeight = () => {
                 const originalDisplay = parentElement.style.display;
                 parentElement.style.display = 'block';
@@ -1312,16 +2230,7 @@ pre:hover .code-tools {
 
         
         script.onload = () => {
-            const plantuml_theme = `
-scale 5
-skinparam shadowing false
-skinparam BackgroundColor transparent
-skinparam UsecaseBackgroundColor #white
-skinparam classBackgroundColor #white
-skinparam ActivityBackgroundColor #white
-skinparam ActorBackgroundColor #white
-skinparam participantBackgroundColor #white
-    `.trim();
+            const plantuml_theme = parsePlantumlUserConfig();
 
             plantumlBlocks.forEach(codeBlock => {
                 
@@ -1362,6 +2271,41 @@ skinparam participantBackgroundColor #white
         
         document.head.appendChild(script);
     });
+
+    function parsePlantumlUserConfig() {
+        let configItems = [];
+
+        
+            configItems.push(`scale 5`);
+        
+
+        
+
+        
+            configItems.push(`skinparam BackgroundColor transparent`);
+        
+
+        
+        
+            
+                configItems.push(`skinparam shadowing false`);
+            
+        
+
+        
+            configItems.push(`
+skinparam UsecaseBackgroundColor #white
+skinparam classBackgroundColor #white
+skinparam ActivityBackgroundColor #white
+skinparam ActorBackgroundColor #white
+skinparam participantBackgroundColor #white
+            `);
+        
+
+        
+
+        return configItems.join("\n").trim();
+    }
 </script>
 
   
@@ -1381,8 +2325,9 @@ skinparam participantBackgroundColor #white
             mermaid.initialize({
                 startOnLoad: false,
                 securityLevel: 'loose',
+                fontFamily: '',
                 
-                
+                look: 'default',
                 
                 theme: 'neutral',
                 
@@ -1744,8 +2689,6 @@ skinparam participantBackgroundColor #white
 </script>
 
 
-  
-
   <div id="search-modal">
   <input type="text" id="modal-search-input" placeholder="输入关键词搜索..." aria-label="搜索框" autocomplete="off">
   <div id="modal-search-debug" style="margin-bottom: 10px; color: #999;"></div>
@@ -1768,6 +2711,126 @@ skinparam participantBackgroundColor #white
     
   
 
+  
+    searchIndex.push({
+      title: "\"超晶格材料原子尺度建模\"",
+      permalink: "\"/dft/themodelingofsuperlattice/\"",
+      
+      categories: "[\"DFT\"]",
+      tags: [],
+      series: [],
+      date: "\"2025-07-16\""
+    });
+  
+    searchIndex.push({
+      title: "\"随机取代晶体结构中的元素\"",
+      permalink: "\"/dft/%E9%9A%8F%E6%9C%BA%E5%8F%96%E4%BB%A3%E5%85%83%E7%B4%A0/\"",
+      
+      categories: "[\"DFT\"]",
+      tags: [],
+      series: [],
+      date: "\"2025-07-16\""
+    });
+  
+    searchIndex.push({
+      title: "\"COHP\"",
+      permalink: "\"/dft/cohp/\"",
+      
+      categories: "[\"DFT\"]",
+      tags: [],
+      series: "[\"后处理\"]",
+      date: "\"2025-06-28\""
+    });
+  
+    searchIndex.push({
+      title: "\"用VASP进行第一性原理分子动力学（AIMD）\"",
+      permalink: "\"/dft/aimd/\"",
+      
+      categories: "[\"DFT\"]",
+      tags: [],
+      series: "[\"AIMD\"]",
+      date: "\"2025-06-28\""
+    });
+  
+    searchIndex.push({
+      title: "\"Honey\"",
+      permalink: "\"/%E7%94%A8%E5%BF%83%E8%AE%B0%E5%BD%95%E7%94%9F%E6%B4%BB/honey/\"",
+      
+      categories: [],
+      tags: [],
+      series: "[\"用心记录生活\"]",
+      date: "\"2025-06-26\""
+    });
+  
+    searchIndex.push({
+      title: "\"DeepMD入门\"",
+      permalink: "\"/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%8A%BF/deepmd%E5%85%A5%E9%97%A8/\"",
+      
+      categories: "[\"机器学习势\"]",
+      tags: [],
+      series: "[\"deepmd\"]",
+      date: "\"2025-06-18\""
+    });
+  
+    searchIndex.push({
+      title: "\"LAMMPS-dump\"",
+      permalink: "\"/%E5%88%86%E5%AD%90%E5%8A%A8%E5%8A%9B%E5%AD%A6/dump/\"",
+      
+      categories: "[\"分子动力学\"]",
+      tags: [],
+      series: "[\"LAMMPS\"]",
+      date: "\"2025-06-17\""
+    });
+  
+    searchIndex.push({
+      title: "\"LAMMPS中的常见命令\"",
+      permalink: "\"/%E5%88%86%E5%AD%90%E5%8A%A8%E5%8A%9B%E5%AD%A6/lammps%E4%B8%AD%E7%9A%84%E5%B8%B8%E8%A7%81%E5%91%BD%E4%BB%A4/\"",
+      
+      categories: "[\"分子动力学\"]",
+      tags: [],
+      series: "[\"LAMMPS\"]",
+      date: "\"2025-06-17\""
+    });
+  
+    searchIndex.push({
+      title: "\"LAMMPS剪切模拟\"",
+      permalink: "\"/%E5%88%86%E5%AD%90%E5%8A%A8%E5%8A%9B%E5%AD%A6/lammps%E5%89%AA%E5%88%87%E6%A8%A1%E6%8B%9F/\"",
+      
+      categories: "[\"分子动力学\"]",
+      tags: [],
+      series: "[\"LAMMPS\"]",
+      date: "\"2025-06-14\""
+    });
+  
+    searchIndex.push({
+      title: "\"超算操作\"",
+      permalink: "\"/%E8%B6%85%E7%AE%97/%E8%B6%85%E7%AE%97%E6%93%8D%E4%BD%9C/\"",
+      
+      categories: "[\"超算\"]",
+      tags: [],
+      series: [],
+      date: "\"2025-06-04\""
+    });
+  
+    searchIndex.push({
+      title: "\"绘制DFT数据和MACE预测值的关系图\"",
+      permalink: "\"/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%8A%BF/dft%E6%95%B0%E6%8D%AEvsmace%E9%A2%84%E6%B5%8B%E5%80%BC/\"",
+      
+      categories: "[\"机器学习势\"]",
+      tags: [],
+      series: "[\"ASE\",\"MACE\"]",
+      date: "\"2025-05-29\""
+    });
+  
+    searchIndex.push({
+      title: "\"图池化\"",
+      permalink: "\"/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%9B%BE%E6%B1%A0%E5%8C%96/\"",
+      
+      categories: "[\"深度学习\"]",
+      tags: [],
+      series: "[\"图神经网络\"]",
+      date: "\"2025-05-28\""
+    });
   
     searchIndex.push({
       title: "\"晶界建模\"",
@@ -1877,6 +2940,16 @@ skinparam participantBackgroundColor #white
       tags: [],
       series: "[\"OVITO\"]",
       date: "\"2025-05-12\""
+    });
+  
+    searchIndex.push({
+      title: "\"\"",
+      permalink: "\"/%E7%94%A8%E5%BF%83%E8%AE%B0%E5%BD%95%E7%94%9F%E6%B4%BB/%E7%A7%A6%E7%9A%87%E5%B2%9B/\"",
+      
+      categories: [],
+      tags: [],
+      series: [],
+      date: "\"0001-01-01\""
     });
   
 
@@ -2031,10 +3104,12 @@ skinparam participantBackgroundColor #white
 
 
   
+  
 <link rel="stylesheet" href="/css/note_down.min.6f53446a3926929fbd997660313634ca1db4a0566a04ccb07965d98c77e930d8.css">
 
 
 <script src="/js/note_down.min.f712cab3a19c2b6a7f727ecc52c9666678bba69993e36c2ada9d44bfbf4f5b13.js" defer></script>
+  
 
   
   <hr />

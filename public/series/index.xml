@@ -2,52 +2,87 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Series on BOGHTW</title>
-    <link>http://localhost:1313/series/</link>
+    <link>https://liubaoshuai1402.github.io/series/</link>
     <description>Recent content in Series on BOGHTW</description>
     <generator>Hugo</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Fri, 16 May 2025 00:00:00 +0000</lastBuildDate>
-    <atom:link href="http://localhost:1313/series/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 28 Jun 2025 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://liubaoshuai1402.github.io/series/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>ASE</title>
-      <link>http://localhost:1313/series/ase/</link>
-      <pubDate>Fri, 16 May 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/series/ase/</guid>
+      <title>AIMD</title>
+      <link>https://liubaoshuai1402.github.io/series/aimd/</link>
+      <pubDate>Sat, 28 Jun 2025 00:00:00 +0000</pubDate>
+      <guid>https://liubaoshuai1402.github.io/series/aimd/</guid>
       <description></description>
     </item>
     <item>
-      <title>DeepMD-Kit</title>
-      <link>http://localhost:1313/series/deepmd-kit/</link>
-      <pubDate>Fri, 16 May 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/series/deepmd-kit/</guid>
+      <title>后处理</title>
+      <link>https://liubaoshuai1402.github.io/series/%E5%90%8E%E5%A4%84%E7%90%86/</link>
+      <pubDate>Sat, 28 Jun 2025 00:00:00 +0000</pubDate>
+      <guid>https://liubaoshuai1402.github.io/series/%E5%90%8E%E5%A4%84%E7%90%86/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>用心记录生活</title>
+      <link>https://liubaoshuai1402.github.io/series/%E7%94%A8%E5%BF%83%E8%AE%B0%E5%BD%95%E7%94%9F%E6%B4%BB/</link>
+      <pubDate>Thu, 26 Jun 2025 00:00:00 +0000</pubDate>
+      <guid>https://liubaoshuai1402.github.io/series/%E7%94%A8%E5%BF%83%E8%AE%B0%E5%BD%95%E7%94%9F%E6%B4%BB/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Deepmd</title>
+      <link>https://liubaoshuai1402.github.io/series/deepmd/</link>
+      <pubDate>Wed, 18 Jun 2025 00:00:00 +0000</pubDate>
+      <guid>https://liubaoshuai1402.github.io/series/deepmd/</guid>
       <description></description>
     </item>
     <item>
       <title>LAMMPS</title>
-      <link>http://localhost:1313/series/lammps/</link>
-      <pubDate>Fri, 16 May 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/series/lammps/</guid>
+      <link>https://liubaoshuai1402.github.io/series/lammps/</link>
+      <pubDate>Tue, 17 Jun 2025 00:00:00 +0000</pubDate>
+      <guid>https://liubaoshuai1402.github.io/series/lammps/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>ASE</title>
+      <link>https://liubaoshuai1402.github.io/series/ase/</link>
+      <pubDate>Thu, 29 May 2025 00:00:00 +0000</pubDate>
+      <guid>https://liubaoshuai1402.github.io/series/ase/</guid>
       <description></description>
     </item>
     <item>
       <title>MACE</title>
-      <link>http://localhost:1313/series/mace/</link>
+      <link>https://liubaoshuai1402.github.io/series/mace/</link>
+      <pubDate>Thu, 29 May 2025 00:00:00 +0000</pubDate>
+      <guid>https://liubaoshuai1402.github.io/series/mace/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>图神经网络</title>
+      <link>https://liubaoshuai1402.github.io/series/%E5%9B%BE%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/</link>
+      <pubDate>Wed, 28 May 2025 00:00:00 +0000</pubDate>
+      <guid>https://liubaoshuai1402.github.io/series/%E5%9B%BE%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>DeepMD-Kit</title>
+      <link>https://liubaoshuai1402.github.io/series/deepmd-kit/</link>
       <pubDate>Fri, 16 May 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/series/mace/</guid>
+      <guid>https://liubaoshuai1402.github.io/series/deepmd-kit/</guid>
       <description></description>
     </item>
     <item>
       <title>OVITO</title>
-      <link>http://localhost:1313/series/ovito/</link>
+      <link>https://liubaoshuai1402.github.io/series/ovito/</link>
       <pubDate>Tue, 13 May 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/series/ovito/</guid>
+      <guid>https://liubaoshuai1402.github.io/series/ovito/</guid>
       <description></description>
     </item>
     <item>
       <title>Python</title>
-      <link>http://localhost:1313/series/python/</link>
+      <link>https://liubaoshuai1402.github.io/series/python/</link>
       <pubDate>Tue, 13 May 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/series/python/</guid>
+      <guid>https://liubaoshuai1402.github.io/series/python/</guid>
       <description></description>
     </item>
   </channel>

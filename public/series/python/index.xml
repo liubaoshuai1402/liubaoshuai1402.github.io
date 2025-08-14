@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Python on BOGHTW</title>
-    <link>http://localhost:1313/series/python/</link>
+    <link>https://liubaoshuai1402.github.io/series/python/</link>
     <description>Recent content in Python on BOGHTW</description>
     <generator>Hugo</generator>
     <language>zh-cn</language>
     <lastBuildDate>Tue, 13 May 2025 00:00:00 +0000</lastBuildDate>
-    <atom:link href="http://localhost:1313/series/python/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://liubaoshuai1402.github.io/series/python/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>稍微深入一些Python中的类（class）</title>
-      <link>http://localhost:1313/%E4%BB%A3%E7%A0%81/class_in_python/</link>
+      <link>https://liubaoshuai1402.github.io/%E4%BB%A3%E7%A0%81/class_in_python/</link>
       <pubDate>Tue, 13 May 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/%E4%BB%A3%E7%A0%81/class_in_python/</guid>
+      <guid>https://liubaoshuai1402.github.io/%E4%BB%A3%E7%A0%81/class_in_python/</guid>
       <description>&lt;h1 id=&#34;稍微深入一些python中的类class&#34;&gt;稍微深入一些Python中的类（class）&lt;/h1&gt;&#xA;&lt;h2 id=&#34;前言&#34;&gt;前言&lt;/h2&gt;&#xA;&lt;p&gt;**类（class）**在python代码中几乎无处不在，但在近日的学习中发现，我对它真是了解甚少，甚至基础结构都不能熟稔于心，故开此笔记认真学习。和我一起重新认识一下它吧。&lt;/p&gt;&#xA;&lt;h2 id=&#34;一个简单的类&#34;&gt;一个简单的类&lt;/h2&gt;&#xA;&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;#code 1&#xD;&#xA;class Dog:&#xD;&#xA;    # 类属性&#xD;&#xA;    species = &amp;quot;Dog&amp;quot;&#xD;&#xA;    # 初始化方法&#xD;&#xA;    def __init__(self, name, age):&#xD;&#xA;        self.name = name&#xD;&#xA;        self.age = age&#xD;&#xA;    # 实例方法&#xD;&#xA;    def bark(self):&#xD;&#xA;        return print(&amp;quot;旺旺&amp;quot;)&#xD;&#xA;&#xD;&#xA;print(mydog.species)&#xD;&#xA;print(mydog.name,mydog.age)&#xD;&#xA;mydog.bark()&#xD;&#xA;&#xD;&#xA;#输出为：&#xD;&#xA;#Dog&#xD;&#xA;#doudou 2&#xD;&#xA;#旺旺&#xD;&#xA;&lt;/code&gt;&lt;/pre&gt;&#xA;&lt;p&gt;&lt;strong&gt;类&lt;/strong&gt;是一种对数据进行计算操作的蓝图，离不开&lt;strong&gt;属性&lt;/strong&gt;和&lt;strong&gt;方法&lt;/strong&gt;。&lt;/p&gt;&#xA;&lt;p&gt;code 1中，我们定义了一个 Dog 类，并对它进行了实例化，生成了一个对象。&lt;/p&gt;&#xA;&lt;p&gt;这个类的结构，很简单。&lt;/p&gt;&#xA;&lt;p&gt;首先是放在第一部分的&lt;strong&gt;类属性&lt;/strong&gt;。&lt;strong&gt;类属性&lt;/strong&gt;是&lt;strong&gt;直接在类中定义变量&lt;/strong&gt;。所有通过这个类生成的对象都具有这些属性。&lt;/p&gt;&#xA;&lt;p&gt;然后是放在第二部分的诸多方法，其实就是一个个的函数。&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;    def __init__(self, name, age):&#xD;&#xA;        self.name = name&#xD;&#xA;        self.age = age&#xD;&#xA;&lt;/code&gt;&lt;/pre&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&#xA;&lt;p&gt;&lt;code&gt;_init_&lt;/code&gt;方法叫&lt;strong&gt;初始化方法&lt;/strong&gt;，是&lt;strong&gt;魔法方法&lt;/strong&gt;的一种。让实例初始化时就具有&lt;code&gt;name&lt;/code&gt;和&lt;code&gt;age&lt;/code&gt;属性和相应的值。具体表现为&lt;code&gt;mydog = Dog(&amp;quot;doudou&amp;quot;,2)&lt;/code&gt;，这个类在初始化时就&lt;strong&gt;需要两个参数&lt;/strong&gt;才能转变为实例。&lt;/p&gt;&#xA;&lt;/li&gt;&#xA;&lt;li&gt;&#xA;&lt;p&gt;python中所有的实例方法，包括&lt;code&gt;__init__&lt;/code&gt;方法，第一个参数都必须是&lt;code&gt;self&lt;/code&gt;，用于区别&lt;strong&gt;普通函数&lt;/strong&gt;和&lt;strong&gt;方法&lt;/strong&gt;。&lt;/p&gt;&#xA;&lt;/li&gt;&#xA;&lt;li&gt;&#xA;&lt;p&gt;&lt;strong&gt;默认值&lt;/strong&gt;，在定义方法的时候，可以传入默认值，这可以保证在不传入参数时，也能生成一个默认实例。&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;    def __init__(self, name=&amp;quot;小卡拉米&amp;quot;, age=5):&#xD;&#xA;        self.name = name&#xD;&#xA;        self.age = age&#xD;&#xA;&lt;/code&gt;&lt;/pre&gt;&#xA;&lt;p&gt;这样的&lt;code&gt;__init__&lt;/code&gt;方法就保证了，即使狗主人忘记了填写信息，&lt;code&gt;mydog = Dog()&lt;/code&gt;也能正常工作，但默认的狗狗是&lt;strong&gt;小卡拉米&lt;/strong&gt;，还是应该记得为自己的狗狗正确填写信息呦。（对于其他实例方法也适用）&lt;/p&gt;</description>
     </item>
   </channel>

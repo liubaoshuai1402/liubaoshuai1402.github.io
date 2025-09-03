@@ -1,6 +1,6 @@
 ---
 title: 超晶格材料原子尺度建模
-date: 2025-08-5
+date: 2025-08-05
 categories: [DFT]
 ---
 

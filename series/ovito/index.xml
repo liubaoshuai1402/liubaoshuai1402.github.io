@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>OVITO on BOGHTW</title><link>https://liubaoshuai1402.github.io/series/ovito/</link><description>Recent content in OVITO on BOGHTW</description><generator>Hugo</generator><language>zh-cn</language><lastBuildDate>Tue, 13 May 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://liubaoshuai1402.github.io/series/ovito/index.xml" rel="self" type="application/rss+xml"/><item><title>均方位移（MSD）-OVITO</title><link>https://liubaoshuai1402.github.io/moleculardynamics/msd_ovito/</link><pubDate>Tue, 13 May 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/moleculardynamics/msd_ovito/</guid><description>&lt;h1 id="均方位移msd计算-by-ovito"&gt;均方位移（MSD）计算 by OVITO&lt;/h1&gt;
+&lt;h2 id="前言"&gt;前言&lt;/h2&gt;
+&lt;p&gt;
+&lt;a href="https://docs.ovito.org/python/index.html" target="_blank" rel="noopener noreferrer" &gt;OVITO Python Reference — OVITO Python Reference 3.12.3 documentation&lt;/a&gt;
+ 是一个开源且功能强大的分子动力学后处理软件包。&lt;/p&gt;
+&lt;p&gt;本文将介绍如何利用 OVITO python module 计算某类元素原子在一段轨迹内的均方位移。&lt;/p&gt;
+&lt;p&gt;适用于无机非晶体，其他体系慎用。&lt;/p&gt;
+&lt;p&gt;软件：OVITO、matplotlib、numpy&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;注意&lt;/strong&gt;：本文仅供参考，欢迎指出错误或分享补充。无能力提供任何指导，&lt;strong&gt;求教者切勿留言&lt;/strong&gt;。&lt;/p&gt;
+&lt;h2 id="ovito版"&gt;OVITO版&lt;/h2&gt;
+&lt;h3 id="代码展示"&gt;代码展示&lt;/h3&gt;
+&lt;pre&gt;&lt;code class="language-python"&gt;from ovito.io import import_file, export_file
+from ovito.modifiers import CalculateDisplacementsModifier
+from ovito.modifiers import SelectTypeModifier,InvertSelectionModifier,DeleteSelectedModifier,ExpressionSelectionModifier
+import numpy as np
+import matplotlib.pyplot as plt
+
+#万物起源 import_file ，导入一段要计算的轨迹
+pipeline = import_file(&amp;quot;1.dump&amp;quot;)
+
+#添加 SelectTypeModifier 修饰器
+#设置参数 property = 'Particle Type' 指定选择的类型（这里我们指定的是原子类型）
+#设置参数 types = {4} 指定具体的原子类型，这里是这个轨迹中的 4 原子（这个值要根据自己的体系修改），这里用数字代表原子是因为我使用的lammps的输出风格没有记录原子的元素符号，如果你的轨迹里记录的是 元素符号 信息，比如说 VASP 输出的 XDATCAR，则需要用类似于 types = {&amp;quot;H&amp;quot;} 的写法
+pipeline.modifiers.append(SelectTypeModifier(property = 'Particle Type', types = {4}))
+
+#添加 InvertSelectionModifier 修饰器，进行原子反选，为剔除不需要计算的原子做准备
+pipeline.modifiers.append(InvertSelectionModifier()) 
+
+#添加 DeleteSelectedModifier 修饰器，删除上一行代码反选的原子，留下需要计算的原子
+pipeline.modifiers.append(DeleteSelectedModifier(operate_on= {'particles'})) 
+
+#添加 CalculateDisplacementsModifier 修饰器，指定计算 MSD 的参考结构，这里 reference_frame = 0 代表初始结构是参考结构
+reference_frame = 0
+pipeline.modifiers.append(CalculateDisplacementsModifier(reference_frame=0)) #a subclass of ovito.pipeline.ReferenceConfigurationModifier
+
+#自定义一个修饰器函数，用于将 per-particle displacement 转化为相应元素的均方位移
+#本文的 OVITO小知识 将简单介绍自定义修饰器是如何工作的
+def calculate_msd(frame, data):
+ 
+	#用一个变量 displacement_magnitudes 记录 data.particles['Displacement Magnitude']，简化代码
+	displacement_magnitudes = data.particles['Displacement Magnitude']
+	#计算 MSD （将所有原子位移的平方加和然后求平均），OVITO 的数据可以直接和 numpy 交互，nice
+	msd = np.sum(displacement_magnitudes ** 2) / len(displacement_magnitudes) 
+	#把计算的 MSD 传递给 data (DataCollection类)
+	data.attributes[&amp;quot;MSD&amp;quot;] = msd 
+ 
+#添加自定义 calculate_msd 修饰器
+pipeline.modifiers.append(calculate_msd)
+
+
+#计算 Pipeline, 得到time vs MSD的数据
+table = [] #用于存放数据，time vs MSD
+
+for frame,data in enumerate(pipeline.frames):
+	if frame &amp;gt;= reference_frame:
+		#这里的 *10 一定要根据自己的计算调整，我的轨迹在lammps计算设置：时间步是0.5fs，每20步输出一帧，所以轨迹中每帧其实经历了10fs，所以乘以10
+		#我们 time vs MSD 的x横坐标单位是fs，也可以是别的，自己调整
+		time = (frame-reference_frame)*10 
+		table.append([time,data.attributes['MSD']])
+
+#.csv文件还是比较高级的，比纯txt好些，delimiter 指定间隔符为 &amp;quot;,&amp;quot; ,这样方便直接excel打开
+np.savetxt(&amp;quot;msd_data.csv&amp;quot;,table,delimiter=&amp;quot;,&amp;quot;)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id="ovito小知识"&gt;OVITO小知识&lt;/h2&gt;
+&lt;p&gt;受限于Python基础和时间精力的限制，以下内容皆为我个人的有限理解，未能严格考究，仅供参考。&lt;/p&gt;</description></item><item><title>径向分布函数（RDF）-OVITO</title><link>https://liubaoshuai1402.github.io/moleculardynamics/rdf_ovito/</link><pubDate>Mon, 12 May 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/moleculardynamics/rdf_ovito/</guid><description>&lt;h1 id="径向分布函数rdf计算-by-ovito"&gt;径向分布函数（RDF）计算 by OVITO&lt;/h1&gt;
+&lt;h2 id="前言"&gt;前言&lt;/h2&gt;
+&lt;p&gt;
+&lt;a href="https://docs.ovito.org/python/index.html" target="_blank" rel="noopener noreferrer" &gt;OVITO Python Reference — OVITO Python Reference 3.12.3 documentation&lt;/a&gt;
+ 是一个开源且功能强大的分子动力学后处理软件包。&lt;/p&gt;
+&lt;p&gt;本文将介绍如何利用 OVITO python module 计算单个结构以及一段轨迹（多个结构）内的径向分布函数。&lt;/p&gt;
+&lt;p&gt;适用于无机非晶体，其他体系慎用。&lt;/p&gt;
+&lt;p&gt;软件：OVITO、matplotlib、numpy&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;注意&lt;/strong&gt;：本文仅供参考，欢迎指出错误或分享补充。无能力提供任何指导，&lt;strong&gt;求教者切勿留言&lt;/strong&gt;。&lt;/p&gt;
+&lt;h2 id="the-partial-rdfs-of-a-single-crystal-structure"&gt;The partial RDFs of a single crystal structure&lt;/h2&gt;
+&lt;h3 id="代码展示"&gt;代码展示&lt;/h3&gt;
+&lt;pre&gt;&lt;code class="language-python"&gt;#这段代码用于计算 RDF by OVITO
+from ovito.io import import_file
+from ovito.modifiers import CoordinationAnalysisModifier
+import numpy as np
+
+#导入一个氧化锆（ZrO2）的cif文件，所有OVITO支持的输入文件格式都可以（确保这个.py文件的路径下有这样一个cif文件，也可以稍微修改指定结构路径）
+pipeline = import_file(&amp;quot;ZrO.cif&amp;quot;)
+
+#施加一个名叫 CoordinationAnalysisModifier 的修饰器，cutoff用于控制截断半径，number_of_bins用于控制网格细分度（大小100-1000内都可以试试）
+pipeline.modifiers.append(CoordinationAnalysisModifier(cutoff = 5.0, number_of_bins = 500,partial=True))
+
+#进行计算
+rdf_table = pipeline.compute().tables['coordination-rdf']
+
+#得到用于画图的横纵坐标，默认第一列是x轴数据，其余列是y轴数据
+total_rdf = rdf_table.xy()
+
+#记录total_rdf中y轴数据对应是什么类型的pair-wise
+#这个例子中，输出为：
+#g(r) for pair-wise type combination O-O:
+#g(r) for pair-wise type combination O-Zr:
+#g(r) for pair-wise type combination Zr-Zr:
+#说明total_rdf是一个四列的数据，第一列是x轴坐标（其实是bin），第二列就是不同pair-wise的RDF数据，依次为 O-O,O-Zr,Zr-Zr
+rdf_names = rdf_table.y.component_names
+for component, name in enumerate(rdf_names):
+ print(&amp;quot;g(r) for pair-wise type combination %s:&amp;quot; % name)
+ 
+#将total_rdf保存为txt文件，用于后续画图
+np.savetxt(&amp;quot;total_rdf.txt&amp;quot;, total_rdf)
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code class="language-python"&gt;#这段代码用于绘图
+import numpy as np
+import matplotlib.pyplot as plt
+
+rdf_table = np.loadtxt('total_rdf.txt')
+
+#g(r) for pair-wise type combination O-O:
+#g(r) for pair-wise type combination O-Zr:
+#g(r) for pair-wise type combination Zr-Zr:
+
+#这里取的是 total_rdf.txt 中的第一列（对应[:,0]）和第三列（对应[:,2]），所以绘制的是 Zr-O pair-wise的partial RDF
+plt.plot(rdf_table[:,0], rdf_table[:,2])
+
+#matplotlib的常规设置，问问万能的小迪老师吧
+title_font = {'fontsize': 24, 'fontfamily': 'Times New Roman'}
+xlabel_font = {'fontsize': 22, 'fontfamily': 'Times New Roman'}
+ylabel_font = {'fontsize': 22, 'fontfamily': 'Times New Roman'}
+
+plt.title(&amp;quot;RDF Zr-O&amp;quot;, fontdict=title_font,pad=8)
+plt.xlabel(xlabel='distance r',fontdict=xlabel_font,loc='center',labelpad=8)
+plt.ylabel(ylabel='g(r)',fontdict=ylabel_font,loc='center',labelpad=8)
+plt.tick_params(axis='both', which='major', labelsize=16, direction='in')
+
+ax = plt.subplot()
+
+#因为只有一个静态结构，pair-wise的某些峰很高，所以这里的y轴坐标上限设置大一些，为200，可灵活改变
+#x轴设置为6，稍大于截断半径cutoff即可，因为本身也只在截断半径以内统计
+ax.set_ylim(0,200)
+plt.xlim(0,6)
+
+fig = plt.gcf()
+
+fig.set_size_inches(1200/100, 800/100)
+plt.savefig('output.png', dpi=100)
+
+plt.show()
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id="结果展示"&gt;结果展示&lt;/h3&gt;
+&lt;img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/output.png"/&gt;
+&lt;h2 id="the-partial-rdfs-of-trajectories"&gt;The partial RDFs of trajectories&lt;/h2&gt;
+&lt;h3 id="代码展示-1"&gt;代码展示&lt;/h3&gt;
+&lt;pre&gt;&lt;code class="language-python"&gt;#这段代码用于计算一定时间内（一段轨迹）的平均 RDFs
+from ovito.io import import_file
+from ovito.modifiers import CoordinationAnalysisModifier,TimeAveragingModifier
+import numpy as np
+
+#读入轨迹文件，这里是利用 VASP 进行 AIMD 后得到的 XDATCAR 文件
+pipeline = import_file(&amp;quot;XDATCAR&amp;quot;)
+
+#打印轨迹中的结构数
+print(&amp;quot;Number of MD frames:&amp;quot;, pipeline.num_frames)
+
+#添加修饰器，与单个晶体结构相比，多了 TimeAveragingModifier 修饰器
+pipeline.modifiers.append(CoordinationAnalysisModifier(cutoff = 5.0, number_of_bins = 500,partial=True))
+pipeline.modifiers.append(TimeAveragingModifier(operate_on='table:coordination-rdf'))
+
+#计算 RDFs 数据
+total_rdf = pipeline.compute().tables['coordination-rdf[average]'].xy()
+
+#记录pair-wise类型
+rdf_names = pipeline.compute().tables['coordination-rdf[average]'].y.component_names
+for name in rdf_names:
+ print(&amp;quot;g(r) for pair-wise type combination %s:&amp;quot; % name)
+
+#输出数据，用于后续绘图，不再重复
+np.savetxt('rdf.txt', total_rdf, delimiter='\t')
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id="ovito小知识"&gt;OVITO小知识&lt;/h2&gt;
+&lt;p&gt;受限于Python基础和时间精力的限制，以下内容皆为我个人的有限理解，未能严格考究，仅供参考。&lt;/p&gt;</description></item></channel></rss>

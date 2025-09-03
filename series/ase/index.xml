@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>ASE on BOGHTW</title><link>https://liubaoshuai1402.github.io/series/ase/</link><description>Recent content in ASE on BOGHTW</description><generator>Hugo</generator><language>zh-cn</language><lastBuildDate>Thu, 29 May 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://liubaoshuai1402.github.io/series/ase/index.xml" rel="self" type="application/rss+xml"/><item><title>绘制DFT数据和MACE预测值的关系图</title><link>https://liubaoshuai1402.github.io/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%8A%BF/dft%E6%95%B0%E6%8D%AEvsmace%E9%A2%84%E6%B5%8B%E5%80%BC/</link><pubDate>Thu, 29 May 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%8A%BF/dft%E6%95%B0%E6%8D%AEvsmace%E9%A2%84%E6%B5%8B%E5%80%BC/</guid><description>&lt;h1 id="绘制dft数据和mace预测值的关系图"&gt;绘制DFT数据和MACE预测值的关系图&lt;/h1&gt;
+&lt;h2 id="前言"&gt;前言&lt;/h2&gt;
+&lt;p&gt;本文主要搬运一下
+&lt;a href="https://colab.research.google.com/drive/1ZrTuTvavXiCxTFyjBV4GqlARxgFwYAtX#scrollTo=v75wGSfOw9dA" target="_blank" rel="noopener noreferrer" &gt;MACE教程其一&lt;/a&gt;
+，记录一下如何绘制DFT数据和MACE预测值的关系图，用于评估模型的准确性，加上一些自己的理解。&lt;/p&gt;
+&lt;p&gt;软件：ASE、
+&lt;a href="https://github.com/imagdau/aseMolec" target="_blank" rel="noopener noreferrer" &gt;aseMolec&lt;/a&gt;
+、matplotlib、numpy&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;注意&lt;/strong&gt;：本文仅供参考，欢迎指出错误或分享补充。无能力提供任何指导，&lt;strong&gt;求教者切勿留言&lt;/strong&gt;。&lt;/p&gt;
+&lt;h2 id="准备评估函数"&gt;准备评估函数&lt;/h2&gt;
+&lt;p&gt;MACE官方写好了评估的命令行脚本，我们这里给它一个虚拟参数，方便以编程的方式调用它。&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-python"&gt;from mace.cli.eval_configs import main as mace_eval_configs_main
+import sys
+
+def eval_mace(configs, model, output):
+ sys.argv = [&amp;quot;program&amp;quot;, &amp;quot;--configs&amp;quot;, configs, &amp;quot;--model&amp;quot;, model, &amp;quot;--output&amp;quot;, output]
+ mace_eval_configs_main()
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;这里的&lt;code&gt;eval_mace&lt;/code&gt;函数接受三个参数，数据集如训练集、测试集的路径、训练好的模型的路径以及输出的文件命。&lt;/p&gt;
+&lt;h2 id="评估数据集"&gt;评估数据集&lt;/h2&gt;
+&lt;pre&gt;&lt;code class="language-python"&gt;#evaluate the training set
+eval_mace(configs=&amp;quot;data/solvent_xtb_train_200.xyz&amp;quot;,
+ model=&amp;quot;MACE_models/mace01_run-123_stagetwo.model&amp;quot;,
+ output=&amp;quot;tests/mace01/solvent_train.xyz&amp;quot;)
+
+#evaluate the test set
+eval_mace(configs=&amp;quot;data/solvent_xtb_test.xyz&amp;quot;,
+ model=&amp;quot;MACE_models/mace01_run-123_stagetwo.model&amp;quot;,
+ output=&amp;quot;tests/mace01/solvent_test.xyz&amp;quot;)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;这样，MACE就会对数据集进行评估，因为其实DFT数据是已有的，主要是在输出文件中，补上MACE的预测值。&lt;/p&gt;
+&lt;h2 id="画图"&gt;画图&lt;/h2&gt;
+&lt;p&gt;然后就可以用aseMolec的如下代码进行画图了&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-python"&gt;from aseMolec import pltProps as pp
+from ase.io import read
+import matplotlib.pyplot as plt
+from aseMolec import extAtoms as ea
+import numpy as np
+
+def plot_RMSEs(db, labs):
+ ea.rename_prop_tag(db, 'MACE_energy', 'energy_mace') #Backward compatibility
+ ea.rename_prop_tag(db, 'MACE_forces', 'forces_mace') #Backward compatibility
+
+ plt.figure(figsize=(9,6), dpi=100)
+ plt.subplot(1,3,1)
+ pp.plot_prop(ea.get_prop(db, 'bind', '_xtb', True).flatten(), \
+ ea.get_prop(db, 'bind', '_mace', True).flatten(), \
+ title=r'Energy $(\rm eV/atom)$ ', labs=labs, rel=False)
+ plt.subplot(1,3,2)
+ pp.plot_prop(ea.get_prop(db, 'info', 'energy_xtb', True).flatten(), \
+ ea.get_prop(db, 'info', 'energy_mace', True).flatten(), \
+ title=r'Energy $(\rm eV/atom)$ ', labs=labs, rel=False)
+ plt.subplot(1,3,3)
+ pp.plot_prop(np.concatenate(ea.get_prop(db, 'arrays', 'forces_xtb')).flatten(), \
+ np.concatenate(ea.get_prop(db, 'arrays', 'forces_mace')).flatten(), \
+ title=r'Forces $\rm (eV/\AA)$ ', labs=labs, rel=False)
+ plt.tight_layout()
+ return
+
+train_data = read('tests/mace01/solvent_train.xyz', ':')
+test_data = train_data[:3]+read('tests/mace01/solvent_test.xyz', ':') #append the E0s for computing atomization energy errors
+
+plot_RMSEs(train_data, labs=['XTB', 'MACE'])
+plot_RMSEs(test_data, labs=['XTB', 'MACE'])
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;code&gt;plot_RMSEs&lt;/code&gt;函数中首先把标签重命名了一下，因为MACE的源代码&lt;code&gt;mace_eval_configs_main()&lt;/code&gt;部分默认打的标签是&lt;code&gt;MACE_&lt;/code&gt;+什么什么的。&lt;/p&gt;</description></item><item><title>如何构建训练集用于训练机器学习势</title><link>https://liubaoshuai1402.github.io/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%8A%BF/mace1/</link><pubDate>Fri, 16 May 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%8A%BF/mace1/</guid><description>&lt;h1 id="如何构建训练集用于训练机器学习势"&gt;如何构建训练集用于训练机器学习势&lt;/h1&gt;
+&lt;h2 id="前言"&gt;前言&lt;/h2&gt;
+&lt;p&gt;本文将介绍如何构建一个训练集，用于训练MACE势以及DP势。需要提前利用AIMD获取DFT数据集。这里的AIMD软件是VASP。&lt;/p&gt;
+&lt;p&gt;软件：ASE、DeepMD-Kit&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;注意&lt;/strong&gt;：本文仅供参考，欢迎指出错误或分享补充。无能力提供任何指导，&lt;strong&gt;求教者切勿留言&lt;/strong&gt;。&lt;/p&gt;
+&lt;h2 id="构建mace势的训练集"&gt;构建MACE势的训练集&lt;/h2&gt;
+&lt;p&gt;MACE接受的训练集非常简单，一个&lt;code&gt;xyz&lt;/code&gt;文件，包含了各种构型和它们对应的DFT数据标签，以及单原子的DFT数据，需要额外的标签&lt;code&gt;config_type=IsolatedAtom&lt;/code&gt;。&lt;/p&gt;
+&lt;p&gt;顺带一提，ASE可以输出一种所谓的
+&lt;a href="https://wiki.fysik.dtu.dk/ase/ase/io/formatoptions.html#extxyz" target="_blank" rel="noopener noreferrer" &gt;Extended XYZ format&lt;/a&gt;
+，会把各种各样的信息（有点类似OVITO中的全局信息），放到&lt;code&gt;xyz&lt;/code&gt;文件的第二行。这一行会很长很长。MACE所采用的训练集输入格式就是它。&lt;/p&gt;
+&lt;p&gt;假设我们要构建水分子的MACE势，当前所处的路径下，有两个文件夹。&lt;/p&gt;
+&lt;p&gt;一个名为&lt;code&gt;H2O&lt;/code&gt;的文件夹，里面存放着进行第一性原理分子动力学后得到的&lt;code&gt;OUTCAR.tar.gz&lt;/code&gt;文件。路径为&lt;code&gt;H2O/OUTCAR.tar.gz&lt;/code&gt;。&lt;/p&gt;
+&lt;p&gt;一个名为&lt;code&gt;IsolatedAtoms&lt;/code&gt;的文件夹，里面存放着涉及元素（这里是H、O）的单原子的单点能计算（ISPIN=2）。路径分别为&lt;code&gt;IsolatedAtoms/H/OUTCAR.tar.gz&lt;/code&gt;和&lt;code&gt;IsolatedAtoms/O/OUTCAR.tar.gz&lt;/code&gt;。&lt;/p&gt;
+&lt;h3 id="代码展示"&gt;代码展示&lt;/h3&gt;
+&lt;pre&gt;&lt;code class="language-python"&gt;from ase.io import read,write
+import random
+
+#定义一个简单的函数用于打标签,这里可以自由更改标签的名字
+def addlabel(configs,energy_label='energy_dft',forces_label='forces_dft',stress_label='stress_dft',is_isolated=False):
+ if is_isolated == False:
+ for at in configs:
+ at.info[energy_label] = at.get_potential_energy(force_consistent=True)
+ at.arrays[forces_label] = at.get_forces()
+ at.info[stress_label] = at.get_stress(voigt=True)
+ if is_isolated == True:
+ for at in configs:
+ at.info['config_type'] = 'IsolatedAtom'
+ at.info[energy_label] = at.get_potential_energy(force_consistent=True)
+ at.arrays[forces_label] = at.get_forces()
+ at.info[stress_label] = at.get_stress(voigt=True)
+
+#read()函数，这里，第一个参数是所读文件路径，第二个参数是切片slice
+IsolatedH = read('IsolatedAtoms/H/OUTCAR.tar.gz',':')
+IsolatedO = read('IsolatedAtoms/O/OUTCAR.tar.gz',':')
+IsolatedAtoms = IsolatedH + IsolatedO
+addlabel(configs=IsolatedAtoms,is_isolated=True)
+
+#这里的slice的意思是从第一个结构开始到最后一个结构，每100个结构取一个
+db = read('H2O/OUTCAR.tar.gz','::100')
+addlabel(configs=db)
+
+#打乱训练集，这对训练非常重要
+random.seed(42)
+random.shuffle(db)
+
+#将打过标签的数据集合并
+db = db + IsolatedAtoms
+write('trainset.xyz',db)
+
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;这里有趣的一点是，为什么对于单个结构的&lt;code&gt;OUTCAR&lt;/code&gt;，也要进行切片：&lt;code&gt;IsolatedH = read('IsolatedAtoms/H/OUTCAR.tar.gz',':')&lt;/code&gt;，而不是&lt;code&gt;IsolatedH = read('IsolatedAtoms/H/OUTCAR.tar.gz')&lt;/code&gt;。&lt;/p&gt;</description></item></channel></rss>

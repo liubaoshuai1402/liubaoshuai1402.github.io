@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>超算s on BOGHTW</title><link>https://liubaoshuai1402.github.io/%E8%B6%85%E7%AE%97/</link><description>Recent content in 超算s on BOGHTW</description><generator>Hugo</generator><language>zh-cn</language><lastBuildDate>Wed, 04 Jun 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://liubaoshuai1402.github.io/%E8%B6%85%E7%AE%97/index.xml" rel="self" type="application/rss+xml"/><item><title>超算操作</title><link>https://liubaoshuai1402.github.io/%E8%B6%85%E7%AE%97/%E8%B6%85%E7%AE%97%E6%93%8D%E4%BD%9C/</link><pubDate>Wed, 04 Jun 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/%E8%B6%85%E7%AE%97/%E8%B6%85%E7%AE%97%E6%93%8D%E4%BD%9C/</guid><description>&lt;h1 id="超算中心"&gt;超算中心&lt;/h1&gt;
+&lt;h3 id="安装nvcc和pytorch"&gt;安装nvcc和pytorch&lt;/h3&gt;
+&lt;p&gt;先用conda安装&lt;code&gt;cuda-toolkit&lt;/code&gt;，&lt;code&gt;-&lt;/code&gt;不能省略。这里我选择的12.6版本，之前试了12.9，编译lammps的时候报错了。&lt;/p&gt;
+&lt;p&gt;再用pip安装&lt;code&gt;pytorch&lt;/code&gt;。&lt;/p&gt;
+&lt;p&gt;用conda安装nvcc后，lammps的nvcc_wrapper可能找不到cuda_runtime.h，可以手动指定&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;export CPLUS_INCLUDE_PATH=/home-ssd/Users/nsgm_zcx/miniconda3/envs/mace/targets/x86_64-linux/include:$CPLUS_INCLUDE_PATH&lt;/code&gt;&lt;/p&gt;
+&lt;h3 id="加载模块"&gt;加载模块&lt;/h3&gt;
+&lt;p&gt;&lt;code&gt;source /home-ssd/hpc/ini_module.bash&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;export MODULEPATH=/home-ssd/hpc/modulefiles:/home-ssd/Soft/modules/modulefiles/Soft&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;export MODULEPATH=/home-ssd/hpc/modulefiles&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;module av&lt;/code&gt;查看当前可用模块&lt;/p&gt;
+&lt;h3 id="联网"&gt;联网&lt;/h3&gt;
+&lt;p&gt;&lt;code&gt;ssh gn001&lt;/code&gt;进入编译节点&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;source /home-ssd/Soft/modules/bashrc&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;module load proxy/proxy&lt;/code&gt;&lt;/p&gt;
+&lt;h3 id="openmpi"&gt;openmpi&lt;/h3&gt;
+&lt;p&gt;下载后解压，进入发行版的文件夹，然后创建一个&lt;code&gt;build&lt;/code&gt;文件夹用于编译和安装。&lt;/p&gt;
+&lt;p&gt;安装命令，在build文件夹中运行：&lt;code&gt;../configure --prefix=/home-ssd/Users/nsgm_zcx/openmpi-5.0.5/build --with-slurm 2&amp;gt;&amp;amp;1 | tee config.out&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;export PATH=/home-ssd/Users/nsgm_zcx/openmpi-5.0.5/build/bin:$PATH&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;export LD_LIBRARY_PATH=/home-ssd/Users/nsgm_zcx/openmpi-5.0.5/build/lib:$LD_LIBRARY_PATH&lt;/code&gt;&lt;/p&gt;
+&lt;h3 id="lammps"&gt;LAMMPS&lt;/h3&gt;
+&lt;p&gt;cmake的编译缓存可能会记录错误的依赖路径，即使自己下载了新的openmpi，也会因为没有及时更新而报错找不到。&lt;/p&gt;
+&lt;p&gt;所以要删干净，再进行一次cmake。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;export PATH=/home-ssd/Users/nsgm_zcx/lammps-develop/build-mliap:$PATH&lt;/code&gt;&lt;/p&gt;
+&lt;h3 id="zlib"&gt;zlib&lt;/h3&gt;
+&lt;p&gt;安装完&lt;code&gt;cuda-toolkit&lt;/code&gt;和&lt;code&gt;pytorch&lt;/code&gt;后，conda自动安装的zlib可能只是&lt;code&gt;libzlib&lt;/code&gt;，只有库，没有&lt;mark&gt;头文件&lt;/mark&gt;，需要手动安装一个完整的&lt;code&gt;zlib&lt;/code&gt;，保证lammps编译的时候不报错。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;conda install zlib&lt;/code&gt;&lt;/p&gt;
+&lt;h4 id="提交任务"&gt;提交任务&lt;/h4&gt;
+&lt;p&gt;gpu任务&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-sh"&gt;#!/bin/bash
+#SBATCH -o job.%j.out
+#SBATCH -e job.%j.out
+#SBATCH -J lmp_job_gpu
+#SBATCH --partition=gpu 
+#SBATCH -N 1 
+#SBATCH -G 1
+#SBATCH --gres=gpu:1
+#SBATCH --exclusive
+
+
+export PATH=/home-ssd/Users/nsgm_zcx/openmpi-5.0.5/build/bin:$PATH
+export LD_LIBRARY_PATH=/home-ssd/Users/nsgm_zcx/openmpi-5.0.5/build/lib:$LD_LIBRARY_PATH
+export PATH=/home-ssd/Users/nsgm_zcx/lammps-develop/build-mliap:$PATH
+
+source /home-ssd/Users/nsgm_zcx/miniconda3/etc/profile.d/conda.sh
+conda activate cuda
+
+mace_run_train --config parameters.yaml
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;cpu任务&lt;/p&gt;</description></item></channel></rss>

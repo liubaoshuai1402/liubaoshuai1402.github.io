@@ -2,7 +2,7 @@
 title: LAMMPS-thermo
 date: 2025-08-23
 series: ["LAMMPS"]
-categories: [分子动力学]
+categories: [MolecularDynamics]
 ---
 
 # thermo的一些特点

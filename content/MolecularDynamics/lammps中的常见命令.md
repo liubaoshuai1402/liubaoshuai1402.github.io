@@ -2,7 +2,7 @@
 title: LAMMPS中的常见命令
 date: 2025-06-17
 series: ["LAMMPS"]
-categories: [分子动力学]
+categories: [MolecularDynamics]
 ---
 
 # LAMMPS中的常见命令

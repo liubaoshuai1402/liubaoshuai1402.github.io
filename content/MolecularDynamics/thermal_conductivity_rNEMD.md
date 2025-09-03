@@ -2,7 +2,7 @@
 title: 使用rNEMD方法计算热导率的lammps输入文件
 date: 2025-05-16
 series: ["LAMMPS"]
-categories: [分子动力学]
+categories: [MolecularDynamics]
 ---
 
 # 使用rNEMD方法计算热导率的LAMMPS输入文件

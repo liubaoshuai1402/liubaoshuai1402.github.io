@@ -2,7 +2,7 @@
 title: LAMMPS剪切模拟
 date: 2025-06-14
 series: ["LAMMPS"]
-categories: [分子动力学]
+categories: [MolecularDynamics]
 
 ---
 

@@ -2,7 +2,7 @@
 title: 径向分布函数（RDF）-OVITO
 date: 2025-05-12
 series: ["OVITO"]
-categories: [分子动力学]
+categories: [MolecularDynamics]
 ---
 
 # 径向分布函数（RDF）计算 by OVITO

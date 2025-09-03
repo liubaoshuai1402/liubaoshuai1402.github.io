@@ -2,7 +2,7 @@
 title: 均方位移（MSD）-OVITO
 date: 2025-05-13
 series: ["OVITO"]
-categories: [分子动力学]
+categories: [MolecularDynamics]
 ---
 
 # 均方位移（MSD）计算 by OVITO

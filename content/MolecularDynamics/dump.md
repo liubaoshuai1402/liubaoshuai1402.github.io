@@ -2,7 +2,7 @@
 title: LAMMPS-dump
 date: 2025-06-17
 series: ["LAMMPS"]
-categories: [分子动力学]
+categories: [MolecularDynamics]
 ---
 
 # 有用的dump

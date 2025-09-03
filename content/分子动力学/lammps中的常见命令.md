@@ -135,4 +135,46 @@ variable name style args ...
 
   3. $可以直接跟一个字母，这个字母需要是已定义的单字母变量的名。
 
-  
+
+### 3. fix ave/time
+
+`fix ID group-ID ave/time Nevery Nrepeat Nfreq value1 value2 ... keyword args ...`
+
+用于统计平均。
+
+这里以`fix ave all ave/time 1 1 1000 v_tdiff ave running`为例子，
+
+Nfreq控制多少步统计一次，
+
+Nrepeat控制某次（每经历Nfreq步时）会有多少个数据用于计算平均，
+
+Nevery控制某次（每经历Nfreq步时）用于取平均的数据的步长间隔。
+
+在这个例子中，其实是每1000步取一个数据。
+
+如果改成1 3 1000，就是每1000步，取第998，999，1000步的数据的平均值。
+
+<img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/lammps3.png"/>
+
+ave running的作用是：
+
+最后输出的`f_ave`，是所有Nfreq间隔的平均的平均。
+
+### 4. fix ave/chunk
+
+`fix ID group-ID ave/chunk Nevery Nrepeat Nfreq chunkID value1 value2 ... keyword args ...`
+
+这个命令本质上还是求时间的平均，只是可以很方便的对chunk中所有的区域同时计算。
+
+以`fix 2 all ave/chunk 10 100 1000 layers v_temp file profile.mp`为例子，
+
+这里是每一千步，取100个数据的平均，数据间隔为10.
+
+<img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/lammps4.png" style="zoom:67%;" />
+
+可以看到，这是输出间隔为1000的profile.mp
+
+第三列是原子数，第四列是温度。
+
+这些值其实是这1000步内的平均，平均方法是10，100，1000.
+

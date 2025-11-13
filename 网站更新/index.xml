@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>网站更新s on BOGHTW</title><link>https://liubaoshuai1402.github.io/%E7%BD%91%E7%AB%99%E6%9B%B4%E6%96%B0/</link><description>Recent content in 网站更新s on BOGHTW</description><generator>Hugo</generator><language>zh-cn</language><lastBuildDate>Thu, 13 Nov 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://liubaoshuai1402.github.io/%E7%BD%91%E7%AB%99%E6%9B%B4%E6%96%B0/index.xml" rel="self" type="application/rss+xml"/><item><title>网站更新的command</title><link>https://liubaoshuai1402.github.io/%E7%BD%91%E7%AB%99%E6%9B%B4%E6%96%B0/command/</link><pubDate>Thu, 13 Nov 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/%E7%BD%91%E7%AB%99%E6%9B%B4%E6%96%B0/command/</guid><description>&lt;h1 id="命令备忘录"&gt;命令备忘录&lt;/h1&gt;
+&lt;h3 id="网页更新"&gt;网页更新&lt;/h3&gt;
+&lt;pre&gt;&lt;code class="language-shell"&gt;git add .
+git commit -m 'add a new'
+git push
+&lt;/code&gt;&lt;/pre&gt;</description></item></channel></rss>

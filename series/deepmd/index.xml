@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Deepmd on BOGHTW</title><link>https://liubaoshuai1402.github.io/series/deepmd/</link><description>Recent content in Deepmd on BOGHTW</description><generator>Hugo</generator><language>zh-cn</language><lastBuildDate>Wed, 18 Jun 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://liubaoshuai1402.github.io/series/deepmd/index.xml" rel="self" type="application/rss+xml"/><item><title>DeepMD入门</title><link>https://liubaoshuai1402.github.io/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%8A%BF/deepmd%E5%85%A5%E9%97%A8/</link><pubDate>Wed, 18 Jun 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%8A%BF/deepmd%E5%85%A5%E9%97%A8/</guid><description>&lt;h1 id="deepmd入门"&gt;DeepMD入门&lt;/h1&gt;
+&lt;h2 id="前言"&gt;前言&lt;/h2&gt;
+&lt;p&gt;之前一直用的mace，现在来了解一下deepmd吧。&lt;/p&gt;
+&lt;h3 id="1dp的数据集结构"&gt;1.dp的数据集结构&lt;/h3&gt;
+&lt;p&gt;与mace相对简单的数据集结构相比（只需提供打标签后xyz文件），dp组织它的数据集以一种相对不自由的形式，但也更加清楚明了。&lt;/p&gt;
+&lt;p&gt;dp的数据集是由dpdata处理DFT结果得到的。一个标准的dp数据集路径下，包含了三种文件，分别是：&lt;code&gt;type.raw&lt;/code&gt;、&lt;code&gt;type_map.raw&lt;/code&gt;和&lt;code&gt;set.000&lt;/code&gt;。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;type.raw&lt;/code&gt;其实就是POSCAR中的原子，只不过把元素符号换成了数字。&lt;code&gt;type_map.raw&lt;/code&gt;则是保留了数字到元素符号的映射关系。&lt;/p&gt;
+&lt;p&gt;&lt;del&gt;很困惑为什么要这样设计&lt;/del&gt;&lt;/p&gt;
+&lt;p&gt;set.000文件夹则是存放DFT标签的，具体如坐标、能量、力等。&lt;/p&gt;
+&lt;h3 id="2如何生成数据集"&gt;2.如何生成数据集&lt;/h3&gt;
+&lt;p&gt;任务：想象一下，你有多个OUTCAR，分别是：&lt;/p&gt;
+&lt;p&gt;1000K下：C、O体系；C、O、H体系&lt;/p&gt;
+&lt;p&gt;2000K下：C、O体系；C、O、H体系&lt;/p&gt;
+&lt;p&gt;如何把他们整合成训练集和数据集呢？&lt;/p&gt;
+&lt;p&gt;每个体系AIMD的OUTCAR包含10000个轨迹。但因为相邻轨迹的结构比较接近，我们决定每100步取一个结构作为数据集。&lt;/p&gt;
+&lt;p&gt;现在你有以下路径，&lt;code&gt;1000K/CO/OUTCAR&lt;/code&gt;、&lt;code&gt;1000K/COH/OUTCAR&lt;/code&gt;、&lt;code&gt;2000K/CO/OUTCAR&lt;/code&gt;、&lt;code&gt;2000K/COH/OUTCAR&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;此外呢，如果把这四体系合并后再划分训练集、验证集，随机性会更大，比如说某个体系的训练集取得很多，而某个体系则几乎全被当作验证集。&lt;/p&gt;
+&lt;p&gt;为了避免这样的事情发生，我们可以先把每个体系划分成小的训练集、验证区，然后把这些小的训练集、验证集合并。&lt;/p&gt;
+&lt;p&gt;这就是总体思路，来看看怎么实现吧。&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-python"&gt;import dpdata
+import numpy as np
+#生成一个列表用于dpdata取子集的索引，dpdata的system并不支持直接的切片规则，很无语
+#从第1个结构到1w个，每100步取一个，很灵活，可以自由改变起始，结束和步长
+IndicesInitial = list(range(0,10000,100))
+#从100个结构的索引中随机取20个作为验证集，20%
+np.random.seed(42)
+ValidIndices = list(np.random.choice(IndicesInitial,20,replace=None))
+#从数据集中剔除验证集，得到训练集，这里为了实现列表元素进行集合运算，先把他们变成集合
+TrainIndices = list(set(IndicesInitial)-set(ValidIndices))
+#只读了一个OUTCAR作为例子，适当修改
+dpSystem = dpdata.LabeledSystem('1000K/CO/OUTCAR')
+
+dpSystemTrain = dpSystem.sub_system(TrainIndices)
+dpSystemTrain.to(&amp;quot;deepmd/npy&amp;quot;, &amp;quot;trainset/1000K/CO&amp;quot;, set_size=dpSystemTrain.get_nframes())
+
+dpSystemValid = dpSystem.sub_system(ValidIndices)
+dpSystemValid.to(&amp;quot;deepmd/npy&amp;quot;, &amp;quot;validset/1000K/CO&amp;quot;, set_size=dpSystemValid.get_nframes())
+
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;code&gt;set_size=dpSystemTrain.get_nframes()&lt;/code&gt;,关于set的尺寸为什么要正好等于所有结构，这个问题追溯起来非常远古。&lt;/p&gt;
+&lt;p&gt;曾经dp的开发者应该希望一个system下有多个set.00x，最后一个set.00x作为测试集。但后来他们放弃了。&lt;/p&gt;
+&lt;p&gt;所以现在的用法是，只要一个set.000即可，至于这个system下的数据用于训练、验证，在input.json中说明即可。&lt;/p&gt;
+&lt;p&gt;顺带一提，dp训练模型时并不要求测试集，mace的话则可以提供。&lt;/p&gt;
+&lt;p&gt;下图是input.json的一部分：&lt;/p&gt;
+&lt;img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/dp1.png" style="zoom:67%;" /&gt;
+&lt;p&gt;把相应路径替换成&lt;code&gt;&amp;quot;trainset/1000K/CO&amp;quot;&lt;/code&gt;等等即可&lt;/p&gt;
+&lt;p&gt;dp中system的概念，同一个system中，结构涉及的元素和原子个数应该完全相同。&lt;/p&gt;
+&lt;h3 id="3利用dpdata生成扰动结构"&gt;3.利用dpdata生成扰动结构&lt;/h3&gt;
+&lt;p&gt;dpdata本身已经提供了很好的
+&lt;a href="https://docs.deepmodeling.com/projects/dpdata/en/master/systems/system.html" target="_blank" rel="noopener noreferrer" &gt;示例&lt;/a&gt;
+, 这里简单搬运一下，并添加了一个更深入的应用场景。&lt;/p&gt;</description></item></channel></rss>

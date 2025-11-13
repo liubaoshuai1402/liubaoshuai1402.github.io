@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>代码s on BOGHTW</title><link>https://liubaoshuai1402.github.io/%E4%BB%A3%E7%A0%81/</link><description>Recent content in 代码s on BOGHTW</description><generator>Hugo</generator><language>zh-cn</language><lastBuildDate>Sun, 18 May 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://liubaoshuai1402.github.io/%E4%BB%A3%E7%A0%81/index.xml" rel="self" type="application/rss+xml"/><item><title>Python中的文件操作</title><link>https://liubaoshuai1402.github.io/%E4%BB%A3%E7%A0%81/fileoperations/</link><pubDate>Sun, 18 May 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/%E4%BB%A3%E7%A0%81/fileoperations/</guid><description>&lt;h1 id="python中的文件操作"&gt;Python中的文件操作&lt;/h1&gt;
+&lt;h3 id="获取当前路径"&gt;获取当前路径&lt;/h3&gt;
+&lt;p&gt;&lt;code&gt;os.getcwd()&lt;/code&gt;可以返回当前工作目录的绝对路径。cwd可以理解成current work directory。&lt;/p&gt;
+&lt;h3 id="创建多个用于vasp计算的文件夹"&gt;创建多个用于VASP计算的文件夹&lt;/h3&gt;
+&lt;p&gt;任务：假设你要对多个相似的结构进行计算，即他们所需的INCAR、KPOINTS、POTCAR、vasp.pbs（提交任务的脚本）是一样的。&lt;/p&gt;
+&lt;p&gt;INCAR、KPOINTS、POTCAR、vasp.pbs在当前文件夹中&lt;/p&gt;
+&lt;p&gt;我们要在当前文件夹中创建一个名为&lt;code&gt;'distorted'&lt;/code&gt;的文件夹，并在其中创建若干个计算文件夹。&lt;/p&gt;
+&lt;p&gt;代码如下：&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-python"&gt;import os
+import shutil
+
+#先记录下四个计算文件的路径
+cwd = os.getcwd()
+INCARPath = os.path.join(cwd,'INCAR')
+KPOINTSPath = os.path.join(cwd,'KPOINTS')
+POTCARPath = os.path.join(cwd,'POTCAR')
+PBSPath = os.path.join(cwd,'vasp.pbs')
+#创建一个总路径，用于存放计算文件夹
+os.makedirs('distorted')
+path = os.path.join(cwd,'distorted')
+#通过循环，在distorted路径下创建若干个计算文件夹，并把计算文件复制过去
+for i in range(10):
+ CalPath = os.path.join(path,'{:03d}'.format(i))
+ os.makedirs(CalPath)
+ shutil.copy(INCARPath,CalPath)
+ shutil.copy(KPOINTSPath,CalPath)
+ shutil.copy(POTCARPath,CalPath)
+ shutil.copy(PBSPath,CalPath)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id="提交不同深度的vasp任务"&gt;提交不同深度的VASP任务&lt;/h3&gt;
+&lt;p&gt;实际的任务路径下，POSCAR等输入文件可能位于不同的深度。&lt;/p&gt;
+&lt;p&gt;比如，有的在./1/POSCAR，有的则在./1/11/111/POSCAR。&lt;/p&gt;
+&lt;p&gt;这样简单的循环可能难以完成任务提交，需要一个比较高级的循环方式。&lt;/p&gt;
+&lt;p&gt;sh脚本&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-sh"&gt;#!/bin/bash
+
+# find POSCAR
+find . -type f -name &amp;quot;POSCAR&amp;quot; | while read -r line; do
+ # get dir
+ dir=$(dirname &amp;quot;$line&amp;quot;)
+ 
+ # cd dir
+ cd &amp;quot;$dir&amp;quot; || continue
+ 
+ # just an example
+ qsub vasp.pbs
+ 
+ #cd last dir
+ cd - &amp;gt;/dev/null || exit
+done
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;find 找到当前路径以及所有子路径下名为POSCAR的文件，并依次输出这些文件的相对路径&lt;/p&gt;</description></item><item><title>稍微深入一些Python中的类（class）</title><link>https://liubaoshuai1402.github.io/%E4%BB%A3%E7%A0%81/class_in_python/</link><pubDate>Tue, 13 May 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/%E4%BB%A3%E7%A0%81/class_in_python/</guid><description>&lt;h1 id="稍微深入一些python中的类class"&gt;稍微深入一些Python中的类（class）&lt;/h1&gt;
+&lt;h2 id="前言"&gt;前言&lt;/h2&gt;
+&lt;p&gt;**类（class）**在python代码中几乎无处不在，但在近日的学习中发现，我对它真是了解甚少，甚至基础结构都不能熟稔于心，故开此笔记认真学习。和我一起重新认识一下它吧。&lt;/p&gt;
+&lt;h2 id="一个简单的类"&gt;一个简单的类&lt;/h2&gt;
+&lt;pre&gt;&lt;code class="language-python"&gt;#code 1
+class Dog:
+ # 类属性
+ species = &amp;quot;Dog&amp;quot;
+ # 初始化方法
+ def __init__(self, name, age):
+ self.name = name
+ self.age = age
+ # 实例方法
+ def bark(self):
+ return print(&amp;quot;旺旺&amp;quot;)
+
+print(mydog.species)
+print(mydog.name,mydog.age)
+mydog.bark()
+
+#输出为：
+#Dog
+#doudou 2
+#旺旺
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;strong&gt;类&lt;/strong&gt;是一种对数据进行计算操作的蓝图，离不开&lt;strong&gt;属性&lt;/strong&gt;和&lt;strong&gt;方法&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;code 1中，我们定义了一个 Dog 类，并对它进行了实例化，生成了一个对象。&lt;/p&gt;
+&lt;p&gt;这个类的结构，很简单。&lt;/p&gt;
+&lt;p&gt;首先是放在第一部分的&lt;strong&gt;类属性&lt;/strong&gt;。&lt;strong&gt;类属性&lt;/strong&gt;是&lt;strong&gt;直接在类中定义变量&lt;/strong&gt;。所有通过这个类生成的对象都具有这些属性。&lt;/p&gt;
+&lt;p&gt;然后是放在第二部分的诸多方法，其实就是一个个的函数。&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-python"&gt; def __init__(self, name, age):
+ self.name = name
+ self.age = age
+&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;_init_&lt;/code&gt;方法叫&lt;strong&gt;初始化方法&lt;/strong&gt;，是&lt;strong&gt;魔法方法&lt;/strong&gt;的一种。让实例初始化时就具有&lt;code&gt;name&lt;/code&gt;和&lt;code&gt;age&lt;/code&gt;属性和相应的值。具体表现为&lt;code&gt;mydog = Dog(&amp;quot;doudou&amp;quot;,2)&lt;/code&gt;，这个类在初始化时就&lt;strong&gt;需要两个参数&lt;/strong&gt;才能转变为实例。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;python中所有的实例方法，包括&lt;code&gt;__init__&lt;/code&gt;方法，第一个参数都必须是&lt;code&gt;self&lt;/code&gt;，用于区别&lt;strong&gt;普通函数&lt;/strong&gt;和&lt;strong&gt;方法&lt;/strong&gt;。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;默认值&lt;/strong&gt;，在定义方法的时候，可以传入默认值，这可以保证在不传入参数时，也能生成一个默认实例。&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-python"&gt; def __init__(self, name=&amp;quot;小卡拉米&amp;quot;, age=5):
+ self.name = name
+ self.age = age
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;这样的&lt;code&gt;__init__&lt;/code&gt;方法就保证了，即使狗主人忘记了填写信息，&lt;code&gt;mydog = Dog()&lt;/code&gt;也能正常工作，但默认的狗狗是&lt;strong&gt;小卡拉米&lt;/strong&gt;，还是应该记得为自己的狗狗正确填写信息呦。（对于其他实例方法也适用）&lt;/p&gt;</description></item></channel></rss>

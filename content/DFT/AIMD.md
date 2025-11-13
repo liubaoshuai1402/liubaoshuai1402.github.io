@@ -217,7 +217,6 @@ path = os.getcwd()
 singlepoint_path = os.path.join(path,'singlepoint')
 db = read('train.xyz',':')
 for number,at in enumerate(db):
-    if len(at) == 96 and len(set(at.get_chemical_symbols()))== 4:
     
         number_path = os.path.join(singlepoint_path,str(number))
         os.makedirs(number_path)
@@ -240,7 +239,7 @@ for number,at in enumerate(db):
         #shutil.copy(PBS_origin_path,PBS_path)
     
         POSCAR_path = os.path.join(number_path,'POSCAR')
-        write_vasp(POSCAR_path,at,direct=True,symbol_count=[("O",63),("Zr",30),('Y',2),('H',1)])
+        write_vasp(POSCAR_path,at,direct=True,sort=True)
 ```
 
 ### 单点能计算INCAR
@@ -299,3 +298,34 @@ for i in $(seq 0 199); do
     cd .. || exit
 done
 ```
+
+#### 结构优化
+
+```
+# Start Parameters
+PREC = N
+ALGO = Fast
+ISTART = 0
+ICHARG = 2
+GGA = PS
+ISPIN = 1
+LREAL = Auto
+
+# Electronic Relaxation
+NELM = 60
+NELMIN = 4
+EDIFF = 1E-5
+ENCUT = 480
+
+# Ionic Relaxation
+NSW = 100
+IBRION = 2
+ISIF = 2
+EDIFFG = -0.02  # 力收敛准则
+ISMEAR = 0
+SIGMA = 0.05
+
+# K-points
+KSPACING = 0.5
+```
+

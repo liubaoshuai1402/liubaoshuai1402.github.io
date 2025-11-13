@@ -178,3 +178,36 @@ ave running的作用是：
 
 这些值其实是这1000步内的平均，平均方法是10，100，1000.
 
+
+
+### 5. change_box
+
+`change_box group-ID parameter args ... keyword args ...`
+
+这个命令我一般用于npt保温后，根据npt中盒子平均尺寸，调整盒子大小，用于下一步的nvt过程。
+
+具体代码如下，自定义变量
+
+每2000步统计一次盒子尺寸，统计方式为取这2000步内间隔为10的200个数据的平均。
+
+我们最终拟定的盒子平均尺寸（`lxavg`等）是由npt过程中最后一个2000步决定的。
+
+```
+variable mylx equal lx
+variable myly equal ly
+variable mylz equal lz
+
+fix boxout all ave/time 10 200 2000 v_mylx v_myly v_mylz file box_size.dat
+
+#
+#npt run
+#
+variable lxavg equal f_boxout[1]
+variable lyavg equal f_boxout[2]
+variable lzavg equal f_boxout[3]
+
+
+change_box all x final 0.0 ${lxavg} y final 0.0 ${lyavg} z final 0.0 ${lzavg} remap units box
+unfix boxout
+```
+

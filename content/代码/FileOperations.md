@@ -43,3 +43,93 @@ for i in range(10):
     shutil.copy(PBSPath,CalPath)
 ```
 
+### 提交不同深度的VASP任务
+
+实际的任务路径下，POSCAR等输入文件可能位于不同的深度。
+
+比如，有的在./1/POSCAR，有的则在./1/11/111/POSCAR。
+
+这样简单的循环可能难以完成任务提交，需要一个比较高级的循环方式。
+
+sh脚本
+
+```sh
+#!/bin/bash
+
+# find POSCAR
+find . -type f -name "POSCAR" | while read -r line; do
+    # get dir
+    dir=$(dirname "$line")
+    
+    # cd dir
+    cd "$dir" || continue
+    
+    # just an example
+    qsub vasp.pbs
+    
+    #cd last dir
+    cd - >/dev/null || exit
+done
+```
+
+find 找到当前路径以及所有子路径下名为POSCAR的文件，并依次输出这些文件的相对路径
+
+这其实是一个隐藏的循环，传递给while。
+
+然后用dirname获取文件的父路径，进入，投任务。
+
+这是已经提交了前10个任务，提交第11-20个任务。
+
+```sh
+#!/bin/bash
+count=0
+find . -type f -name "POSCAR" | while read -r line; do
+    ((count++))
+    if ((count <= 10)); then
+        continue
+    fi
+    if ((count > 20)); then
+        break
+    fi
+
+    dir=$(dirname "$line")
+    cd "$dir" || continue
+    qsub vasp.pbs
+    sleep 2
+    cd - >/dev/null || exit
+done
+```
+
+#### os.walk('.')
+
+```
+import os
+from stretch import stretch_strycture
+
+prims = []
+for root,dirs,files in os.walk('.'):
+    if 'POSCAR' in files:
+        prims.append(os.path.join(root,'POSCAR'))
+    if 'CONTCAR' in files:
+        prims.append(os.path.join(root,'CONTCAR'))
+for prim in prims:
+    stretch_strycture(prim)
+```
+
+os.walk('.')可以很方便地遍历一遍当前路径以及所有子路径的文件。
+
+在这个循环中，
+
+root 为某次循环中进入到的路径，
+
+dirs 为某次循环中进入到的路径下的所有文件夹名称列表，这里是单纯的名称而不是路径，
+
+files 为某次循环中进入到的路径下的所有文件名称列表，这里是单纯的名称而不是路径。
+
+所以判断 `if 'POSCAR' in files:` ，如果为真，这用 `os.path.join()` 将 root 和 POSCAR连接起来获得这个POSCAR的路径。
+
+此外，
+
+os.path.basename(str),只保留最后一级的路径的名称
+
+os.path.dirname(prim),只保留最后一级前的路径

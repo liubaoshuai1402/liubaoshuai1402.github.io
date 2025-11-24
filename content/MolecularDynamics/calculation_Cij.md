@@ -1,5 +1,5 @@
 ---
-title: LAMMPS-dump
+title: CalculationOfCij
 date: 2025-11-24
 series: ["gpumd"]
 categories: [MolecularDynamics]

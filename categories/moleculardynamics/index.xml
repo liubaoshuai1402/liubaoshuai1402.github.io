@@ -1,0 +1,450 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>MolecularDynamics on BOGHTW</title><link>https://liubaoshuai1402.github.io/categories/moleculardynamics/</link><description>Recent content in MolecularDynamics on BOGHTW</description><generator>Hugo</generator><language>zh-cn</language><lastBuildDate>Mon, 24 Nov 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://liubaoshuai1402.github.io/categories/moleculardynamics/index.xml" rel="self" type="application/rss+xml"/><item><title>CalculationOfCij</title><link>https://liubaoshuai1402.github.io/moleculardynamics/calculation_cij/</link><pubDate>Mon, 24 Nov 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/moleculardynamics/calculation_cij/</guid><description>&lt;h1 id="应力应变法求解弹性系数"&gt;应力应变法求解弹性系数&lt;/h1&gt;
+&lt;p&gt;现在我要用分子动力学求解有限温度下弹性系数，由于势函数是机器学习势。所以首先，我们应该验证势函数的可靠性。&lt;/p&gt;
+&lt;p&gt;也就是说，首先验证，在0K下，对象是小胞时，通过DFT与MLIP-MD计算得到的Cij的差距。然后在高温下跑大胞的MD，计算有限温度下的Cij&lt;/p&gt;
+&lt;h2 id="原理及编程"&gt;原理及编程&lt;/h2&gt;
+&lt;p&gt;这里以四方晶系-1为例，也就是有六个独立的弹性系数。目前，我所见过的所有，应力应变法求解弹性系数的计算思路都是拟合。&lt;/p&gt;
+&lt;p&gt;我们先看一下所要求解的弹性系数矩阵的样子。&lt;/p&gt;
+&lt;img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/Cij.png" style="zoom: 50%;" /&gt;
+&lt;p&gt;根据线弹性假设，&lt;/p&gt;
+$$\sigma = C * \varepsilon$$&lt;p&gt;，给出应变，通过线性组合，可以表示出应力，即公式&lt;/p&gt;
+&lt;img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/Cij2.png" style="zoom:67%;" /&gt;
+&lt;p&gt;但是，要想使用numpy.linalg.lstsq进行拟合，还需要重新表达一下这关系。&lt;/p&gt;
+&lt;p&gt;因为lstsq的工作原理是B = A * X，根据已知应变A、应力B，用最小二乘法拟合一个为列向量的系数，X，（这里即Cij）&lt;/p&gt;
+&lt;p&gt;现在，我们专注于A矩阵的写法。&lt;/p&gt;
+&lt;img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/Cijnote.jpg" style="zoom: 50%;" /&gt;
+&lt;p&gt;可以看到，&lt;mark&gt;应变A矩阵是由所施加的应变，也即是变形模式，以及弹性系数矩阵的形状共同决定的&lt;/mark&gt;。（Cij矩阵决定了A矩阵的形状，而变形模式决定了它具体的元素值）&lt;/p&gt;
+
+ &lt;link rel="stylesheet" href="https://liubaoshuai1402.github.io/css/vendors/admonitions.e8f9d71468684b38dcc32a3631441f47b6ee45ce52f3bcc31201e76cc2b0a193.css" integrity="sha256-6PnXFGhoSzjcwyo2MUQfR7buRc5S87zDEgHnbMKwoZM=" crossorigin="anonymous"&gt;
+ &lt;div class="admonition important"&gt;
+ &lt;div class="admonition-header"&gt;
+ &lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"&gt;&lt;path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zm0-384c13.3 0 24 10.7 24 24l0 112c0 13.3-10.7 24-24 24s-24-10.7-24-24l0-112c0-13.3 10.7-24 24-24zM224 352a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z"/&gt;&lt;/svg&gt;
+ &lt;span&gt;Important&lt;/span&gt;
+ &lt;/div&gt;
+ &lt;div class="admonition-content"&gt;
+ &lt;p&gt;有几点需要澄清，待求解的Cij可能不止6个。比如说，7个的时候，需要X列向量是7行，A矩阵是七列吗？显然，不需要也不能。因为一种应变模式只能提供六个线性方程组，6个应力最多只能包含6个弹性系数的有效信息。这也是为什么，低对称晶系需要更多变形模式的原因。因此，我们在选择变形模式的时候，要合理。对于大于6个弹性系数的体系，要让弹性系数间尽量解耦——保证一个变形模式内，涉及的弹性系数最多为6个。通过选取多个变形模式，比如说两种，这样有2个A矩阵，12个方程，把两个A矩阵堆叠起来，就能求解7个Cij了&lt;/p&gt;
+ &lt;/div&gt;
+ &lt;/div&gt;
+&lt;p&gt;这里我放上一个具体的脚本，提供一些思路&lt;/p&gt;</description></item><item><title>LAMMPS-thermo</title><link>https://liubaoshuai1402.github.io/moleculardynamics/thermo/</link><pubDate>Sat, 23 Aug 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/moleculardynamics/thermo/</guid><description>&lt;h1 id="thermo的一些特点"&gt;thermo的一些特点&lt;/h1&gt;
+&lt;h3 id="出现的位置"&gt;出现的位置&lt;/h3&gt;
+&lt;p&gt;虽然fix、thermo、dump、run之间的顺序可能有很多选择，但我更喜欢这个顺序。&lt;/p&gt;
+&lt;h3 id="继承"&gt;继承&lt;/h3&gt;
+&lt;p&gt;每个新的run都会默认继承上一个run的thermo配置，如果需要改变，覆盖一下即可。&lt;/p&gt;</description></item><item><title>LAMMPS-dump</title><link>https://liubaoshuai1402.github.io/moleculardynamics/dump/</link><pubDate>Tue, 17 Jun 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/moleculardynamics/dump/</guid><description>&lt;h1 id="有用的dump"&gt;有用的dump&lt;/h1&gt;
+&lt;h3 id="1-如何由lammps的轨迹转化为poscar"&gt;1. 如何由lammps的轨迹转化为POSCAR&lt;/h3&gt;
+&lt;p&gt;构建机器学习势时，通常需要主动学习。主动学习就需要将用MLIAP跑出来的结果返回到DFT中进行计算。&lt;/p&gt;
+&lt;p&gt;具体来讲，要将分子动力学轨迹转化为第一性原理的输入格式。（如从lammps到vasp）&lt;/p&gt;
+&lt;p&gt;lammps并不直接支持输出POSCAR格式，比较容易想到的思路是让lammps输出xyz文件，再有xyz文件转化为POSCAR。&lt;/p&gt;
+&lt;p&gt;不过麻烦的一点是，lammps输出xyz文件并不带有晶格大小的信息，无法转化为POSCAR。&lt;/p&gt;
+&lt;p&gt;这里，我目前的方案是，先用custom style的dump输出文件，如下：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;dump 1 all custom 1 dump20nvt id element x y z
+dump_modify 1 sort id element O Zr Y H
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;为了避免输出lammps中的type，而不是元素符号，这里修饰一下dump（即 &lt;code&gt;element O Zr Y H&lt;/code&gt;），这里O、Zr、Y、H分别对应 type 1、2、3、4&lt;/p&gt;
+&lt;p&gt;sort id 必不可少，保证原子对应。&lt;/p&gt;
+&lt;p&gt;这样得到的dump文件格式，如下：&lt;/p&gt;
+&lt;img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/dump%E7%9A%84custom%E9%A3%8E%E6%A0%BC.png" style="zoom:70%;" /&gt;
+&lt;p&gt;可以看到，同时包含了元素符号、晶格和原子坐标信息。其实这个自定义风格，&lt;code&gt;custom&lt;/code&gt;，就是稍加修改的&lt;code&gt;atom&lt;/code&gt;风格。&lt;/p&gt;
+&lt;p&gt;剩下的问题就是，如何将lammps的dump文件转化为xyz文件，再由xyz文件转化为POSCAR。&lt;/p&gt;
+&lt;p&gt;OVITO模块读取dump文件比较好用，个人觉得比ase的强，所以这里采用ovito模块，如下：&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-python"&gt;from ovito.io import import_file,export_file
+
+pipeline = import_file('dump')
+
+for frame,data in enumerate(pipeline.frames):
+ if frame &amp;lt; 10:
+ export_file(data,&amp;quot;xyz{}&amp;quot;.format(frame),format=&amp;quot;xyz&amp;quot;,columns =[&amp;quot;Particle Identifier&amp;quot;, &amp;quot;Particle Type&amp;quot;, &amp;quot;Position.X&amp;quot;, &amp;quot;Position.Y&amp;quot;, &amp;quot;Position.Z&amp;quot;])
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;这里简单测试一下，只输出了前10个结构。结果很成功。&lt;/p&gt;</description></item><item><title>LAMMPS中的常见命令</title><link>https://liubaoshuai1402.github.io/moleculardynamics/lammps%E4%B8%AD%E7%9A%84%E5%B8%B8%E8%A7%81%E5%91%BD%E4%BB%A4/</link><pubDate>Tue, 17 Jun 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/moleculardynamics/lammps%E4%B8%AD%E7%9A%84%E5%B8%B8%E8%A7%81%E5%91%BD%E4%BB%A4/</guid><description>&lt;h1 id="lammps中的常见命令"&gt;LAMMPS中的常见命令&lt;/h1&gt;
+&lt;h2 id="前言"&gt;前言&lt;/h2&gt;
+&lt;p&gt;虽然说是常见，但也未必常见吧，可能只是我遇到的不懂的、或者觉得有趣的。&lt;/p&gt;
+&lt;h3 id="1labelmap"&gt;1.&lt;code&gt;labelmap&lt;/code&gt;&lt;/h3&gt;
+&lt;p&gt;&lt;code&gt;lablemap atom 1 H 2 O&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;这个命令用于给atom type指定一个映射关系。在用&lt;code&gt;write_data&lt;/code&gt;写当前帧的data文件时，文件会含有额外的信息，如下：&lt;/p&gt;
+&lt;img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/labelmap.png" style="zoom:60%;" /&gt;
+&lt;p&gt;但只限于data文件，无法影响dump的轨迹文件，所以想要写带有元素符号的轨迹，还是用dump的custom风格比较好。&lt;/p&gt;
+&lt;h3 id="2-variable"&gt;2. &lt;code&gt;variable&lt;/code&gt;&lt;/h3&gt;
+&lt;p&gt;想要精通LAMMPS中的&lt;code&gt;variable&lt;/code&gt;总是要费一番功夫的，今日有幸认真研究一番（本身又涉及很多别的命令，真似高中时看牛津字典，遇到一个个新单词，好爽快）。&lt;/p&gt;
+&lt;p&gt;不同风格的&lt;code&gt;variable&lt;/code&gt;的&lt;mark&gt;定义&lt;/mark&gt;和&lt;mark&gt;使用&lt;/mark&gt;，会有一些差异。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;variable name style args ...
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;这是官方给出的&lt;code&gt;variable&lt;/code&gt;语法，简明扼要，&lt;code&gt;variable&lt;/code&gt;由名字、风格、参数组成。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;equal&lt;/code&gt;风格&lt;/p&gt;
+&lt;p&gt;它后接一个公式，可以包含：数字、常数、数学算符、内置函数、原子值（atom values）、原子矢量（atom vectors）以及compute/fix/variable的引用。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt; atom value = id[i], mass[i], type[i], mol[i], x[i], y[i], z[i], vx[i], vy[i], vz[i], fx[i], fy[i], fz[i], q[i]
+ atom vector = id, mass, type, mol, radius, q, x, y, z, vx, vy, vz, fx, fy, f
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;这里，原子值是某个原子的信息，而原子矢量则是包含全体原子的信息。&lt;/p&gt;
+&lt;p&gt;值得注意的是，如果涉及到原子值，在&lt;code&gt;atom_style&lt;/code&gt;之后，还要打开&lt;code&gt;atom_modify map yes&lt;/code&gt;。&lt;/p&gt;</description></item><item><title>LAMMPS剪切模拟</title><link>https://liubaoshuai1402.github.io/moleculardynamics/lammps%E5%89%AA%E5%88%87%E6%A8%A1%E6%8B%9F/</link><pubDate>Sat, 14 Jun 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/moleculardynamics/lammps%E5%89%AA%E5%88%87%E6%A8%A1%E6%8B%9F/</guid><description>&lt;h1 id="lammps用于剪切模拟的in文件"&gt;LAMMPS用于剪切模拟的in文件&lt;/h1&gt;
+&lt;pre&gt;&lt;code&gt;# 3d metal shear simulation
+
+units		metal
+boundary	s s p
+
+atom_style	atomic
+lattice		fcc 3.52
+region		box block 0 16.0 0 10.0 0 2.828427
+create_box	3 box
+
+lattice		fcc 3.52 orient	x 1 0 0 orient y 0 1 1 orient z 0 -1 1 &amp;amp;
+		origin 0.5 0 0 
+create_atoms	1 box
+
+pair_style	eam
+pair_coeff	* * Ni_u3.eam
+
+neighbor	0.3 bin
+neigh_modify	delay 5
+
+region		lower block INF INF INF 0.9 INF INF
+region		upper block INF INF 6.1 INF INF INF
+group		lower region lower
+group		upper region upper
+group		boundary union lower upper
+group		mobile subtract all boundary
+
+set		group lower type 2
+set		group upper type 3
+
+# void
+
+#region		void cylinder z 8 5 2.5 INF INF
+#delete_atoms	region void
+
+# temp controllers
+
+compute		new3d mobile temp
+compute		new2d mobile temp/partial 0 1 1
+
+# equilibrate
+
+velocity	mobile create 300.0 5812775 temp new3d
+fix		1 all nve
+fix		2 boundary setforce 0.0 0.0 0.0
+
+fix		3 mobile temp/rescale 10 300.0 300.0 10.0 1.0
+fix_modify	3 temp new3d
+
+thermo		25
+thermo_modify	temp new3d
+
+timestep	0.001
+run		100
+
+# shear
+
+velocity	upper set 1.0 0 0
+velocity	mobile ramp vx 0.0 1.0 y 1.4 8.6 sum yes
+
+unfix		3
+fix		3 mobile temp/rescale 10 300.0 300.0 10.0 1.0
+fix_modify	3 temp new2d
+
+#dump		1 all atom 100 dump.shear
+
+#dump		2 all image 100 image.*.jpg type type &amp;amp;
+#		axes yes 0.8 0.02 view 0 0 zoom 1.5 up 0 1 0 adiam 2.0
+#dump_modify	2 pad 4
+
+#dump		3 all movie 100 movie.mpg type type &amp;amp;
+#		axes yes 0.8 0.02 view 0 0 zoom 1.5 up 0 1 0 adiam 2.0
+#dump_modify	3 pad 4
+
+thermo		100
+thermo_modify	temp new2d
+
+reset_timestep	0
+run		3000
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id="compute--id--group-id--temp"&gt;&lt;code&gt;compute ID group-ID temp&lt;/code&gt;&lt;/h3&gt;
+&lt;p&gt;计算某个原子群的温度&lt;/p&gt;</description></item><item><title>使用rNEMD方法计算热导率的lammps输入文件</title><link>https://liubaoshuai1402.github.io/moleculardynamics/thermal_conductivity_rnemd/</link><pubDate>Fri, 16 May 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/moleculardynamics/thermal_conductivity_rnemd/</guid><description>&lt;h1 id="使用rnemd方法计算热导率的lammps输入文件"&gt;使用rNEMD方法计算热导率的LAMMPS输入文件&lt;/h1&gt;
+&lt;h2 id="前言"&gt;前言&lt;/h2&gt;
+&lt;p&gt;
+&lt;a href="https://doi.org/10.1063/1.473271" target="_blank" rel="noopener noreferrer" &gt;rNEMD方法&lt;/a&gt;
+，又叫MP方法，计算材料热导率。&lt;/p&gt;
+&lt;p&gt;LAMMPS官方提供了计算脚本，但是使用的单位却是&lt;code&gt;lj&lt;/code&gt;单位制，非常不实用，这里是我自己写的&lt;code&gt;metal&lt;/code&gt;单位制下的脚本。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;注意&lt;/strong&gt;：本文仅供参考，欢迎指出错误或分享补充。无能力提供任何指导，&lt;strong&gt;求教者切勿留言&lt;/strong&gt;。&lt;/p&gt;
+&lt;h2 id="in-file"&gt;in file&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;# sample LAMMPS input script for thermal conductivity
+# Muller-Plathe method via fix thermal_conductivity
+
+# settings temperature, kB and timestep
+
+variable t equal 300
+variable k equal 8.6173e-5 
+variable dt equal 0.0005
+
+# convert from LAMMPS metal units to SI
+variable eV2J equal 1.6022e-19 #energy convert
+variable A2m equal 1.0e-10 #distance convert
+variable ps2s equal 1.0e-12 #time convert 
+variable convert equal ${eV2J}/${ps2s}/${A2m} 
+
+# setup problem
+
+units metal
+atom_style atomic
+atom_modify map yes
+newton on
+read_data 222010
+
+pair_style 	mliap unified /home-ssd/Users/nsgm_zcx/macetrain17/YSZH_MACE_model.model-mliap_lammps.pt 0
+pair_coeff 	* * H O Y Zr
+neighbor 2.0 bin
+neigh_modify every 1 delay 0 check yes
+
+#fix R all box/relax aniso 0.0 vmax 0.001
+minimize 0 1e-8 1000 100000
+timestep 0.0005
+velocity all create 10 12345 dist gaussian mom yes rot yes
+
+# npt increase temp
+reset_timestep 0
+fix 		remove_com all momentum 500 linear 1 1 1
+fix 1 all npt temp 10 $t 0.1 x 0.0 0.0 1.0 y 0.0 0.0 1.0 z 0.0 0.0 1.0 couple xy
+thermo_style custom step temp pe etotal enthalpy lx ly lz vol press
+thermo 100
+dump 1 all custom 100 nvttrj id element x y z fx fy fz
+dump_modify 1 sort id element H O Y Zr
+run 20000
+undump 1
+velocity all scale $t
+unfix 1
+
+# npt keep temp
+reset_timestep 0
+fix 1 all npt temp $t $t 0.1 x 0.0 0.0 1.0 y 0.0 0.0 1.0 z 0.0 0.0 1.0 couple xy
+thermo_style custom step temp pe etotal enthalpy lx ly lz vol press
+thermo 100
+dump	 	1 all custom 100 yszhtrj id element x y z fx fy fz 
+dump_modify	1 sort id element H O Y Zr
+run 10000
+undump		1
+velocity all scale $t
+unfix 1
+
+#nvt keep temp
+reset_timestep 0
+fix 1 all nvt temp $t $t 0.1 
+thermo_style custom step temp pe etotal enthalpy lx ly lz vol press
+thermo 100
+dump	 	1 all custom 100 yszhtrj id element x y z fx fy fz 
+dump_modify	1 sort id element H O Y Zr
+run 10000
+undump		1
+velocity all scale $t
+unfix 1
+
+
+
+# 2nd equilibration run
+compute ke all ke/atom
+variable temp atom c_ke/1.5/${k}
+
+fix 1 all nve
+
+compute layers all chunk/atom bin/1d z lower 0.05 units reduced
+fix 2 all ave/chunk 10 100 1000 layers v_temp file profile.mp
+fix 3 all thermal/conductivity 20 z 20
+
+variable tdiff equal f_2[11][3]-f_2[1][3]
+thermo_style custom step temp epair etotal f_3 v_tdiff
+thermo_modify colname f_3 E_delta colname v_tdiff dTemp_step
+
+thermo 1000
+run 80000
+
+# thermal conductivity calculation
+# reset fix thermal/conductivity to zero energy accumulation
+fix 3 all thermal/conductivity 20 z 20
+
+variable start_time equal time
+variable kappa equal (f_3/(time-${start_time})/(lx*ly)/2.0)*(lz/2.0)/f_ave
+
+fix ave all ave/time 1 1 1000 v_tdiff ave running
+thermo_style custom step temp epair etotal f_3 v_tdiff f_ave
+thermo_modify colname f_3 E_delta colname v_tdiff dTemp_step colname f_ave dTemp
+
+run 20000
+print &amp;quot;Running average thermal conductivity units metal: $(v_kappa:%.2f)&amp;quot;
+variable tc equal ${kappa}*${convert}
+print &amp;quot;Running average thermal conductivity units SI: $(v_tc:%.2f)&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id="细节"&gt;细节&lt;/h2&gt;
+&lt;h3 id="fix-------------3-all-thermalconductivity-20-z-20"&gt;fix 3 all thermal/conductivity 20 z 20&lt;/h3&gt;
+&lt;p&gt;这个fix可以实现动量交换，这里&lt;code&gt;Nstep=100&lt;/code&gt;，代表每100步进行一次交换，这个值越小，交换频率也越大，施加在物体的温差也越大。&lt;/p&gt;</description></item><item><title>均方位移（MSD）-OVITO</title><link>https://liubaoshuai1402.github.io/moleculardynamics/msd_ovito/</link><pubDate>Tue, 13 May 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/moleculardynamics/msd_ovito/</guid><description>&lt;h1 id="均方位移msd计算-by-ovito"&gt;均方位移（MSD）计算 by OVITO&lt;/h1&gt;
+&lt;h2 id="前言"&gt;前言&lt;/h2&gt;
+&lt;p&gt;
+&lt;a href="https://docs.ovito.org/python/index.html" target="_blank" rel="noopener noreferrer" &gt;OVITO Python Reference — OVITO Python Reference 3.12.3 documentation&lt;/a&gt;
+ 是一个开源且功能强大的分子动力学后处理软件包。&lt;/p&gt;
+&lt;p&gt;本文将介绍如何利用 OVITO python module 计算某类元素原子在一段轨迹内的均方位移。&lt;/p&gt;
+&lt;p&gt;适用于无机非晶体，其他体系慎用。&lt;/p&gt;
+&lt;p&gt;软件：OVITO、matplotlib、numpy&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;注意&lt;/strong&gt;：本文仅供参考，欢迎指出错误或分享补充。无能力提供任何指导，&lt;strong&gt;求教者切勿留言&lt;/strong&gt;。&lt;/p&gt;
+&lt;h2 id="ovito版"&gt;OVITO版&lt;/h2&gt;
+&lt;h3 id="代码展示"&gt;代码展示&lt;/h3&gt;
+&lt;pre&gt;&lt;code class="language-python"&gt;from ovito.io import import_file, export_file
+from ovito.modifiers import CalculateDisplacementsModifier
+from ovito.modifiers import SelectTypeModifier,InvertSelectionModifier,DeleteSelectedModifier,ExpressionSelectionModifier
+import numpy as np
+import matplotlib.pyplot as plt
+
+#万物起源 import_file ，导入一段要计算的轨迹
+pipeline = import_file(&amp;quot;1.dump&amp;quot;)
+
+#添加 SelectTypeModifier 修饰器
+#设置参数 property = 'Particle Type' 指定选择的类型（这里我们指定的是原子类型）
+#设置参数 types = {4} 指定具体的原子类型，这里是这个轨迹中的 4 原子（这个值要根据自己的体系修改），这里用数字代表原子是因为我使用的lammps的输出风格没有记录原子的元素符号，如果你的轨迹里记录的是 元素符号 信息，比如说 VASP 输出的 XDATCAR，则需要用类似于 types = {&amp;quot;H&amp;quot;} 的写法
+pipeline.modifiers.append(SelectTypeModifier(property = 'Particle Type', types = {4}))
+
+#添加 InvertSelectionModifier 修饰器，进行原子反选，为剔除不需要计算的原子做准备
+pipeline.modifiers.append(InvertSelectionModifier()) 
+
+#添加 DeleteSelectedModifier 修饰器，删除上一行代码反选的原子，留下需要计算的原子
+pipeline.modifiers.append(DeleteSelectedModifier(operate_on= {'particles'})) 
+
+#添加 CalculateDisplacementsModifier 修饰器，指定计算 MSD 的参考结构，这里 reference_frame = 0 代表初始结构是参考结构
+reference_frame = 0
+pipeline.modifiers.append(CalculateDisplacementsModifier(reference_frame=0)) #a subclass of ovito.pipeline.ReferenceConfigurationModifier
+
+#自定义一个修饰器函数，用于将 per-particle displacement 转化为相应元素的均方位移
+#本文的 OVITO小知识 将简单介绍自定义修饰器是如何工作的
+def calculate_msd(frame, data):
+ 
+	#用一个变量 displacement_magnitudes 记录 data.particles['Displacement Magnitude']，简化代码
+	displacement_magnitudes = data.particles['Displacement Magnitude']
+	#计算 MSD （将所有原子位移的平方加和然后求平均），OVITO 的数据可以直接和 numpy 交互，nice
+	msd = np.sum(displacement_magnitudes ** 2) / len(displacement_magnitudes) 
+	#把计算的 MSD 传递给 data (DataCollection类)
+	data.attributes[&amp;quot;MSD&amp;quot;] = msd 
+ 
+#添加自定义 calculate_msd 修饰器
+pipeline.modifiers.append(calculate_msd)
+
+
+#计算 Pipeline, 得到time vs MSD的数据
+table = [] #用于存放数据，time vs MSD
+
+for frame,data in enumerate(pipeline.frames):
+	if frame &amp;gt;= reference_frame:
+		#这里的 *10 一定要根据自己的计算调整，我的轨迹在lammps计算设置：时间步是0.5fs，每20步输出一帧，所以轨迹中每帧其实经历了10fs，所以乘以10
+		#我们 time vs MSD 的x横坐标单位是fs，也可以是别的，自己调整
+		time = (frame-reference_frame)*10 
+		table.append([time,data.attributes['MSD']])
+
+#.csv文件还是比较高级的，比纯txt好些，delimiter 指定间隔符为 &amp;quot;,&amp;quot; ,这样方便直接excel打开
+np.savetxt(&amp;quot;msd_data.csv&amp;quot;,table,delimiter=&amp;quot;,&amp;quot;)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id="ovito小知识"&gt;OVITO小知识&lt;/h2&gt;
+&lt;p&gt;受限于Python基础和时间精力的限制，以下内容皆为我个人的有限理解，未能严格考究，仅供参考。&lt;/p&gt;</description></item><item><title>径向分布函数（RDF）-OVITO</title><link>https://liubaoshuai1402.github.io/moleculardynamics/rdf_ovito/</link><pubDate>Mon, 12 May 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/moleculardynamics/rdf_ovito/</guid><description>&lt;h1 id="径向分布函数rdf计算-by-ovito"&gt;径向分布函数（RDF）计算 by OVITO&lt;/h1&gt;
+&lt;h2 id="前言"&gt;前言&lt;/h2&gt;
+&lt;p&gt;
+&lt;a href="https://docs.ovito.org/python/index.html" target="_blank" rel="noopener noreferrer" &gt;OVITO Python Reference — OVITO Python Reference 3.12.3 documentation&lt;/a&gt;
+ 是一个开源且功能强大的分子动力学后处理软件包。&lt;/p&gt;
+&lt;p&gt;本文将介绍如何利用 OVITO python module 计算单个结构以及一段轨迹（多个结构）内的径向分布函数。&lt;/p&gt;
+&lt;p&gt;适用于无机非晶体，其他体系慎用。&lt;/p&gt;
+&lt;p&gt;软件：OVITO、matplotlib、numpy&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;注意&lt;/strong&gt;：本文仅供参考，欢迎指出错误或分享补充。无能力提供任何指导，&lt;strong&gt;求教者切勿留言&lt;/strong&gt;。&lt;/p&gt;
+&lt;h2 id="the-partial-rdfs-of-a-single-crystal-structure"&gt;The partial RDFs of a single crystal structure&lt;/h2&gt;
+&lt;h3 id="代码展示"&gt;代码展示&lt;/h3&gt;
+&lt;pre&gt;&lt;code class="language-python"&gt;#这段代码用于计算 RDF by OVITO
+from ovito.io import import_file
+from ovito.modifiers import CoordinationAnalysisModifier
+import numpy as np
+
+#导入一个氧化锆（ZrO2）的cif文件，所有OVITO支持的输入文件格式都可以（确保这个.py文件的路径下有这样一个cif文件，也可以稍微修改指定结构路径）
+pipeline = import_file(&amp;quot;ZrO.cif&amp;quot;)
+
+#施加一个名叫 CoordinationAnalysisModifier 的修饰器，cutoff用于控制截断半径，number_of_bins用于控制网格细分度（大小100-1000内都可以试试）
+pipeline.modifiers.append(CoordinationAnalysisModifier(cutoff = 5.0, number_of_bins = 500,partial=True))
+
+#进行计算
+rdf_table = pipeline.compute().tables['coordination-rdf']
+
+#得到用于画图的横纵坐标，默认第一列是x轴数据，其余列是y轴数据
+total_rdf = rdf_table.xy()
+
+#记录total_rdf中y轴数据对应是什么类型的pair-wise
+#这个例子中，输出为：
+#g(r) for pair-wise type combination O-O:
+#g(r) for pair-wise type combination O-Zr:
+#g(r) for pair-wise type combination Zr-Zr:
+#说明total_rdf是一个四列的数据，第一列是x轴坐标（其实是bin），第二列就是不同pair-wise的RDF数据，依次为 O-O,O-Zr,Zr-Zr
+rdf_names = rdf_table.y.component_names
+for component, name in enumerate(rdf_names):
+ print(&amp;quot;g(r) for pair-wise type combination %s:&amp;quot; % name)
+ 
+#将total_rdf保存为txt文件，用于后续画图
+np.savetxt(&amp;quot;total_rdf.txt&amp;quot;, total_rdf)
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code class="language-python"&gt;#这段代码用于绘图
+import numpy as np
+import matplotlib.pyplot as plt
+
+rdf_table = np.loadtxt('total_rdf.txt')
+
+#g(r) for pair-wise type combination O-O:
+#g(r) for pair-wise type combination O-Zr:
+#g(r) for pair-wise type combination Zr-Zr:
+
+#这里取的是 total_rdf.txt 中的第一列（对应[:,0]）和第三列（对应[:,2]），所以绘制的是 Zr-O pair-wise的partial RDF
+plt.plot(rdf_table[:,0], rdf_table[:,2])
+
+#matplotlib的常规设置，问问万能的小迪老师吧
+title_font = {'fontsize': 24, 'fontfamily': 'Times New Roman'}
+xlabel_font = {'fontsize': 22, 'fontfamily': 'Times New Roman'}
+ylabel_font = {'fontsize': 22, 'fontfamily': 'Times New Roman'}
+
+plt.title(&amp;quot;RDF Zr-O&amp;quot;, fontdict=title_font,pad=8)
+plt.xlabel(xlabel='distance r',fontdict=xlabel_font,loc='center',labelpad=8)
+plt.ylabel(ylabel='g(r)',fontdict=ylabel_font,loc='center',labelpad=8)
+plt.tick_params(axis='both', which='major', labelsize=16, direction='in')
+
+ax = plt.subplot()
+
+#因为只有一个静态结构，pair-wise的某些峰很高，所以这里的y轴坐标上限设置大一些，为200，可灵活改变
+#x轴设置为6，稍大于截断半径cutoff即可，因为本身也只在截断半径以内统计
+ax.set_ylim(0,200)
+plt.xlim(0,6)
+
+fig = plt.gcf()
+
+fig.set_size_inches(1200/100, 800/100)
+plt.savefig('output.png', dpi=100)
+
+plt.show()
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id="结果展示"&gt;结果展示&lt;/h3&gt;
+&lt;img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/output.png"/&gt;
+&lt;h2 id="the-partial-rdfs-of-trajectories"&gt;The partial RDFs of trajectories&lt;/h2&gt;
+&lt;h3 id="代码展示-1"&gt;代码展示&lt;/h3&gt;
+&lt;pre&gt;&lt;code class="language-python"&gt;#这段代码用于计算一定时间内（一段轨迹）的平均 RDFs
+from ovito.io import import_file
+from ovito.modifiers import CoordinationAnalysisModifier,TimeAveragingModifier
+import numpy as np
+
+#读入轨迹文件，这里是利用 VASP 进行 AIMD 后得到的 XDATCAR 文件
+pipeline = import_file(&amp;quot;XDATCAR&amp;quot;)
+
+#打印轨迹中的结构数
+print(&amp;quot;Number of MD frames:&amp;quot;, pipeline.num_frames)
+
+#添加修饰器，与单个晶体结构相比，多了 TimeAveragingModifier 修饰器
+pipeline.modifiers.append(CoordinationAnalysisModifier(cutoff = 5.0, number_of_bins = 500,partial=True))
+pipeline.modifiers.append(TimeAveragingModifier(operate_on='table:coordination-rdf'))
+
+#计算 RDFs 数据
+total_rdf = pipeline.compute().tables['coordination-rdf[average]'].xy()
+
+#记录pair-wise类型
+rdf_names = pipeline.compute().tables['coordination-rdf[average]'].y.component_names
+for name in rdf_names:
+ print(&amp;quot;g(r) for pair-wise type combination %s:&amp;quot; % name)
+
+#输出数据，用于后续绘图，不再重复
+np.savetxt('rdf.txt', total_rdf, delimiter='\t')
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id="ovito小知识"&gt;OVITO小知识&lt;/h2&gt;
+&lt;p&gt;受限于Python基础和时间精力的限制，以下内容皆为我个人的有限理解，未能严格考究，仅供参考。&lt;/p&gt;</description></item></channel></rss>

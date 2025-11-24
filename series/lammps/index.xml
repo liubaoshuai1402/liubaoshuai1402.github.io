@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>LAMMPS on BOGHTW</title><link>https://liubaoshuai1402.github.io/series/lammps/</link><description>Recent content in LAMMPS on BOGHTW</description><generator>Hugo</generator><language>zh-cn</language><lastBuildDate>Sat, 23 Aug 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://liubaoshuai1402.github.io/series/lammps/index.xml" rel="self" type="application/rss+xml"/><item><title>LAMMPS-thermo</title><link>https://liubaoshuai1402.github.io/moleculardynamics/thermo/</link><pubDate>Sat, 23 Aug 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/moleculardynamics/thermo/</guid><description>&lt;h1 id="thermo的一些特点"&gt;thermo的一些特点&lt;/h1&gt;
+&lt;h3 id="出现的位置"&gt;出现的位置&lt;/h3&gt;
+&lt;p&gt;虽然fix、thermo、dump、run之间的顺序可能有很多选择，但我更喜欢这个顺序。&lt;/p&gt;
+&lt;h3 id="继承"&gt;继承&lt;/h3&gt;
+&lt;p&gt;每个新的run都会默认继承上一个run的thermo配置，如果需要改变，覆盖一下即可。&lt;/p&gt;</description></item><item><title>LAMMPS-dump</title><link>https://liubaoshuai1402.github.io/moleculardynamics/dump/</link><pubDate>Tue, 17 Jun 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/moleculardynamics/dump/</guid><description>&lt;h1 id="有用的dump"&gt;有用的dump&lt;/h1&gt;
+&lt;h3 id="1-如何由lammps的轨迹转化为poscar"&gt;1. 如何由lammps的轨迹转化为POSCAR&lt;/h3&gt;
+&lt;p&gt;构建机器学习势时，通常需要主动学习。主动学习就需要将用MLIAP跑出来的结果返回到DFT中进行计算。&lt;/p&gt;
+&lt;p&gt;具体来讲，要将分子动力学轨迹转化为第一性原理的输入格式。（如从lammps到vasp）&lt;/p&gt;
+&lt;p&gt;lammps并不直接支持输出POSCAR格式，比较容易想到的思路是让lammps输出xyz文件，再有xyz文件转化为POSCAR。&lt;/p&gt;
+&lt;p&gt;不过麻烦的一点是，lammps输出xyz文件并不带有晶格大小的信息，无法转化为POSCAR。&lt;/p&gt;
+&lt;p&gt;这里，我目前的方案是，先用custom style的dump输出文件，如下：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;dump 1 all custom 1 dump20nvt id element x y z
+dump_modify 1 sort id element O Zr Y H
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;为了避免输出lammps中的type，而不是元素符号，这里修饰一下dump（即 &lt;code&gt;element O Zr Y H&lt;/code&gt;），这里O、Zr、Y、H分别对应 type 1、2、3、4&lt;/p&gt;
+&lt;p&gt;sort id 必不可少，保证原子对应。&lt;/p&gt;
+&lt;p&gt;这样得到的dump文件格式，如下：&lt;/p&gt;
+&lt;img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/dump%E7%9A%84custom%E9%A3%8E%E6%A0%BC.png" style="zoom:70%;" /&gt;
+&lt;p&gt;可以看到，同时包含了元素符号、晶格和原子坐标信息。其实这个自定义风格，&lt;code&gt;custom&lt;/code&gt;，就是稍加修改的&lt;code&gt;atom&lt;/code&gt;风格。&lt;/p&gt;
+&lt;p&gt;剩下的问题就是，如何将lammps的dump文件转化为xyz文件，再由xyz文件转化为POSCAR。&lt;/p&gt;
+&lt;p&gt;OVITO模块读取dump文件比较好用，个人觉得比ase的强，所以这里采用ovito模块，如下：&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-python"&gt;from ovito.io import import_file,export_file
+
+pipeline = import_file('dump')
+
+for frame,data in enumerate(pipeline.frames):
+ if frame &amp;lt; 10:
+ export_file(data,&amp;quot;xyz{}&amp;quot;.format(frame),format=&amp;quot;xyz&amp;quot;,columns =[&amp;quot;Particle Identifier&amp;quot;, &amp;quot;Particle Type&amp;quot;, &amp;quot;Position.X&amp;quot;, &amp;quot;Position.Y&amp;quot;, &amp;quot;Position.Z&amp;quot;])
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;这里简单测试一下，只输出了前10个结构。结果很成功。&lt;/p&gt;</description></item><item><title>LAMMPS中的常见命令</title><link>https://liubaoshuai1402.github.io/moleculardynamics/lammps%E4%B8%AD%E7%9A%84%E5%B8%B8%E8%A7%81%E5%91%BD%E4%BB%A4/</link><pubDate>Tue, 17 Jun 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/moleculardynamics/lammps%E4%B8%AD%E7%9A%84%E5%B8%B8%E8%A7%81%E5%91%BD%E4%BB%A4/</guid><description>&lt;h1 id="lammps中的常见命令"&gt;LAMMPS中的常见命令&lt;/h1&gt;
+&lt;h2 id="前言"&gt;前言&lt;/h2&gt;
+&lt;p&gt;虽然说是常见，但也未必常见吧，可能只是我遇到的不懂的、或者觉得有趣的。&lt;/p&gt;
+&lt;h3 id="1labelmap"&gt;1.&lt;code&gt;labelmap&lt;/code&gt;&lt;/h3&gt;
+&lt;p&gt;&lt;code&gt;lablemap atom 1 H 2 O&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;这个命令用于给atom type指定一个映射关系。在用&lt;code&gt;write_data&lt;/code&gt;写当前帧的data文件时，文件会含有额外的信息，如下：&lt;/p&gt;
+&lt;img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/labelmap.png" style="zoom:60%;" /&gt;
+&lt;p&gt;但只限于data文件，无法影响dump的轨迹文件，所以想要写带有元素符号的轨迹，还是用dump的custom风格比较好。&lt;/p&gt;
+&lt;h3 id="2-variable"&gt;2. &lt;code&gt;variable&lt;/code&gt;&lt;/h3&gt;
+&lt;p&gt;想要精通LAMMPS中的&lt;code&gt;variable&lt;/code&gt;总是要费一番功夫的，今日有幸认真研究一番（本身又涉及很多别的命令，真似高中时看牛津字典，遇到一个个新单词，好爽快）。&lt;/p&gt;
+&lt;p&gt;不同风格的&lt;code&gt;variable&lt;/code&gt;的&lt;mark&gt;定义&lt;/mark&gt;和&lt;mark&gt;使用&lt;/mark&gt;，会有一些差异。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;variable name style args ...
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;这是官方给出的&lt;code&gt;variable&lt;/code&gt;语法，简明扼要，&lt;code&gt;variable&lt;/code&gt;由名字、风格、参数组成。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;equal&lt;/code&gt;风格&lt;/p&gt;
+&lt;p&gt;它后接一个公式，可以包含：数字、常数、数学算符、内置函数、原子值（atom values）、原子矢量（atom vectors）以及compute/fix/variable的引用。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt; atom value = id[i], mass[i], type[i], mol[i], x[i], y[i], z[i], vx[i], vy[i], vz[i], fx[i], fy[i], fz[i], q[i]
+ atom vector = id, mass, type, mol, radius, q, x, y, z, vx, vy, vz, fx, fy, f
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;这里，原子值是某个原子的信息，而原子矢量则是包含全体原子的信息。&lt;/p&gt;
+&lt;p&gt;值得注意的是，如果涉及到原子值，在&lt;code&gt;atom_style&lt;/code&gt;之后，还要打开&lt;code&gt;atom_modify map yes&lt;/code&gt;。&lt;/p&gt;</description></item><item><title>LAMMPS剪切模拟</title><link>https://liubaoshuai1402.github.io/moleculardynamics/lammps%E5%89%AA%E5%88%87%E6%A8%A1%E6%8B%9F/</link><pubDate>Sat, 14 Jun 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/moleculardynamics/lammps%E5%89%AA%E5%88%87%E6%A8%A1%E6%8B%9F/</guid><description>&lt;h1 id="lammps用于剪切模拟的in文件"&gt;LAMMPS用于剪切模拟的in文件&lt;/h1&gt;
+&lt;pre&gt;&lt;code&gt;# 3d metal shear simulation
+
+units		metal
+boundary	s s p
+
+atom_style	atomic
+lattice		fcc 3.52
+region		box block 0 16.0 0 10.0 0 2.828427
+create_box	3 box
+
+lattice		fcc 3.52 orient	x 1 0 0 orient y 0 1 1 orient z 0 -1 1 &amp;amp;
+		origin 0.5 0 0 
+create_atoms	1 box
+
+pair_style	eam
+pair_coeff	* * Ni_u3.eam
+
+neighbor	0.3 bin
+neigh_modify	delay 5
+
+region		lower block INF INF INF 0.9 INF INF
+region		upper block INF INF 6.1 INF INF INF
+group		lower region lower
+group		upper region upper
+group		boundary union lower upper
+group		mobile subtract all boundary
+
+set		group lower type 2
+set		group upper type 3
+
+# void
+
+#region		void cylinder z 8 5 2.5 INF INF
+#delete_atoms	region void
+
+# temp controllers
+
+compute		new3d mobile temp
+compute		new2d mobile temp/partial 0 1 1
+
+# equilibrate
+
+velocity	mobile create 300.0 5812775 temp new3d
+fix		1 all nve
+fix		2 boundary setforce 0.0 0.0 0.0
+
+fix		3 mobile temp/rescale 10 300.0 300.0 10.0 1.0
+fix_modify	3 temp new3d
+
+thermo		25
+thermo_modify	temp new3d
+
+timestep	0.001
+run		100
+
+# shear
+
+velocity	upper set 1.0 0 0
+velocity	mobile ramp vx 0.0 1.0 y 1.4 8.6 sum yes
+
+unfix		3
+fix		3 mobile temp/rescale 10 300.0 300.0 10.0 1.0
+fix_modify	3 temp new2d
+
+#dump		1 all atom 100 dump.shear
+
+#dump		2 all image 100 image.*.jpg type type &amp;amp;
+#		axes yes 0.8 0.02 view 0 0 zoom 1.5 up 0 1 0 adiam 2.0
+#dump_modify	2 pad 4
+
+#dump		3 all movie 100 movie.mpg type type &amp;amp;
+#		axes yes 0.8 0.02 view 0 0 zoom 1.5 up 0 1 0 adiam 2.0
+#dump_modify	3 pad 4
+
+thermo		100
+thermo_modify	temp new2d
+
+reset_timestep	0
+run		3000
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id="compute--id--group-id--temp"&gt;&lt;code&gt;compute ID group-ID temp&lt;/code&gt;&lt;/h3&gt;
+&lt;p&gt;计算某个原子群的温度&lt;/p&gt;</description></item><item><title>使用rNEMD方法计算热导率的lammps输入文件</title><link>https://liubaoshuai1402.github.io/moleculardynamics/thermal_conductivity_rnemd/</link><pubDate>Fri, 16 May 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/moleculardynamics/thermal_conductivity_rnemd/</guid><description>&lt;h1 id="使用rnemd方法计算热导率的lammps输入文件"&gt;使用rNEMD方法计算热导率的LAMMPS输入文件&lt;/h1&gt;
+&lt;h2 id="前言"&gt;前言&lt;/h2&gt;
+&lt;p&gt;
+&lt;a href="https://doi.org/10.1063/1.473271" target="_blank" rel="noopener noreferrer" &gt;rNEMD方法&lt;/a&gt;
+，又叫MP方法，计算材料热导率。&lt;/p&gt;
+&lt;p&gt;LAMMPS官方提供了计算脚本，但是使用的单位却是&lt;code&gt;lj&lt;/code&gt;单位制，非常不实用，这里是我自己写的&lt;code&gt;metal&lt;/code&gt;单位制下的脚本。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;注意&lt;/strong&gt;：本文仅供参考，欢迎指出错误或分享补充。无能力提供任何指导，&lt;strong&gt;求教者切勿留言&lt;/strong&gt;。&lt;/p&gt;
+&lt;h2 id="in-file"&gt;in file&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;# sample LAMMPS input script for thermal conductivity
+# Muller-Plathe method via fix thermal_conductivity
+
+# settings temperature, kB and timestep
+
+variable t equal 300
+variable k equal 8.6173e-5 
+variable dt equal 0.0005
+
+# convert from LAMMPS metal units to SI
+variable eV2J equal 1.6022e-19 #energy convert
+variable A2m equal 1.0e-10 #distance convert
+variable ps2s equal 1.0e-12 #time convert 
+variable convert equal ${eV2J}/${ps2s}/${A2m} 
+
+# setup problem
+
+units metal
+atom_style atomic
+atom_modify map yes
+newton on
+read_data 222010
+
+pair_style 	mliap unified /home-ssd/Users/nsgm_zcx/macetrain17/YSZH_MACE_model.model-mliap_lammps.pt 0
+pair_coeff 	* * H O Y Zr
+neighbor 2.0 bin
+neigh_modify every 1 delay 0 check yes
+
+#fix R all box/relax aniso 0.0 vmax 0.001
+minimize 0 1e-8 1000 100000
+timestep 0.0005
+velocity all create 10 12345 dist gaussian mom yes rot yes
+
+# npt increase temp
+reset_timestep 0
+fix 		remove_com all momentum 500 linear 1 1 1
+fix 1 all npt temp 10 $t 0.1 x 0.0 0.0 1.0 y 0.0 0.0 1.0 z 0.0 0.0 1.0 couple xy
+thermo_style custom step temp pe etotal enthalpy lx ly lz vol press
+thermo 100
+dump 1 all custom 100 nvttrj id element x y z fx fy fz
+dump_modify 1 sort id element H O Y Zr
+run 20000
+undump 1
+velocity all scale $t
+unfix 1
+
+# npt keep temp
+reset_timestep 0
+fix 1 all npt temp $t $t 0.1 x 0.0 0.0 1.0 y 0.0 0.0 1.0 z 0.0 0.0 1.0 couple xy
+thermo_style custom step temp pe etotal enthalpy lx ly lz vol press
+thermo 100
+dump	 	1 all custom 100 yszhtrj id element x y z fx fy fz 
+dump_modify	1 sort id element H O Y Zr
+run 10000
+undump		1
+velocity all scale $t
+unfix 1
+
+#nvt keep temp
+reset_timestep 0
+fix 1 all nvt temp $t $t 0.1 
+thermo_style custom step temp pe etotal enthalpy lx ly lz vol press
+thermo 100
+dump	 	1 all custom 100 yszhtrj id element x y z fx fy fz 
+dump_modify	1 sort id element H O Y Zr
+run 10000
+undump		1
+velocity all scale $t
+unfix 1
+
+
+
+# 2nd equilibration run
+compute ke all ke/atom
+variable temp atom c_ke/1.5/${k}
+
+fix 1 all nve
+
+compute layers all chunk/atom bin/1d z lower 0.05 units reduced
+fix 2 all ave/chunk 10 100 1000 layers v_temp file profile.mp
+fix 3 all thermal/conductivity 20 z 20
+
+variable tdiff equal f_2[11][3]-f_2[1][3]
+thermo_style custom step temp epair etotal f_3 v_tdiff
+thermo_modify colname f_3 E_delta colname v_tdiff dTemp_step
+
+thermo 1000
+run 80000
+
+# thermal conductivity calculation
+# reset fix thermal/conductivity to zero energy accumulation
+fix 3 all thermal/conductivity 20 z 20
+
+variable start_time equal time
+variable kappa equal (f_3/(time-${start_time})/(lx*ly)/2.0)*(lz/2.0)/f_ave
+
+fix ave all ave/time 1 1 1000 v_tdiff ave running
+thermo_style custom step temp epair etotal f_3 v_tdiff f_ave
+thermo_modify colname f_3 E_delta colname v_tdiff dTemp_step colname f_ave dTemp
+
+run 20000
+print &amp;quot;Running average thermal conductivity units metal: $(v_kappa:%.2f)&amp;quot;
+variable tc equal ${kappa}*${convert}
+print &amp;quot;Running average thermal conductivity units SI: $(v_tc:%.2f)&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id="细节"&gt;细节&lt;/h2&gt;
+&lt;h3 id="fix-------------3-all-thermalconductivity-20-z-20"&gt;fix 3 all thermal/conductivity 20 z 20&lt;/h3&gt;
+&lt;p&gt;这个fix可以实现动量交换，这里&lt;code&gt;Nstep=100&lt;/code&gt;，代表每100步进行一次交换，这个值越小，交换频率也越大，施加在物体的温差也越大。&lt;/p&gt;</description></item></channel></rss>

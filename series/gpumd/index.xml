@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Gpumd on BOGHTW</title><link>https://liubaoshuai1402.github.io/series/gpumd/</link><description>Recent content in Gpumd on BOGHTW</description><generator>Hugo</generator><language>zh-cn</language><lastBuildDate>Mon, 24 Nov 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://liubaoshuai1402.github.io/series/gpumd/index.xml" rel="self" type="application/rss+xml"/><item><title>CalculationOfCij</title><link>https://liubaoshuai1402.github.io/moleculardynamics/calculation_cij/</link><pubDate>Mon, 24 Nov 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/moleculardynamics/calculation_cij/</guid><description>&lt;h1 id="应力应变法求解弹性系数"&gt;应力应变法求解弹性系数&lt;/h1&gt;
+&lt;p&gt;现在我要用分子动力学求解有限温度下弹性系数，由于势函数是机器学习势。所以首先，我们应该验证势函数的可靠性。&lt;/p&gt;
+&lt;p&gt;也就是说，首先验证，在0K下，对象是小胞时，通过DFT与MLIP-MD计算得到的Cij的差距。然后在高温下跑大胞的MD，计算有限温度下的Cij&lt;/p&gt;
+&lt;h2 id="原理及编程"&gt;原理及编程&lt;/h2&gt;
+&lt;p&gt;这里以四方晶系-1为例，也就是有六个独立的弹性系数。目前，我所见过的所有，应力应变法求解弹性系数的计算思路都是拟合。&lt;/p&gt;
+&lt;p&gt;我们先看一下所要求解的弹性系数矩阵的样子。&lt;/p&gt;
+&lt;img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/Cij.png" style="zoom: 50%;" /&gt;
+&lt;p&gt;根据线弹性假设，&lt;/p&gt;
+$$\sigma = C * \varepsilon$$&lt;p&gt;，给出应变，通过线性组合，可以表示出应力，即公式&lt;/p&gt;
+&lt;img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/Cij2.png" style="zoom:67%;" /&gt;
+&lt;p&gt;但是，要想使用numpy.linalg.lstsq进行拟合，还需要重新表达一下这关系。&lt;/p&gt;
+&lt;p&gt;因为lstsq的工作原理是B = A * X，根据已知应变A、应力B，用最小二乘法拟合一个为列向量的系数，X，（这里即Cij）&lt;/p&gt;
+&lt;p&gt;现在，我们专注于A矩阵的写法。&lt;/p&gt;
+&lt;img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/Cijnote.jpg" style="zoom: 50%;" /&gt;
+&lt;p&gt;可以看到，&lt;mark&gt;应变A矩阵是由所施加的应变，也即是变形模式，以及弹性系数矩阵的形状共同决定的&lt;/mark&gt;。（Cij矩阵决定了A矩阵的形状，而变形模式决定了它具体的元素值）&lt;/p&gt;
+
+ &lt;link rel="stylesheet" href="https://liubaoshuai1402.github.io/css/vendors/admonitions.e8f9d71468684b38dcc32a3631441f47b6ee45ce52f3bcc31201e76cc2b0a193.css" integrity="sha256-6PnXFGhoSzjcwyo2MUQfR7buRc5S87zDEgHnbMKwoZM=" crossorigin="anonymous"&gt;
+ &lt;div class="admonition important"&gt;
+ &lt;div class="admonition-header"&gt;
+ &lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"&gt;&lt;path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zm0-384c13.3 0 24 10.7 24 24l0 112c0 13.3-10.7 24-24 24s-24-10.7-24-24l0-112c0-13.3 10.7-24 24-24zM224 352a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z"/&gt;&lt;/svg&gt;
+ &lt;span&gt;Important&lt;/span&gt;
+ &lt;/div&gt;
+ &lt;div class="admonition-content"&gt;
+ &lt;p&gt;有几点需要澄清，待求解的Cij可能不止6个。比如说，7个的时候，需要X列向量是7行，A矩阵是七列吗？显然，不需要也不能。因为一种应变模式只能提供六个线性方程组，6个应力最多只能包含6个弹性系数的有效信息。这也是为什么，低对称晶系需要更多变形模式的原因。因此，我们在选择变形模式的时候，要合理。对于大于6个弹性系数的体系，要让弹性系数间尽量解耦——保证一个变形模式内，涉及的弹性系数最多为6个。通过选取多个变形模式，比如说两种，这样有2个A矩阵，12个方程，把两个A矩阵堆叠起来，就能求解7个Cij了&lt;/p&gt;
+ &lt;/div&gt;
+ &lt;/div&gt;
+&lt;p&gt;这里我放上一个具体的脚本，提供一些思路&lt;/p&gt;</description></item></channel></rss>

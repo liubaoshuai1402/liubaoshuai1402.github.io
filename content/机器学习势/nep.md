@@ -132,6 +132,8 @@ write('H2trainset.xyz',H2trainset)
 确保当前路径有名为train.xyz的训练集，nep.txt
 
 ```
-NepTrain select trajectory.xyz -max 100 -o selected.xyz
+neptrain select trajectory.xyz -max 100 -d 0.001 -o selected.xyz
 ```
+
+`-d` parameter 控制采样的多少，越小采样越多。 -max控制采样上限
 

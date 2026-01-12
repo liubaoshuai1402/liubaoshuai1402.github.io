@@ -6,7 +6,7 @@ body {
     margin-right: auto !important;
     padding: 1em;
     line-height: 1.5;
-    background-image: url('/images/background.png');
+    background-image: url('/static/images/background.png');
     background-position: center;
     background-size: cover;
     background-attachment: fixed;

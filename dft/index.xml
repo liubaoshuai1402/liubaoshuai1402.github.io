@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>DFTs on BOGHTW</title><link>https://liubaoshuai1402.github.io/dft/</link><description>Recent content in DFTs on BOGHTW</description><generator>Hugo</generator><language>zh-cn</language><lastBuildDate>Wed, 24 Jun 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://liubaoshuai1402.github.io/dft/index.xml" rel="self" type="application/rss+xml"/><item><title>COHP</title><link>https://liubaoshuai1402.github.io/dft/cohp/</link><pubDate>Wed, 24 Jun 2026 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/dft/cohp/</guid><description>&lt;h1 id="cohp">COHP&lt;/h1>
+&lt;h2 id="前言">前言&lt;/h2>
+&lt;h3 id="vasp文件的准备">VASP文件的准备&lt;/h3>
+&lt;p>LOBSTER要求ISYM=0或-1。其他参数没有特殊要求。&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>结构优化&lt;/p>
+&lt;p>略过&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>静态自洽&lt;/p>
+&lt;p>以较为简单的K点设置计算波函数、电荷密度。&lt;/p>
+&lt;p>用于得到WAVECAR、CHGCAR&lt;/p>
+&lt;pre>&lt;code>#关键参数
+ISTART = 0 
+ICHARG = 2
+NSW = 0
+NBANDS = 500	#这个值要大，多试试
+NEDOS = 1000
+&lt;/code>&lt;/pre>
+&lt;p>后续的非静态自洽的NBANDS和NEDOS尽量和这里保持一致。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>非静态自洽&lt;/p>
+&lt;p>不再更新波函数和电荷密度，进行一次单次的求解。&lt;/p>
+&lt;p>这里可以设置更密的K点来求态密度，也可以设置特殊路径的K点来求能带结构。&lt;/p>
+&lt;pre>&lt;code>#关键参数
+ISTART = 1 # 使用前一轮的波函数
+ICHARG = 11 # 使用前一轮的电荷密度，不再更新
+NSW = 0
+LORBIT = 12
+NBANDS = 500	#这个值要大，多试试
+NEDOS = 1000
+&lt;/code>&lt;/pre>
+&lt;p>特别说一下LORBIT参数，这个参数是后处理参数，和VASP的电子计算无关。&lt;/p>
+&lt;p>指示VASP生成：DOSCAR and lm-decomposed PROCAR + phase factors (not recommended)&lt;/p>
+&lt;p>所以只需要最后非静态自洽的时候设置即可。&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>另外，如果对精度不高，或者不考虑成本，我看也有人直接用静态自洽的结果（这里直接设置比较高的K点密度）进行LOBSTER。&lt;/p>
+&lt;p>如果用的&lt;code>ISMEAR = 0&lt;/code>，后续要在lobsterin文件中指出。&lt;/p></description></item><item><title>电子相关计算总结</title><link>https://liubaoshuai1402.github.io/dft/electronstructure/</link><pubDate>Thu, 23 Apr 2026 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/dft/electronstructure/</guid><description>&lt;h1 id="电子结构计算">电子结构计算&lt;/h1>
+&lt;p>这里总结一下vasp的电子相关的计算流程，包括DOS、band、bader charge、ELF&lt;/p>
+&lt;h2 id="前置流程">前置流程&lt;/h2>
+&lt;ul>
+&lt;li>结构优化&lt;/li>
+&lt;/ul>
+&lt;pre>&lt;code>#Start Parameters
+PREC = A
+ISTART = 0
+ICHARG = 2
+ALGO = Normal
+LPLANE = .TRUE.
+GGA = PE
+ISPIN = 1
+LWAVE = .FALSE.
+LCHARG = .FALSE.
+IVDW = 12
+LASPH = .TRUE.
+NCORE = 4
+
+#Electronic Relaxation
+ENCUT = 400
+EDIFF = 1E-6
+NELM = 60
+NELMIN = 4
+NELMDL = -3
+LREAL = AUTO
+
+
+#Ionic Relaxation
+EDIFFG = -1E-2
+NSW = 100
+IBRION = 2
+ISIF = 3
+
+ISMEAR = 0
+SIGMA = 0.02
+&lt;/code>&lt;/pre>
+&lt;h2 id="dos">DOS&lt;/h2>
+&lt;p>电子结构的计算一般都包括，静态自洽和非静态自洽。DOS计算需要注意的参数有，&lt;/p></description></item><item><title>基于QHA计算热膨胀系数</title><link>https://liubaoshuai1402.github.io/dft/thermalexpansion/</link><pubDate>Fri, 06 Feb 2026 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/dft/thermalexpansion/</guid><description>&lt;h1 id="基于qha计算各向异性的热膨胀系数">基于QHA计算各向异性的热膨胀系数&lt;/h1>
+&lt;p>目前基于QHA的各向异性热膨胀计算方法有三种，第一种是QHA拟合法，第二种是轴格林艾森法，第三种则是ZSISA及其变体。&lt;/p>
+&lt;p>这三种算法各有特色，这里汇总介绍一下。&lt;/p>
+&lt;h2 id="轴格林艾森法">轴格林艾森法&lt;/h2>
+&lt;p>这个方法一般适用于立方，四方和正交体系（晶胞自由度≤3且不涉及角度）。&lt;/p>
+&lt;p>尽管低对称性晶体也应有相应算法可以求出热膨胀张量，但至少我目前尚未发现现成的脚本或者程序支持计算，需要一定的物理和编程基础。&lt;/p>
+&lt;p>不推荐材料人对以上三种晶体外的体系使用轴格林艾森法。&lt;/p>
+
+ &lt;link rel="stylesheet" href="https://liubaoshuai1402.github.io/css/vendors/admonitions.e8f9d71468684b38dcc32a3631441f47b6ee45ce52f3bcc31201e76cc2b0a193.css" integrity="sha256-6PnXFGhoSzjcwyo2MUQfR7buRc5S87zDEgHnbMKwoZM=" crossorigin="anonymous">
+ &lt;div class="admonition important">
+ &lt;div class="admonition-header">
+ &lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">&lt;path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zm0-384c13.3 0 24 10.7 24 24l0 112c0 13.3-10.7 24-24 24s-24-10.7-24-24l0-112c0-13.3 10.7-24 24-24zM224 352a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z"/>&lt;/svg>
+ &lt;span>Important&lt;/span>
+ &lt;/div>
+ &lt;div class="admonition-content">
+ &lt;p>在高温区，轴格林艾森法会有&lt;mark>饱和现象&lt;/mark>，预测的热膨胀系数会逐渐趋于定值。&lt;/p>
+ &lt;/div>
+ &lt;/div>
+&lt;h3 id="理论部分">理论部分&lt;/h3>
+&lt;p>格林艾森参数的定义如下：&lt;/p>
+&lt;img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/gruneisen.png" style="zoom:80%;" />
+&lt;p>可以看到，格林艾森参数，是描述微小应变引起的声子频率变化关系的参数。&lt;/p>
+&lt;p>所谓轴格林艾森参数，即是应变沿着轴时，计算声子得到的格林艾森参数，在计算上与普通的格林艾森参数并无区别。&lt;/p>
+&lt;p>但是轴格林艾森参数可以通过一个公式，和轴热膨胀系数联系起来，如下：&lt;/p>
+&lt;img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/gruneisen1.png"/>
+&lt;img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/gruneisen2.png"/>
+&lt;p>公式里符号的含义可以在
+&lt;a href="https://doi.org/10.1016/j.actamat.2025.121493" target="_blank" rel="noopener noreferrer" >这篇文献&lt;/a>
+中找到。&lt;/p>
+&lt;p>可以看出，想要计算一个轴热膨胀系数，需要以下数据：&lt;/p>
+&lt;ul>
+&lt;li>平衡体积、平衡体积下的声子谱（以便求解模式热容、模式格林艾森参数）&lt;/li>
+&lt;li>一拉伸一压缩的声子谱（以便求解模式格林艾森参数）&lt;/li>
+&lt;li>弹性系数或者柔度矩阵&lt;/li>
+&lt;/ul>
+&lt;p>这里有个非常有意思的变换，就是宏观格林艾森参数的定义，宏观格林艾森参数 x 宏观热容 = （模式热容 x 模式格林艾森参数）的求和&lt;/p></description></item><item><title>利用doped进行缺陷热动力学计算</title><link>https://liubaoshuai1402.github.io/dft/doped/</link><pubDate>Mon, 12 Jan 2026 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/dft/doped/</guid><description>&lt;h1 id="doped">doped&lt;/h1>
+&lt;p>用doped计算缺陷浓度随各种的变化！&lt;/p>
+&lt;h2 id="windows下运行的准备">Windows下运行的准备&lt;/h2>
+&lt;p>因为doped会使用vise，而vise对Windows系统不是很友好，经过摸索，发现需要做两件事情才能让doped在Windows下顺利运行。&lt;/p>
+&lt;h3 id="创建viseyaml">创建vise.yaml&lt;/h3>
+&lt;p>经过测试，这个似乎是不必要的，但是我建议这么做。&lt;/p>
+&lt;p>在两个地方创建vise.yaml。&lt;/p>
+&lt;p>分别是c盘中，你的用户路径下，就是用来存放.condarc文件的路径。一般是：C:\Users\你的用户名\&lt;/p>
+&lt;p>你的python环境所在的盘的最浅路径下，比如说你的python在d盘，那么就应该是：D:\&lt;/p>
+&lt;p>vise.yaml的内容只需要是一个{}即可，不需要有真实内容。&lt;/p>
+&lt;h3 id="修改vise软件包中的user_settingspy">修改&lt;code>vise&lt;/code>软件包中的&lt;code>user_settings.py&lt;/code>&lt;/h3>
+&lt;p>他这个里的检索不怎么兼容Windows，导致我用doped，parse缺陷的时候一直卡住。&lt;/p>
+&lt;p>需要修改的内容，&lt;/p>
+&lt;pre>&lt;code> # def _make_yaml_file_list(self) -&amp;gt; List[Path]:
+ # result = []
+
+ # dirname = self._cwd
+ # while True:
+ # filenames = [self.yaml_filename, &amp;quot;.&amp;quot; + self.yaml_filename]
+ # file_paths = [dirname / filename for filename in filenames]
+ # for file_path in file_paths:
+ # if file_path.exists():
+ # result.append(file_path)
+
+ # if dirname == Path(&amp;quot;/&amp;quot;):
+ # break
+ # else:
+ # dirname = dirname.parent
+
+ # return list(reversed(result))
+&lt;/code>&lt;/pre>
+&lt;p>把上面这个里的代码注释掉，（我已经注释过了）&lt;/p></description></item><item><title>频率计算</title><link>https://liubaoshuai1402.github.io/dft/frequency/</link><pubDate>Mon, 08 Sep 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/dft/frequency/</guid><description>&lt;h1 id="零点能计算">零点能计算&lt;/h1>
+&lt;h2 id="前言">前言&lt;/h2>
+&lt;p>我对零点能的理解非常肤浅，以下仅是从网上捕风捉影而来，用于个人记录。&lt;/p>
+&lt;p>在计算自由能时，看到一些文献的做法是：DFT总能+零点能+熵。&lt;/p>
+&lt;p>零点能是0K下，体系的振动能，可以通过声子频率计算而来。&lt;/p>
+&lt;p>声子计算可能由phonopy完成，但是也有通过单vasp计算的。&lt;/p>
+&lt;p>这里记录一下，只用vasp计算gamma点声子频率的步骤，用于零点能的粗略计算。&lt;/p>
+&lt;h3 id="incar">INCAR&lt;/h3>
+&lt;pre>&lt;code>ISMEAR = 0
+IBRION = 5 
+NFREE = 2 
+POTIM = 0.02
+NSW = 1
+&lt;/code>&lt;/pre>
+&lt;p>频率计算的关键参数。&lt;/p>
+&lt;p>&lt;code>IBRION = 5&lt;/code>启用有限位移法计算声子模。&lt;/p>
+&lt;p>&lt;code>NFREE = 2&lt;/code> 设置原子振动的自由度。&lt;/p>
+&lt;p>&lt;code>POTIM = 0.02&lt;/code> 设置振动的幅度。&lt;/p>
+&lt;p>&lt;code>NSW = 1&lt;/code> 离子步为1&lt;/p></description></item><item><title>DOS</title><link>https://liubaoshuai1402.github.io/dft/dos/</link><pubDate>Wed, 03 Sep 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/dft/dos/</guid><description>&lt;h1 id="电子态密度dos计算">电子态密度（DOS）计算&lt;/h1>
+&lt;h3 id="incar">INCAR&lt;/h3>
+&lt;pre>&lt;code>Start Parameters for this run
+ ISTART = 0
+ ICHARG = 2
+ PREC = Accurate
+ ALGO = Normal
+ ISMEAR = -5
+ LCHARG = .TRUE.
+ LREAL = .FALSE.
+ LELF = .TRUE.
+ ISYM = 0
+ GGA = PS
+ LORBIT = 12
+ NSW = 0
+ NBANDS = 520
+ NEDOS = 1000
+
+Electronic minimisation
+ ENCUT = 480 
+ NELM = 100
+ NELMIN = 4
+ EDIFF = 1E-6
+ ISPIN = 1 
+
+Ionic relaxation 
+ IBRION = -1
+&lt;/code>&lt;/pre>
+&lt;h3 id="dos的质量">DOS的质量&lt;/h3>
+&lt;h4 id="k点">k点&lt;/h4>
+&lt;p>k点太稀疏，会导致尖锐的点出现。&lt;/p></description></item><item><title>超晶格材料原子尺度建模</title><link>https://liubaoshuai1402.github.io/dft/%E6%8C%87%E5%AE%9Aposcar%E5%8E%9F%E5%AD%90%E7%9A%84%E8%87%AA%E7%94%B1%E5%BA%A6/</link><pubDate>Fri, 15 Aug 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/dft/%E6%8C%87%E5%AE%9Aposcar%E5%8E%9F%E5%AD%90%E7%9A%84%E8%87%AA%E7%94%B1%E5%BA%A6/</guid><description>&lt;p>根据原子的z轴坐标，指定哪些是自由的，哪些是受限制的。&lt;/p>
+&lt;pre>&lt;code class="language-python">from ase.constraints import FixAtoms
+from ase.io import write, read
+
+fixed_indices = [] # 要固定的原子索引
+atoms = read('POSCAR_BiTe1_Pt')
+for i in range(len(atoms)):
+ position_z = atoms[i].position[2]
+ if 40 &amp;gt; position_z &amp;gt; 15.5:
+ indice = atoms[i].index
+ fixed_indices.append(indice)
+ if 3 &amp;lt; position_z &amp;lt; 7:
+ indice = atoms[i].index
+ fixed_indices.append(indice)
+
+atoms.set_constraint(FixAtoms(indices=fixed_indices))
+write('POSCAR_BiTe1_Pt_sel', atoms, format='vasp')
+
+
+
+
+&lt;/code>&lt;/pre></description></item><item><title>晶体表面建模</title><link>https://liubaoshuai1402.github.io/dft/themodelingofsurface/</link><pubDate>Thu, 14 Aug 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/dft/themodelingofsurface/</guid><description>&lt;h1 id="晶体表面建模">晶体表面建模&lt;/h1>
+&lt;h2 id="前言">前言&lt;/h2>
+&lt;p>晶体表面建模中有很多细节。&lt;/p>
+&lt;p>比如说，要建模(111)面，首先要给出切表面时所采用的晶胞，是primitive cell ？还是conventional cell ？还是自己定义的晶胞。&lt;/p>
+&lt;p>以四方氧化锆为例，
+&lt;a href="https://journals.aps.org/prb/abstract/10.1103/PhysRevB.58.8050" target="_blank" rel="noopener noreferrer" >在这篇文献中&lt;/a>
+，计算得到的最稳定表面是(111)，作者就明确指出，他切表面时采用的是重构后的类CaF&lt;sub>2&lt;/sub>型的晶胞，而非原胞。&lt;/p>
+&lt;p>实际上，对于四方氧化锆，这种晶胞的(111)面与原胞的(101)面是同一个面，这也就是为什么有很多文献说，四方氧化锆的最稳定表面是(101)面。&lt;/p>
+&lt;p>虽然不指出具体的切割的晶胞时，人们可能会默认为是用的原胞，但我个人认为还是明确指出为好，防止引起不必要的误解。&lt;/p>
+&lt;p>其次，除了密勒指数，UV矢量也很重要，即面内的两个坐标轴，他觉得&lt;/p></description></item><item><title>超晶格材料原子尺度建模</title><link>https://liubaoshuai1402.github.io/dft/themodelingofsuperlattice/</link><pubDate>Tue, 05 Aug 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/dft/themodelingofsuperlattice/</guid><description>&lt;h1 id="超晶格材料原子尺度建模">超晶格材料原子尺度建模&lt;/h1>
+&lt;h2 id="前言">前言&lt;/h2>
+&lt;p>虽然异质结的建模攻略很多，但大都以Material Studio为主，且对象是表界面。对于周期性的超晶格材料的建模，特别是异质结情况，参考较少，这里我分享一下个人的经验。采用ASE进行建模。&lt;/p>
+&lt;p>异质结的两种材料接触时，哪两个面间的接触，是需要确定的，比如说，根据实验确定，又或者无实验时，根据晶格匹配度确定，尽量保证失配度较低。&lt;/p>
+&lt;p>这里，假设已经确定了，两个材料的晶胞要沿着z轴堆叠。&lt;/p>
+&lt;p>整体思路：&lt;/p>
+&lt;p>1.确定好要合并的两个晶格的具体结构（用translate平移，surface切面，这个顺序好像也能反过来）&lt;/p>
+&lt;p>2.合并晶格（stack用起来还是蛮需要经验的）&lt;/p>
+&lt;h3 id="如何切一个晶面并生成周期性结构">如何切一个晶面，并生成周期性结构&lt;/h3>
+&lt;pre>&lt;code class="language-python">from ase.build import surface,stack,make_supercell
+from ase.io import read,write
+from ase.io.vasp import write_vasp
+
+BiTe = read('POSCAR_BiTe')
+BiTe = make_supercell(BiTe,P=[[2,0,0],[0,1,0],[0,0,1]])
+BiTe1 = BiTe.copy()
+BiTe2 = BiTe.copy()
+BiTe2.translate([0,0,-2.05985])
+BiTe3 = BiTe.copy()
+BiTe3.translate([0,0,-3.79553])
+
+BiTe1 = surface(BiTe1,indices=(0,0,1),layers=1,periodic=True)
+BiTe2 = surface(BiTe2,indices=(0,0,1),layers=1,periodic=True)
+BiTe3 = surface(BiTe3,indices=(0,0,1),layers=1,periodic=True)
+write_vasp('POSCAR_BiTe1',BiTe1,direct=True,sort=True)
+write_vasp('POSCAR_BiTe2',BiTe2,direct=True,sort=True)
+write_vasp('POSCAR_BiTe3',BiTe3,direct=True,sort=True)
+&lt;/code>&lt;/pre>
+&lt;p>ase的surface函数可以很简单的实现，这里不赘述了。&lt;/p>
+&lt;p>此外，关于如何确定一个合适的新晶格的大小，也有很多视频讲解，不再赘述。&lt;/p>
+&lt;h3 id="改变晶体结构的原子层顺序">改变晶体结构的原子层顺序&lt;/h3>
+&lt;p>即便是只有一种原子的晶体，其沿某个面的堆垛的时候，可能有不同的层。比如FCC晶体沿001面的堆垛方式就是&amp;mdash;ABAB&amp;mdash;，显然与别的物质形成异质结时，会面临一个问题，即是A面还是B面与别的物质接触。&lt;/p>
+&lt;p>我们建模时，需要把A面或B面调整出来。这需要对原子进行整体位移&lt;/p>
+&lt;p>此外，异质结平面内的原子对齐（比如说xy面），也需要对原子进行整体位移。&lt;/p>
+&lt;p>而ASE实现原子整体位移非常简单，只需要用&lt;code>atoms&lt;/code>类的&lt;code>translate&lt;/code>方法即可，注意使用绝对坐标。&lt;/p>
+&lt;pre>&lt;code class="language-python">from ase.build import surface,stack,make_supercell
+from ase.io import read,write
+from ase.io.vasp import write_vasp
+
+BiTe = read('POSCAR_BiTe')
+BiTe = make_supercell(BiTe,P=[[2,0,0],[0,1,0],[0,0,1]])
+BiTe1 = BiTe.copy()
+BiTe2 = BiTe.copy()
+BiTe2.translate([0,0,-2.05985])
+BiTe3 = BiTe.copy()
+BiTe3.translate([0,0,-3.79553])
+&lt;/code>&lt;/pre>
+&lt;h3 id="ase实现超晶格材料建模">ASE实现超晶格材料建模&lt;/h3>
+&lt;pre>&lt;code class="language-python">from ase.build import surface,stack,make_supercell
+from ase.io import read,write
+from ase.io.vasp import write_vasp
+
+BiTe1 = read('POSCAR_BiTe1')
+BiTe2 = read('POSCAR_BiTe2')
+BiTe3 = read('POSCAR_BiTe3')
+
+Ag = make_supercell(read('POSCAR_Ag'),P=[[2,0,0],[0,2,0],[0,0,3]])
+BiTe1_Ag = stack(Ag,BiTe1,axis=2,fix=0.5)
+BiTe2_Ag = stack(Ag,BiTe2,axis=2,fix=0.5)
+BiTe3_Ag = stack(Ag,BiTe3,axis=2,fix=0.5)
+
+write('POSCAR_BiTe1_Ag',BiTe1_Ag,format='vasp')
+write('POSCAR_BiTe2_Ag',BiTe2_Ag,format='vasp')
+write('POSCAR_BiTe3_Ag',BiTe3_Ag,format='vasp')
+&lt;/code>&lt;/pre>
+&lt;img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/spl1.png"/>
+&lt;h5 id="关于ase中stack函数的原理">关于ase中stack函数的原理。&lt;/h5>
+&lt;p>将两个周期性的晶胞合并成一个周期性的晶胞，有一个必须要面对的问题，那就是接触面将不再有周期性。&lt;/p></description></item><item><title>用VASP进行第一性原理分子动力学（AIMD）</title><link>https://liubaoshuai1402.github.io/dft/aimd/</link><pubDate>Sat, 28 Jun 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/dft/aimd/</guid><description>&lt;h1 id="aimd">AIMD&lt;/h1>
+&lt;h3 id="nvt系综">nvt系综&lt;/h3>
+&lt;pre>&lt;code>ISTART = 0
+ENCUT = 480
+PREC = Normal
+ALGO = Fast
+LREAL = Auto
+LWAVE = .F. 
+LCHARG = .F.
+GGA = PS
+ISMEAR = 0
+SIGMA = 0.05
+ISPIN = 1
+
+#electronstep
+NELM = 200
+NELMIN = 4
+EDIFF = 1E-4
+
+#AIMD
+IBRION = 0 
+MDALGO = 2 
+ISIF = 2 
+TEBEG = 1500 
+NSW = 5000 
+POTIM = 0.5 
+SMASS = 0.5
+
+&lt;/code>&lt;/pre>
+&lt;p>&lt;code>IBRION&lt;/code>是控制离子步优化算法的参数，进行分子动力学是设置为0。&lt;/p>
+&lt;p>&lt;code>MDALGO&lt;/code>这个参数控制恒温器选项。&lt;/p></description></item></channel></rss>

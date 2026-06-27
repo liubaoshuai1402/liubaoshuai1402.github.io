@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>后处理 on BOGHTW</title><link>https://liubaoshuai1402.github.io/series/%E5%90%8E%E5%A4%84%E7%90%86/</link><description>Recent content in 后处理 on BOGHTW</description><generator>Hugo</generator><language>zh-cn</language><lastBuildDate>Mon, 12 Jan 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://liubaoshuai1402.github.io/series/%E5%90%8E%E5%A4%84%E7%90%86/index.xml" rel="self" type="application/rss+xml"/><item><title>利用doped进行缺陷热动力学计算</title><link>https://liubaoshuai1402.github.io/dft/doped/</link><pubDate>Mon, 12 Jan 2026 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/dft/doped/</guid><description>&lt;h1 id="doped">doped&lt;/h1>
+&lt;p>用doped计算缺陷浓度随各种的变化！&lt;/p>
+&lt;h2 id="windows下运行的准备">Windows下运行的准备&lt;/h2>
+&lt;p>因为doped会使用vise，而vise对Windows系统不是很友好，经过摸索，发现需要做两件事情才能让doped在Windows下顺利运行。&lt;/p>
+&lt;h3 id="创建viseyaml">创建vise.yaml&lt;/h3>
+&lt;p>经过测试，这个似乎是不必要的，但是我建议这么做。&lt;/p>
+&lt;p>在两个地方创建vise.yaml。&lt;/p>
+&lt;p>分别是c盘中，你的用户路径下，就是用来存放.condarc文件的路径。一般是：C:\Users\你的用户名\&lt;/p>
+&lt;p>你的python环境所在的盘的最浅路径下，比如说你的python在d盘，那么就应该是：D:\&lt;/p>
+&lt;p>vise.yaml的内容只需要是一个{}即可，不需要有真实内容。&lt;/p>
+&lt;h3 id="修改vise软件包中的user_settingspy">修改&lt;code>vise&lt;/code>软件包中的&lt;code>user_settings.py&lt;/code>&lt;/h3>
+&lt;p>他这个里的检索不怎么兼容Windows，导致我用doped，parse缺陷的时候一直卡住。&lt;/p>
+&lt;p>需要修改的内容，&lt;/p>
+&lt;pre>&lt;code> # def _make_yaml_file_list(self) -&amp;gt; List[Path]:
+ # result = []
+
+ # dirname = self._cwd
+ # while True:
+ # filenames = [self.yaml_filename, &amp;quot;.&amp;quot; + self.yaml_filename]
+ # file_paths = [dirname / filename for filename in filenames]
+ # for file_path in file_paths:
+ # if file_path.exists():
+ # result.append(file_path)
+
+ # if dirname == Path(&amp;quot;/&amp;quot;):
+ # break
+ # else:
+ # dirname = dirname.parent
+
+ # return list(reversed(result))
+&lt;/code>&lt;/pre>
+&lt;p>把上面这个里的代码注释掉，（我已经注释过了）&lt;/p></description></item><item><title>DOS</title><link>https://liubaoshuai1402.github.io/dft/dos/</link><pubDate>Wed, 03 Sep 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/dft/dos/</guid><description>&lt;h1 id="电子态密度dos计算">电子态密度（DOS）计算&lt;/h1>
+&lt;h3 id="incar">INCAR&lt;/h3>
+&lt;pre>&lt;code>Start Parameters for this run
+ ISTART = 0
+ ICHARG = 2
+ PREC = Accurate
+ ALGO = Normal
+ ISMEAR = -5
+ LCHARG = .TRUE.
+ LREAL = .FALSE.
+ LELF = .TRUE.
+ ISYM = 0
+ GGA = PS
+ LORBIT = 12
+ NSW = 0
+ NBANDS = 520
+ NEDOS = 1000
+
+Electronic minimisation
+ ENCUT = 480 
+ NELM = 100
+ NELMIN = 4
+ EDIFF = 1E-6
+ ISPIN = 1 
+
+Ionic relaxation 
+ IBRION = -1
+&lt;/code>&lt;/pre>
+&lt;h3 id="dos的质量">DOS的质量&lt;/h3>
+&lt;h4 id="k点">k点&lt;/h4>
+&lt;p>k点太稀疏，会导致尖锐的点出现。&lt;/p></description></item></channel></rss>

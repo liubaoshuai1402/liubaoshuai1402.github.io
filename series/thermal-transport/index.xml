@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Thermal Transport on BOGHTW</title><link>https://liubaoshuai1402.github.io/series/thermal-transport/</link><description>Recent content in Thermal Transport on BOGHTW</description><generator>Hugo</generator><language>zh-cn</language><lastBuildDate>Fri, 06 Feb 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://liubaoshuai1402.github.io/series/thermal-transport/index.xml" rel="self" type="application/rss+xml"/><item><title>基于QHA计算热膨胀系数</title><link>https://liubaoshuai1402.github.io/dft/thermalexpansion/</link><pubDate>Fri, 06 Feb 2026 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/dft/thermalexpansion/</guid><description>&lt;h1 id="基于qha计算各向异性的热膨胀系数">基于QHA计算各向异性的热膨胀系数&lt;/h1>
+&lt;p>目前基于QHA的各向异性热膨胀计算方法有三种，第一种是QHA拟合法，第二种是轴格林艾森法，第三种则是ZSISA及其变体。&lt;/p>
+&lt;p>这三种算法各有特色，这里汇总介绍一下。&lt;/p>
+&lt;h2 id="轴格林艾森法">轴格林艾森法&lt;/h2>
+&lt;p>这个方法一般适用于立方，四方和正交体系（晶胞自由度≤3且不涉及角度）。&lt;/p>
+&lt;p>尽管低对称性晶体也应有相应算法可以求出热膨胀张量，但至少我目前尚未发现现成的脚本或者程序支持计算，需要一定的物理和编程基础。&lt;/p>
+&lt;p>不推荐材料人对以上三种晶体外的体系使用轴格林艾森法。&lt;/p>
+
+ &lt;link rel="stylesheet" href="https://liubaoshuai1402.github.io/css/vendors/admonitions.e8f9d71468684b38dcc32a3631441f47b6ee45ce52f3bcc31201e76cc2b0a193.css" integrity="sha256-6PnXFGhoSzjcwyo2MUQfR7buRc5S87zDEgHnbMKwoZM=" crossorigin="anonymous">
+ &lt;div class="admonition important">
+ &lt;div class="admonition-header">
+ &lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">&lt;path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zm0-384c13.3 0 24 10.7 24 24l0 112c0 13.3-10.7 24-24 24s-24-10.7-24-24l0-112c0-13.3 10.7-24 24-24zM224 352a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z"/>&lt;/svg>
+ &lt;span>Important&lt;/span>
+ &lt;/div>
+ &lt;div class="admonition-content">
+ &lt;p>在高温区，轴格林艾森法会有&lt;mark>饱和现象&lt;/mark>，预测的热膨胀系数会逐渐趋于定值。&lt;/p>
+ &lt;/div>
+ &lt;/div>
+&lt;h3 id="理论部分">理论部分&lt;/h3>
+&lt;p>格林艾森参数的定义如下：&lt;/p>
+&lt;img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/gruneisen.png" style="zoom:80%;" />
+&lt;p>可以看到，格林艾森参数，是描述微小应变引起的声子频率变化关系的参数。&lt;/p>
+&lt;p>所谓轴格林艾森参数，即是应变沿着轴时，计算声子得到的格林艾森参数，在计算上与普通的格林艾森参数并无区别。&lt;/p>
+&lt;p>但是轴格林艾森参数可以通过一个公式，和轴热膨胀系数联系起来，如下：&lt;/p>
+&lt;img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/gruneisen1.png"/>
+&lt;img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/gruneisen2.png"/>
+&lt;p>公式里符号的含义可以在
+&lt;a href="https://doi.org/10.1016/j.actamat.2025.121493" target="_blank" rel="noopener noreferrer" >这篇文献&lt;/a>
+中找到。&lt;/p>
+&lt;p>可以看出，想要计算一个轴热膨胀系数，需要以下数据：&lt;/p>
+&lt;ul>
+&lt;li>平衡体积、平衡体积下的声子谱（以便求解模式热容、模式格林艾森参数）&lt;/li>
+&lt;li>一拉伸一压缩的声子谱（以便求解模式格林艾森参数）&lt;/li>
+&lt;li>弹性系数或者柔度矩阵&lt;/li>
+&lt;/ul>
+&lt;p>这里有个非常有意思的变换，就是宏观格林艾森参数的定义，宏观格林艾森参数 x 宏观热容 = （模式热容 x 模式格林艾森参数）的求和&lt;/p></description></item></channel></rss>

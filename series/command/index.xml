@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Command on BOGHTW</title><link>https://liubaoshuai1402.github.io/series/command/</link><description>Recent content in Command on BOGHTW</description><generator>Hugo</generator><language>zh-cn</language><lastBuildDate>Thu, 13 Nov 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://liubaoshuai1402.github.io/series/command/index.xml" rel="self" type="application/rss+xml"/><item><title>GitHub小贴士</title><link>https://liubaoshuai1402.github.io/%E7%BD%91%E7%AB%99%E6%9B%B4%E6%96%B0/command/</link><pubDate>Thu, 13 Nov 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/%E7%BD%91%E7%AB%99%E6%9B%B4%E6%96%B0/command/</guid><description>&lt;h1 id="命令备忘录">命令备忘录&lt;/h1>
+&lt;h3 id="网页更新">网页更新&lt;/h3>
+&lt;pre>&lt;code class="language-shell">git add .
+git commit -m 'add a new'
+git push
+&lt;/code>&lt;/pre>
+&lt;h3 id="联系本地仓库和远程仓库">联系本地仓库和远程仓库&lt;/h3>
+&lt;p>Windows操作系统下。&lt;/p>
+&lt;p>首先在GitHub上创建一个新的远程仓库，记得勾选readme，自动创建main分支。&lt;/p>
+&lt;p>然后在本地仓库的路径下，打开git。&lt;/p>
+&lt;pre>&lt;code>#本地仓库初始化
+git init
+#与远程仓库建立连接
+git remote add origin https://github.com/liubaoshuai1402/CCkit
+#把本地分支名从master改成main
+git branch -m master main
+#把远程仓库的readme之类的文件拉去下来
+git pull --rebase origin main
+#把内容加入到本地仓库
+git add .
+#提交
+git commit -m &amp;quot;Initial commit&amp;quot;
+#推送
+git push -u origin main
+&lt;/code>&lt;/pre></description></item></channel></rss>

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Gpumd on BOGHTW</title><link>https://liubaoshuai1402.github.io/series/gpumd/</link><description>Recent content in Gpumd on BOGHTW</description><generator>Hugo</generator><language>zh-cn</language><lastBuildDate>Sun, 01 Feb 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://liubaoshuai1402.github.io/series/gpumd/index.xml" rel="self" type="application/rss+xml"/><item><title>简单的热膨胀系数求解</title><link>https://liubaoshuai1402.github.io/moleculardynamics/%E7%83%AD%E8%86%A8%E8%83%80%E7%B3%BB%E6%95%B0/</link><pubDate>Sun, 01 Feb 2026 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/moleculardynamics/%E7%83%AD%E8%86%A8%E8%83%80%E7%B3%BB%E6%95%B0/</guid><description>&lt;h1 id="简单的热膨胀系数分析">简单的热膨胀系数分析&lt;/h1>
+&lt;ol>
+&lt;li>列出温度和晶格参数或者体积&lt;/li>
+&lt;li>进行多项式拟合&lt;/li>
+&lt;li>选中拟合曲线，点击分析-数学-微分，求出dV/dT&lt;/li>
+&lt;li>根据公式，α=（1/V）（dV/dT），求出各温度下的热膨胀系数&lt;/li>
+&lt;/ol></description></item><item><title>GPUMD的常见run.in</title><link>https://liubaoshuai1402.github.io/moleculardynamics/gpumd/</link><pubDate>Mon, 22 Dec 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/moleculardynamics/gpumd/</guid><description>&lt;h1 id="gpumd的runin">GPUMD的run.in&lt;/h1>
+&lt;h3 id="初始化配置">初始化配置&lt;/h3>
+&lt;pre>&lt;code>potential ./nep.txt
+minimize fire 0.02 20
+velocity 1500
+time_step 0.5
+&lt;/code>&lt;/pre>
+&lt;p>告诉gpumd势文件的路径，结构优化的参数，初始速度，以及模拟的时间步长。&lt;/p>
+&lt;h3 id="设置系综">设置系综&lt;/h3>
+&lt;h4 id="npt">npt&lt;/h4>
+&lt;pre>&lt;code>ensemble npt_mttk temp 1500 1500 aniso 0 0
+&lt;/code>&lt;/pre>
+&lt;h4 id="nvt">nvt&lt;/h4>
+&lt;pre>&lt;code>ensemble nvt_bdp 1500 1500 100
+&lt;/code>&lt;/pre>
+&lt;h3 id="设置计算和dump格式">设置计算和dump格式&lt;/h3>
+&lt;h4 id="msd">msd&lt;/h4>
+&lt;pre>&lt;code>compute_msd 10 8000 all_groups 0
+&lt;/code>&lt;/pre>
+&lt;p>这个命令计算10*8000个时间步的时间内的msd，0表征第1个分类方法（因为gpumd处理group是从0开始的）&lt;/p>
+&lt;p>计算该分组方法下所有分组的原子的msd。&lt;/p>
+&lt;p>比如说YSZH体系，会一下子输出H、O、Y、Zr的。&lt;/p>
+&lt;pre>&lt;code>compute_msd 5 200 group 1 1
+&lt;/code>&lt;/pre>
+&lt;p>这个命令计算第二个分类方法的group 1 原子的msd&lt;/p>
+&lt;h4 id="dump">dump&lt;/h4>
+&lt;pre>&lt;code>dump_exyz 8000 1 1 1
+&lt;/code>&lt;/pre>
+&lt;p>dump_exyz的格式的三个1分别控制速度、力和原子能量的写入&lt;/p>
+&lt;pre>&lt;code>dump_xyz -1 1 8000 mydump.xyz velocity potential force virial
+&lt;/code>&lt;/pre>
+&lt;p>dump_xyz的前两个参数控制分组，但是一般我们是全写，所以用-1，第二个参数被忽略。&lt;/p></description></item><item><title>CalculationOfCij</title><link>https://liubaoshuai1402.github.io/moleculardynamics/calculation_cij/</link><pubDate>Mon, 24 Nov 2025 00:00:00 +0000</pubDate><guid>https://liubaoshuai1402.github.io/moleculardynamics/calculation_cij/</guid><description>&lt;h1 id="应力应变法求解弹性系数">应力应变法求解弹性系数&lt;/h1>
+&lt;p>现在我要用分子动力学求解有限温度下弹性系数，由于势函数是机器学习势。所以首先，我们应该验证势函数的可靠性。&lt;/p>
+&lt;p>也就是说，首先验证，在0K下，对象是小胞时，通过DFT与MLIP-MD计算得到的Cij的差距。然后在高温下跑大胞的MD，计算有限温度下的Cij&lt;/p>
+&lt;h2 id="原理及编程">原理及编程&lt;/h2>
+&lt;p>这里以四方晶系-1为例，也就是有六个独立的弹性系数。目前，我所见过的所有，应力应变法求解弹性系数的计算思路都是拟合。&lt;/p>
+&lt;p>我们先看一下所要求解的弹性系数矩阵的样子。&lt;/p>
+&lt;img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/Cij.png" style="zoom: 50%;" />
+$$\sigma = C * \varepsilon$$&lt;p>，给出应变，通过线性组合，可以表示出应力，即公式&lt;/p>
+&lt;img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/Cij2.png" style="zoom:67%;" />
+&lt;p>但是，要想使用numpy.linalg.lstsq进行拟合，还需要重新表达一下这关系。&lt;/p>
+&lt;p>因为lstsq的工作原理是B = A * X，根据已知应变A、应力B，用最小二乘法拟合一个为列向量的系数，X，（这里即Cij）&lt;/p>
+&lt;p>现在，我们专注于A矩阵的写法。&lt;/p>
+&lt;img src="https://xiaoxiaobuaigugujiao.oss-cn-beijing.aliyuncs.com/img/Cijnote.jpg" style="zoom: 50%;" />
+&lt;p>可以看到，&lt;mark>应变A矩阵是由所施加的应变，也即是变形模式，以及弹性系数矩阵的形状共同决定的&lt;/mark>。（Cij矩阵决定了A矩阵的形状，而变形模式决定了它具体的元素值）&lt;/p>
+
+ &lt;link rel="stylesheet" href="https://liubaoshuai1402.github.io/css/vendors/admonitions.e8f9d71468684b38dcc32a3631441f47b6ee45ce52f3bcc31201e76cc2b0a193.css" integrity="sha256-6PnXFGhoSzjcwyo2MUQfR7buRc5S87zDEgHnbMKwoZM=" crossorigin="anonymous">
+ &lt;div class="admonition important">
+ &lt;div class="admonition-header">
+ &lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">&lt;path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zm0-384c13.3 0 24 10.7 24 24l0 112c0 13.3-10.7 24-24 24s-24-10.7-24-24l0-112c0-13.3 10.7-24 24-24zM224 352a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z"/>&lt;/svg>
+ &lt;span>Important&lt;/span>
+ &lt;/div>
+ &lt;div class="admonition-content">
+ &lt;p>有几点需要澄清，待求解的Cij可能不止6个。比如说，7个的时候，需要X列向量是7行，A矩阵是七列吗？显然，不需要也不能。因为一种应变模式只能提供六个线性方程组，6个应力最多只能包含6个弹性系数的有效信息。这也是为什么，低对称晶系需要更多变形模式的原因。因此，我们在选择变形模式的时候，要合理。对于大于6个弹性系数的体系，要让弹性系数间尽量解耦——保证一个变形模式内，涉及的弹性系数最多为6个。通过选取多个变形模式，比如说两种，这样有2个A矩阵，12个方程，把两个A矩阵堆叠起来，就能求解7个Cij了&lt;/p>
+ &lt;/div>
+ &lt;/div>
+&lt;p>这里我放上一个具体的脚本，提供一些思路&lt;/p>
+&lt;pre>&lt;code class="language-python">import numpy as np
+from ase.io import read,write
+#针对四方相计算弹性常数C11,C12,C13,C33,C44,C66
+prim = read('ysz_42.xyz')
+ups = [-0.03,-0.01,0.01,0.03]
+modes = [0,1]
+Ms = []
+for mode in modes:
+ for up in ups:
+ if mode == 0:
+ strain_voigt = np.array([up,0.,0.,0.,0.,0.])
+ strain_matrix = strain_matrix_1 = np.array([[up, 0., 0.],
+ [0., 0., 0.],
+ [0., 0., 0.]])
+ deform_matrix = np.eye(3)+strain_matrix
+ atoms = prim.copy()
+ cell_new = deform_matrix @ atoms.cell[:]
+ atoms.set_cell(cell_new, scale_atoms=True)
+ write('deformcell_{}_{}.xyz'.format(mode,up),atoms)
+ #有了应变模式和应变幅度，即可确定M矩阵
+ M_matrix = np.array([[up,0.,0.,0.,0.,0.],
+ [0.,up,0.,0.,0.,0.],
+ [0.,0.,up,0.,0.,0.],
+ [0.,0.,0.,0.,0.,0.],
+ [0.,0.,0.,0.,0.,0.],
+ [0.,0.,0.,0.,0.,0.]])
+ Ms.append(M_matrix)
+ if mode == 1:
+ strain_voigt = np.array([0.,0.,up,up,0.,up])
+ strain_matrix = np.array([[0., up/2, 0.],
+ [up/2, 0., up/2],
+ [0., up/2, up]])
+ deform_matrix = np.eye(3)+strain_matrix
+ atoms = prim.copy()
+ cell_new = deform_matrix @ atoms.cell[:]
+ atoms.set_cell(cell_new, scale_atoms=True)
+ write('deformcell_{}_{}.xyz'.format(mode,up),atoms)
+ M_matrix = np.array([[0.,0.,up,0.,0.,0.],
+ [0.,0.,up,0.,0.,0.],
+ [0.,0.,0.,up,0.,0.],
+ [0.,0.,0.,0.,up,0.],
+ [0.,0.,0.,0.,0.,0.],
+ [0.,0.,0.,0.,0.,up]])
+ Ms.append(M_matrix)
+Ms = np.array(Ms)
+Ms_2d = Ms.reshape(-1, 6) # 自动把 8*6=48 行展开
+print(Ms_2d.shape) # (48, 6)
+print(Ms_2d)
+#C_fit, residuals, rank, s = np.linalg.lstsq(Ms_2d, sigma_vec, rcond=None)
+&lt;/code>&lt;/pre>
+&lt;p>代码中的M，就是上述的A矩阵。除此之外，代码是先把变形模式1的不同幅值的A矩阵堆叠起来，然后再把变形模式2的不同幅值的A矩阵堆叠起来。&lt;/p></description></item></channel></rss>

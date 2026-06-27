@@ -19,7 +19,7 @@ jobs: # 任务
       - name: Setup Hugo # 安装 Hugo
         uses: peaceiris/actions-hugo@v2 # 使用其他用户配置
         with:
-          hugo-version: latest # Hugo 版本选择
+          hugo-version: "0.143.1" # Hugo 版本选择
           extended: true
 
       - name: Build Hugo # 生成博客静态文件

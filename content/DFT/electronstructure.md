@@ -1,7 +1,6 @@
 ---
 title: 电子相关计算总结
 date: 2026-04-23
-series: ["后处理"]
 categories: [DFT]
 ---
 

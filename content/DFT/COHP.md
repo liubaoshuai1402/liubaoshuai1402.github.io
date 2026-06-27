@@ -1,7 +1,6 @@
 ---
 title: COHP
 date: 2025-06-28
-series: ["后处理"]
 categories: [DFT]
 ---
 
